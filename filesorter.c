@@ -24,6 +24,10 @@
 
 void createFolder(char* s)
 {
+
+	char cwd[256];
+	getcwd(cwd,256);
+
 	char path[strlen(s)+1];
 	strncpy(path, s, strlen(s));
 	path[strlen(s)] = '\0';
@@ -41,6 +45,8 @@ void createFolder(char* s)
 			}
 		}
 	} while ( token = strtok(NULL, "/"));
+
+	chdir(cwd);
 }
 
 bool fileExists(const char* filename)

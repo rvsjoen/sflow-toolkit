@@ -1,523 +1,628 @@
-[Jul 31 15:56:15] (DBG) Parsed command line
-[Jul 31 15:56:15] (DBG) Size of a single flow sample is 196 bytes
-[Jul 31 15:56:15] (DBG) Size of a single cntr sample is 164 bytes
-[Jul 31 15:56:15] (DBG) Allocated memory for buffer 0
-[Jul 31 15:56:15] (DBG) Zeroed memory in buffer 0
-[Jul 31 15:56:15] (DBG) Allocated memory for buffer 1
-[Jul 31 15:56:15] (DBG) Zeroed memory in buffer 1
-[Jul 31 15:56:15] (DBG) Allocated memory for buffer 2
-[Jul 31 15:56:15] (DBG) Zeroed memory in buffer 2
-[Jul 31 15:56:15] (DBG) Allocated memory for buffer 3
-[Jul 31 15:56:15] (DBG) Zeroed memory in buffer 3
-[Jul 31 15:56:15] (DBG) Allocated memory for buffer 4
-[Jul 31 15:56:15] (DBG) Zeroed memory in buffer 4
-[Jul 31 15:56:15] (DBG) Allocated memory for buffer 5
-[Jul 31 15:56:15] (DBG) Zeroed memory in buffer 5
-[Jul 31 15:56:15] (DBG) Allocated memory for buffer 6
-[Jul 31 15:56:15] (DBG) Zeroed memory in buffer 6
-[Jul 31 15:56:15] (DBG) Allocated memory for buffer 7
-[Jul 31 15:56:15] (DBG) Zeroed memory in buffer 7
-[Jul 31 15:56:15] (DBG) Allocated memory for buffer 8
-[Jul 31 15:56:15] (DBG) Zeroed memory in buffer 8
-[Jul 31 15:56:15] (DBG) Allocated memory for buffer 9
-[Jul 31 15:56:15] (DBG) Zeroed memory in buffer 9
-[Jul 31 15:56:15] (DBG) Initialized buffer pointers to buffer 0
-[Jul 31 15:56:15] (DBG) Data directory : /storage/sflow
-[Jul 31 15:56:15] (DBG) Starting diskwriter
-[Jul 31 15:56:15] (DBG) Waiting for buffer 0 to be ready to flush
-[Jul 31 15:56:15] (DBG) Starting collector
-[Jul 31 15:56:15] (DBG) Created new socket (3)
-[Jul 31 15:56:15] (DBG) Binding socket to interface
-[Jul 31 15:56:15] (DBG) Waiting for packets...
-[Jul 31 15:56:19] (INF) Processed 1000 packets
-[Jul 31 15:56:22] (INF) Processed 2000 packets
-[Jul 31 15:56:25] (INF) Processed 3000 packets
-[Jul 31 15:56:29] (INF) Processed 4000 packets
-[Jul 31 15:56:30] (INF) Processed 5000 packets
-[Jul 31 15:56:30] (INF) 15 seconds since last update, effective sampling rate: 2242.7 samples/sec
-[Jul 31 15:56:30] (DBG) Requesting flush to disk : 32247 flow samples, 1394 counter samples
-[Jul 31 15:56:30] (DBG) Locking buffer 1 for collecting
-[Jul 31 15:56:30] (DBG) Unlocking buffer 0 for flushing
-[Jul 31 15:56:30] (DBG) Collecting to buffer 1
-[Jul 31 15:56:30] (DBG) Write buffer thread flushing buffer[0]
-[Jul 31 15:56:30] (DBG) Writing to disk (32247 flow samples, 1394 counter samples
-[Jul 31 15:56:32] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 15:56:32] (DBG) Flushing finished, buffer 0 unlocked
-[Jul 31 15:56:32] (DBG) Waiting for buffer 1 to be ready to flush
-[Jul 31 15:56:33] (INF) Processed 6000 packets
-[Jul 31 15:56:35] (INF) Processed 7000 packets
-[Jul 31 15:56:39] (INF) Processed 8000 packets
-[Jul 31 15:56:43] (INF) Processed 9000 packets
-[Jul 31 15:56:46] (INF) Processed 10000 packets
-[Jul 31 15:56:46] (INF) 16 seconds since last update, effective sampling rate: 2078.9 samples/sec
-[Jul 31 15:56:46] (DBG) Requesting flush to disk : 31575 flow samples, 1688 counter samples
-[Jul 31 15:56:46] (DBG) Locking buffer 2 for collecting
-[Jul 31 15:56:46] (DBG) Unlocking buffer 1 for flushing
-[Jul 31 15:56:46] (DBG) Collecting to buffer 2
-[Jul 31 15:56:46] (DBG) Write buffer thread flushing buffer[1]
-[Jul 31 15:56:46] (DBG) Writing to disk (31575 flow samples, 1688 counter samples
-[Jul 31 15:56:48] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 15:56:48] (DBG) Flushing finished, buffer 1 unlocked
-[Jul 31 15:56:48] (DBG) Waiting for buffer 2 to be ready to flush
-[Jul 31 15:56:50] (INF) Processed 11000 packets
-[Jul 31 15:56:53] (INF) Processed 12000 packets
-[Jul 31 15:56:56] (INF) Processed 13000 packets
-[Jul 31 15:56:59] (INF) Processed 14000 packets
-[Jul 31 15:57:00] (INF) Processed 15000 packets
-[Jul 31 15:57:00] (INF) 14 seconds since last update, effective sampling rate: 2449.0 samples/sec
-[Jul 31 15:57:00] (DBG) Requesting flush to disk : 32862 flow samples, 1424 counter samples
-[Jul 31 15:57:00] (DBG) Locking buffer 3 for collecting
-[Jul 31 15:57:00] (DBG) Unlocking buffer 2 for flushing
-[Jul 31 15:57:00] (DBG) Collecting to buffer 3
-[Jul 31 15:57:00] (DBG) Write buffer thread flushing buffer[2]
-[Jul 31 15:57:00] (DBG) Writing to disk (32862 flow samples, 1424 counter samples
-[Jul 31 15:57:01] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 15:57:01] (DBG) Flushing finished, buffer 2 unlocked
-[Jul 31 15:57:01] (DBG) Waiting for buffer 3 to be ready to flush
-[Jul 31 15:57:03] (INF) Processed 16000 packets
-[Jul 31 15:57:05] (INF) Processed 17000 packets
-[Jul 31 15:57:06] (INF) Processed 18000 packets
-[Jul 31 15:57:07] (INF) Processed 19000 packets
-[Jul 31 15:57:09] (INF) Processed 20000 packets
-[Jul 31 15:57:09] (INF) 9 seconds since last update, effective sampling rate: 3768.9 samples/sec
-[Jul 31 15:57:09] (DBG) Requesting flush to disk : 33076 flow samples, 844 counter samples
-[Jul 31 15:57:09] (DBG) Locking buffer 4 for collecting
-[Jul 31 15:57:09] (DBG) Unlocking buffer 3 for flushing
-[Jul 31 15:57:09] (DBG) Collecting to buffer 4
-[Jul 31 15:57:09] (DBG) Write buffer thread flushing buffer[3]
-[Jul 31 15:57:09] (DBG) Writing to disk (33076 flow samples, 844 counter samples
-[Jul 31 15:57:10] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 15:57:10] (DBG) Flushing finished, buffer 3 unlocked
-[Jul 31 15:57:10] (DBG) Waiting for buffer 4 to be ready to flush
-[Jul 31 15:57:10] (INF) Processed 21000 packets
-[Jul 31 15:57:12] (INF) Processed 22000 packets
-[Jul 31 15:57:14] (INF) Processed 23000 packets
-[Jul 31 15:57:15] (INF) Processed 24000 packets
-[Jul 31 15:57:17] (INF) Processed 25000 packets
-[Jul 31 15:57:17] (INF) 8 seconds since last update, effective sampling rate: 4184.8 samples/sec
-[Jul 31 15:57:17] (DBG) Requesting flush to disk : 32628 flow samples, 850 counter samples
-[Jul 31 15:57:17] (DBG) Locking buffer 5 for collecting
-[Jul 31 15:57:17] (DBG) Unlocking buffer 4 for flushing
-[Jul 31 15:57:17] (DBG) Collecting to buffer 5
-[Jul 31 15:57:17] (DBG) Write buffer thread flushing buffer[4]
-[Jul 31 15:57:17] (DBG) Writing to disk (32628 flow samples, 850 counter samples
-[Jul 31 15:57:18] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 15:57:18] (DBG) Flushing finished, buffer 4 unlocked
-[Jul 31 15:57:18] (DBG) Waiting for buffer 5 to be ready to flush
-[Jul 31 15:57:18] (INF) Processed 26000 packets
-[Jul 31 15:57:20] (INF) Processed 27000 packets
-[Jul 31 15:57:21] (INF) Processed 28000 packets
-[Jul 31 15:57:23] (INF) Processed 29000 packets
-[Jul 31 15:57:25] (INF) Processed 30000 packets
-[Jul 31 15:57:25] (INF) 8 seconds since last update, effective sampling rate: 4201.4 samples/sec
-[Jul 31 15:57:25] (DBG) Requesting flush to disk : 32811 flow samples, 800 counter samples
-[Jul 31 15:57:25] (DBG) Locking buffer 6 for collecting
-[Jul 31 15:57:25] (DBG) Unlocking buffer 5 for flushing
-[Jul 31 15:57:25] (DBG) Collecting to buffer 6
-[Jul 31 15:57:25] (DBG) Write buffer thread flushing buffer[5]
-[Jul 31 15:57:25] (DBG) Writing to disk (32811 flow samples, 800 counter samples
-[Jul 31 15:57:26] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 15:57:26] (DBG) Flushing finished, buffer 5 unlocked
-[Jul 31 15:57:26] (DBG) Waiting for buffer 6 to be ready to flush
-[Jul 31 15:57:26] (INF) Processed 31000 packets
-[Jul 31 15:57:28] (INF) Processed 32000 packets
-[Jul 31 15:57:29] (INF) Processed 33000 packets
-[Jul 31 15:57:30] (INF) Processed 34000 packets
-[Jul 31 15:57:32] (INF) Processed 35000 packets
-[Jul 31 15:57:32] (INF) 7 seconds since last update, effective sampling rate: 4925.9 samples/sec
-[Jul 31 15:57:32] (DBG) Requesting flush to disk : 33816 flow samples, 665 counter samples
-[Jul 31 15:57:32] (DBG) Locking buffer 7 for collecting
-[Jul 31 15:57:32] (DBG) Unlocking buffer 6 for flushing
-[Jul 31 15:57:32] (DBG) Collecting to buffer 7
-[Jul 31 15:57:32] (DBG) Write buffer thread flushing buffer[6]
-[Jul 31 15:57:32] (DBG) Writing to disk (33816 flow samples, 665 counter samples
-[Jul 31 15:57:33] (INF) Processed 36000 packets
-[Jul 31 15:57:33] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 15:57:33] (DBG) Flushing finished, buffer 6 unlocked
-[Jul 31 15:57:33] (DBG) Waiting for buffer 7 to be ready to flush
-[Jul 31 15:57:35] (INF) Processed 37000 packets
-[Jul 31 15:57:36] (INF) Processed 38000 packets
-[Jul 31 15:57:37] (INF) Processed 39000 packets
-[Jul 31 15:57:39] (INF) Processed 40000 packets
-[Jul 31 15:57:39] (INF) 7 seconds since last update, effective sampling rate: 4861.0 samples/sec
-[Jul 31 15:57:39] (DBG) Requesting flush to disk : 33320 flow samples, 707 counter samples
-[Jul 31 15:57:39] (DBG) Locking buffer 8 for collecting
-[Jul 31 15:57:39] (DBG) Unlocking buffer 7 for flushing
-[Jul 31 15:57:39] (DBG) Collecting to buffer 8
-[Jul 31 15:57:39] (DBG) Write buffer thread flushing buffer[7]
-[Jul 31 15:57:39] (DBG) Writing to disk (33320 flow samples, 707 counter samples
-[Jul 31 15:57:40] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 15:57:40] (DBG) Flushing finished, buffer 7 unlocked
-[Jul 31 15:57:40] (DBG) Waiting for buffer 8 to be ready to flush
-[Jul 31 15:57:40] (INF) Processed 41000 packets
-[Jul 31 15:57:42] (INF) Processed 42000 packets
-[Jul 31 15:57:44] (INF) Processed 43000 packets
-[Jul 31 15:57:45] (INF) Processed 44000 packets
-[Jul 31 15:57:47] (INF) Processed 45000 packets
-[Jul 31 15:57:47] (INF) 8 seconds since last update, effective sampling rate: 4190.9 samples/sec
-[Jul 31 15:57:47] (DBG) Requesting flush to disk : 32766 flow samples, 761 counter samples
-[Jul 31 15:57:47] (DBG) Locking buffer 9 for collecting
-[Jul 31 15:57:47] (DBG) Unlocking buffer 8 for flushing
-[Jul 31 15:57:47] (DBG) Collecting to buffer 9
-[Jul 31 15:57:47] (DBG) Write buffer thread flushing buffer[8]
-[Jul 31 15:57:47] (DBG) Writing to disk (32766 flow samples, 761 counter samples
-[Jul 31 15:57:48] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 15:57:48] (DBG) Flushing finished, buffer 8 unlocked
-[Jul 31 15:57:48] (DBG) Waiting for buffer 9 to be ready to flush
-[Jul 31 15:57:49] (INF) Processed 46000 packets
-[Jul 31 15:57:53] (INF) Processed 47000 packets
-[Jul 31 15:57:56] (INF) Processed 48000 packets
-[Jul 31 15:57:59] (INF) Processed 49000 packets
-[Jul 31 15:58:00] (INF) Processed 50000 packets
-[Jul 31 15:58:00] (INF) 13 seconds since last update, effective sampling rate: 2629.8 samples/sec
-[Jul 31 15:58:00] (DBG) Requesting flush to disk : 32885 flow samples, 1303 counter samples
-[Jul 31 15:58:00] (DBG) Locking buffer 0 for collecting
-[Jul 31 15:58:00] (DBG) Unlocking buffer 9 for flushing
-[Jul 31 15:58:00] (DBG) Collecting to buffer 0
-[Jul 31 15:58:00] (DBG) Write buffer thread flushing buffer[9]
-[Jul 31 15:58:00] (DBG) Writing to disk (32885 flow samples, 1303 counter samples
-[Jul 31 15:58:01] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 15:58:01] (DBG) Flushing finished, buffer 9 unlocked
-[Jul 31 15:58:01] (DBG) Waiting for buffer 0 to be ready to flush
-[Jul 31 15:58:02] (INF) Processed 51000 packets
-[Jul 31 15:58:05] (INF) Processed 52000 packets
-[Jul 31 15:58:07] (INF) Processed 53000 packets
-[Jul 31 15:58:10] (INF) Processed 54000 packets
-[Jul 31 15:58:13] (INF) Processed 55000 packets
-[Jul 31 15:58:13] (INF) 13 seconds since last update, effective sampling rate: 2630.1 samples/sec
-[Jul 31 15:58:13] (DBG) Requesting flush to disk : 32836 flow samples, 1355 counter samples
-[Jul 31 15:58:13] (DBG) Locking buffer 1 for collecting
-[Jul 31 15:58:13] (DBG) Unlocking buffer 0 for flushing
-[Jul 31 15:58:13] (DBG) Collecting to buffer 1
-[Jul 31 15:58:13] (DBG) Write buffer thread flushing buffer[0]
-[Jul 31 15:58:13] (DBG) Writing to disk (32836 flow samples, 1355 counter samples
-[Jul 31 15:58:15] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 15:58:15] (DBG) Flushing finished, buffer 0 unlocked
-[Jul 31 15:58:15] (DBG) Waiting for buffer 1 to be ready to flush
-[Jul 31 15:58:16] (INF) Processed 56000 packets
-[Jul 31 15:58:20] (INF) Processed 57000 packets
-[Jul 31 15:58:24] (INF) Processed 58000 packets
-[Jul 31 15:58:28] (INF) Processed 59000 packets
-[Jul 31 15:58:29] (INF) Processed 60000 packets
-[Jul 31 15:58:29] (INF) 16 seconds since last update, effective sampling rate: 2131.3 samples/sec
-[Jul 31 15:58:29] (DBG) Requesting flush to disk : 32584 flow samples, 1517 counter samples
-[Jul 31 15:58:29] (DBG) Locking buffer 2 for collecting
-[Jul 31 15:58:29] (DBG) Unlocking buffer 1 for flushing
-[Jul 31 15:58:29] (DBG) Collecting to buffer 2
-[Jul 31 15:58:29] (DBG) Write buffer thread flushing buffer[1]
-[Jul 31 15:58:29] (DBG) Writing to disk (32584 flow samples, 1517 counter samples
-[Jul 31 15:58:31] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 15:58:31] (DBG) Flushing finished, buffer 1 unlocked
-[Jul 31 15:58:31] (DBG) Waiting for buffer 2 to be ready to flush
-[Jul 31 15:58:32] (INF) Processed 61000 packets
-[Jul 31 15:58:35] (INF) Processed 62000 packets
-[Jul 31 15:58:37] (INF) Processed 63000 packets
-[Jul 31 15:58:40] (INF) Processed 64000 packets
-[Jul 31 15:58:44] (INF) Processed 65000 packets
-[Jul 31 15:58:44] (INF) 15 seconds since last update, effective sampling rate: 2257.1 samples/sec
-[Jul 31 15:58:44] (DBG) Requesting flush to disk : 32367 flow samples, 1489 counter samples
-[Jul 31 15:58:44] (DBG) Locking buffer 3 for collecting
-[Jul 31 15:58:44] (DBG) Unlocking buffer 2 for flushing
-[Jul 31 15:58:44] (DBG) Collecting to buffer 3
-[Jul 31 15:58:44] (DBG) Write buffer thread flushing buffer[2]
-[Jul 31 15:58:44] (DBG) Writing to disk (32367 flow samples, 1489 counter samples
-[Jul 31 15:58:45] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 15:58:45] (DBG) Flushing finished, buffer 2 unlocked
-[Jul 31 15:58:45] (DBG) Waiting for buffer 3 to be ready to flush
-[Jul 31 15:58:47] (INF) Processed 66000 packets
-[Jul 31 15:58:51] (INF) Processed 67000 packets
-[Jul 31 15:58:55] (INF) Processed 68000 packets
-[Jul 31 15:58:58] (INF) Processed 69000 packets
-[Jul 31 15:59:00] (INF) Processed 70000 packets
-[Jul 31 15:59:00] (INF) 16 seconds since last update, effective sampling rate: 2099.6 samples/sec
-[Jul 31 15:59:00] (DBG) Requesting flush to disk : 31980 flow samples, 1613 counter samples
-[Jul 31 15:59:00] (DBG) Locking buffer 4 for collecting
-[Jul 31 15:59:00] (DBG) Unlocking buffer 3 for flushing
-[Jul 31 15:59:00] (DBG) Collecting to buffer 4
-[Jul 31 15:59:00] (DBG) Write buffer thread flushing buffer[3]
-[Jul 31 15:59:00] (DBG) Writing to disk (31980 flow samples, 1613 counter samples
-[Jul 31 15:59:01] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 15:59:01] (DBG) Flushing finished, buffer 3 unlocked
-[Jul 31 15:59:01] (DBG) Waiting for buffer 4 to be ready to flush
-[Jul 31 15:59:03] (INF) Processed 71000 packets
-[Jul 31 15:59:06] (INF) Processed 72000 packets
-[Jul 31 15:59:09] (INF) Processed 73000 packets
-[Jul 31 15:59:12] (INF) Processed 74000 packets
-[Jul 31 15:59:15] (INF) Processed 75000 packets
-[Jul 31 15:59:15] (INF) 15 seconds since last update, effective sampling rate: 2244.9 samples/sec
-[Jul 31 15:59:15] (DBG) Requesting flush to disk : 32180 flow samples, 1493 counter samples
-[Jul 31 15:59:15] (DBG) Locking buffer 5 for collecting
-[Jul 31 15:59:15] (DBG) Unlocking buffer 4 for flushing
-[Jul 31 15:59:15] (DBG) Collecting to buffer 5
-[Jul 31 15:59:15] (DBG) Write buffer thread flushing buffer[4]
-[Jul 31 15:59:15] (DBG) Writing to disk (32180 flow samples, 1493 counter samples
-[Jul 31 15:59:17] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 15:59:17] (DBG) Flushing finished, buffer 4 unlocked
-[Jul 31 15:59:17] (DBG) Waiting for buffer 5 to be ready to flush
-[Jul 31 15:59:19] (INF) Processed 76000 packets
-[Jul 31 15:59:22] (INF) Processed 77000 packets
-[Jul 31 15:59:26] (INF) Processed 78000 packets
-[Jul 31 15:59:29] (INF) Processed 79000 packets
-[Jul 31 15:59:31] (INF) Processed 80000 packets
-[Jul 31 15:59:31] (INF) 16 seconds since last update, effective sampling rate: 2102.0 samples/sec
-[Jul 31 15:59:31] (DBG) Requesting flush to disk : 32098 flow samples, 1534 counter samples
-[Jul 31 15:59:31] (DBG) Locking buffer 6 for collecting
-[Jul 31 15:59:31] (DBG) Write buffer thread flushing buffer[5]
-[Jul 31 15:59:31] (DBG) Writing to disk (32098 flow samples, 1534 counter samples
-[Jul 31 15:59:31] (DBG) Unlocking buffer 5 for flushing
-[Jul 31 15:59:31] (DBG) Collecting to buffer 6
-[Jul 31 15:59:33] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 15:59:33] (DBG) Flushing finished, buffer 5 unlocked
-[Jul 31 15:59:33] (DBG) Waiting for buffer 6 to be ready to flush
-[Jul 31 15:59:34] (INF) Processed 81000 packets
-[Jul 31 15:59:36] (INF) Processed 82000 packets
-[Jul 31 15:59:40] (INF) Processed 83000 packets
-[Jul 31 15:59:44] (INF) Processed 84000 packets
-[Jul 31 15:59:48] (INF) Processed 85000 packets
-[Jul 31 15:59:48] (INF) 17 seconds since last update, effective sampling rate: 1952.5 samples/sec
-[Jul 31 15:59:48] (DBG) Requesting flush to disk : 31512 flow samples, 1680 counter samples
-[Jul 31 15:59:48] (DBG) Locking buffer 7 for collecting
-[Jul 31 15:59:48] (DBG) Unlocking buffer 6 for flushing
-[Jul 31 15:59:48] (DBG) Collecting to buffer 7
-[Jul 31 15:59:48] (DBG) Write buffer thread flushing buffer[6]
-[Jul 31 15:59:48] (DBG) Writing to disk (31512 flow samples, 1680 counter samples
-[Jul 31 15:59:49] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 15:59:49] (DBG) Flushing finished, buffer 6 unlocked
-[Jul 31 15:59:49] (DBG) Waiting for buffer 7 to be ready to flush
-[Jul 31 15:59:51] (INF) Processed 86000 packets
-[Jul 31 15:59:55] (INF) Processed 87000 packets
-[Jul 31 15:59:58] (INF) Processed 88000 packets
-[Jul 31 15:59:59] (INF) Processed 89000 packets
-[Jul 31 16:00:01] (INF) Processed 90000 packets
-[Jul 31 16:00:01] (INF) 13 seconds since last update, effective sampling rate: 2641.6 samples/sec
-[Jul 31 16:00:01] (DBG) Requesting flush to disk : 32965 flow samples, 1376 counter samples
-[Jul 31 16:00:01] (DBG) Locking buffer 8 for collecting
-[Jul 31 16:00:01] (DBG) Unlocking buffer 7 for flushing
-[Jul 31 16:00:01] (DBG) Collecting to buffer 8
-[Jul 31 16:00:01] (DBG) Write buffer thread flushing buffer[7]
-[Jul 31 16:00:01] (DBG) Writing to disk (32965 flow samples, 1376 counter samples
-[Jul 31 16:00:02] (INF) Processed 91000 packets
-[Jul 31 16:00:03] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 16:00:03] (DBG) Flushing finished, buffer 7 unlocked
-[Jul 31 16:00:03] (DBG) Waiting for buffer 8 to be ready to flush
-[Jul 31 16:00:05] (INF) Processed 92000 packets
-[Jul 31 16:00:06] (INF) Processed 93000 packets
-[Jul 31 16:00:09] (INF) Processed 94000 packets
-[Jul 31 16:00:13] (INF) Processed 95000 packets
-[Jul 31 16:00:13] (INF) 12 seconds since last update, effective sampling rate: 2915.1 samples/sec
-[Jul 31 16:00:13] (DBG) Requesting flush to disk : 33904 flow samples, 1077 counter samples
-[Jul 31 16:00:13] (DBG) Locking buffer 9 for collecting
-[Jul 31 16:00:13] (DBG) Unlocking buffer 8 for flushing
-[Jul 31 16:00:13] (DBG) Collecting to buffer 9
-[Jul 31 16:00:13] (DBG) Write buffer thread flushing buffer[8]
-[Jul 31 16:00:13] (DBG) Writing to disk (33904 flow samples, 1077 counter samples
-[Jul 31 16:00:15] (INF) Processed 96000 packets
-[Jul 31 16:00:15] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 16:00:15] (DBG) Flushing finished, buffer 8 unlocked
-[Jul 31 16:00:15] (DBG) Waiting for buffer 9 to be ready to flush
-[Jul 31 16:00:18] (INF) Processed 97000 packets
-[Jul 31 16:00:21] (INF) Processed 98000 packets
-[Jul 31 16:00:25] (INF) Processed 99000 packets
-[Jul 31 16:00:28] (INF) Processed 100000 packets
-[Jul 31 16:00:28] (INF) 15 seconds since last update, effective sampling rate: 2323.2 samples/sec
-[Jul 31 16:00:28] (DBG) Requesting flush to disk : 33295 flow samples, 1553 counter samples
-[Jul 31 16:00:28] (DBG) Locking buffer 0 for collecting
-[Jul 31 16:00:28] (DBG) Unlocking buffer 9 for flushing
-[Jul 31 16:00:28] (DBG) Collecting to buffer 0
-[Jul 31 16:00:28] (DBG) Write buffer thread flushing buffer[9]
-[Jul 31 16:00:28] (DBG) Writing to disk (33295 flow samples, 1553 counter samples
-[Jul 31 16:00:29] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 16:00:29] (DBG) Flushing finished, buffer 9 unlocked
-[Jul 31 16:00:29] (DBG) Waiting for buffer 0 to be ready to flush
-[Jul 31 16:00:29] (INF) Processed 101000 packets
-[Jul 31 16:00:32] (INF) Processed 102000 packets
-[Jul 31 16:00:35] (INF) Processed 103000 packets
-[Jul 31 16:00:38] (INF) Processed 104000 packets
-[Jul 31 16:00:42] (INF) Processed 105000 packets
-[Jul 31 16:00:42] (INF) 14 seconds since last update, effective sampling rate: 2458.6 samples/sec
-[Jul 31 16:00:42] (DBG) Requesting flush to disk : 33021 flow samples, 1399 counter samples
-[Jul 31 16:00:42] (DBG) Locking buffer 1 for collecting
-[Jul 31 16:00:42] (DBG) Unlocking buffer 0 for flushing
-[Jul 31 16:00:42] (DBG) Collecting to buffer 1
-[Jul 31 16:00:42] (DBG) Write buffer thread flushing buffer[0]
-[Jul 31 16:00:42] (DBG) Writing to disk (33021 flow samples, 1399 counter samples
-[Jul 31 16:00:44] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 16:00:44] (DBG) Flushing finished, buffer 0 unlocked
-[Jul 31 16:00:44] (DBG) Waiting for buffer 1 to be ready to flush
-[Jul 31 16:00:46] (INF) Processed 106000 packets
-[Jul 31 16:00:50] (INF) Processed 107000 packets
-[Jul 31 16:00:54] (INF) Processed 108000 packets
-[Jul 31 16:00:58] (INF) Processed 109000 packets
-[Jul 31 16:01:00] (INF) Processed 110000 packets
-[Jul 31 16:01:00] (INF) 18 seconds since last update, effective sampling rate: 1865.8 samples/sec
-[Jul 31 16:01:00] (DBG) Requesting flush to disk : 31821 flow samples, 1763 counter samples
-[Jul 31 16:01:00] (DBG) Locking buffer 2 for collecting
-[Jul 31 16:01:00] (DBG) Unlocking buffer 1 for flushing
-[Jul 31 16:01:00] (DBG) Collecting to buffer 2
-[Jul 31 16:01:00] (DBG) Write buffer thread flushing buffer[1]
-[Jul 31 16:01:00] (DBG) Writing to disk (31821 flow samples, 1763 counter samples
-[Jul 31 16:01:01] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 16:01:01] (DBG) Flushing finished, buffer 1 unlocked
-[Jul 31 16:01:01] (DBG) Waiting for buffer 2 to be ready to flush
-[Jul 31 16:01:03] (INF) Processed 111000 packets
-[Jul 31 16:01:06] (INF) Processed 112000 packets
-[Jul 31 16:01:09] (INF) Processed 113000 packets
-[Jul 31 16:01:13] (INF) Processed 114000 packets
-[Jul 31 16:01:17] (INF) Processed 115000 packets
-[Jul 31 16:01:17] (INF) 17 seconds since last update, effective sampling rate: 1978.6 samples/sec
-[Jul 31 16:01:17] (DBG) Requesting flush to disk : 31873 flow samples, 1764 counter samples
-[Jul 31 16:01:17] (DBG) Locking buffer 3 for collecting
-[Jul 31 16:01:17] (DBG) Write buffer thread flushing buffer[2]
-[Jul 31 16:01:17] (DBG) Writing to disk (31873 flow samples, 1764 counter samples
-[Jul 31 16:01:17] (DBG) Unlocking buffer 2 for flushing
-[Jul 31 16:01:17] (DBG) Collecting to buffer 3
-[Jul 31 16:01:19] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 16:01:19] (DBG) Flushing finished, buffer 2 unlocked
-[Jul 31 16:01:19] (DBG) Waiting for buffer 3 to be ready to flush
-[Jul 31 16:01:21] (INF) Processed 116000 packets
-[Jul 31 16:01:26] (INF) Processed 117000 packets
-[Jul 31 16:01:29] (INF) Processed 118000 packets
-[Jul 31 16:01:30] (INF) Processed 119000 packets
-[Jul 31 16:01:34] (INF) Processed 120000 packets
-[Jul 31 16:01:34] (INF) 17 seconds since last update, effective sampling rate: 1995.6 samples/sec
-[Jul 31 16:01:34] (DBG) Requesting flush to disk : 32260 flow samples, 1666 counter samples
-[Jul 31 16:01:34] (DBG) Locking buffer 4 for collecting
-[Jul 31 16:01:34] (DBG) Unlocking buffer 3 for flushing
-[Jul 31 16:01:34] (DBG) Collecting to buffer 4
-[Jul 31 16:01:34] (DBG) Write buffer thread flushing buffer[3]
-[Jul 31 16:01:34] (DBG) Writing to disk (32260 flow samples, 1666 counter samples
-[Jul 31 16:01:36] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 16:01:36] (DBG) Flushing finished, buffer 3 unlocked
-[Jul 31 16:01:36] (DBG) Waiting for buffer 4 to be ready to flush
-[Jul 31 16:01:36] (INF) Processed 121000 packets
-[Jul 31 16:01:41] (INF) Processed 122000 packets
-[Jul 31 16:01:45] (INF) Processed 123000 packets
-[Jul 31 16:01:50] (INF) Processed 124000 packets
-[Jul 31 16:01:54] (INF) Processed 125000 packets
-[Jul 31 16:01:54] (INF) 20 seconds since last update, effective sampling rate: 1636.0 samples/sec
-[Jul 31 16:01:54] (DBG) Requesting flush to disk : 30702 flow samples, 2019 counter samples
-[Jul 31 16:01:54] (DBG) Locking buffer 5 for collecting
-[Jul 31 16:01:54] (DBG) Unlocking buffer 4 for flushing
-[Jul 31 16:01:54] (DBG) Collecting to buffer 5
-[Jul 31 16:01:54] (DBG) Write buffer thread flushing buffer[4]
-[Jul 31 16:01:54] (DBG) Writing to disk (30702 flow samples, 2019 counter samples
-[Jul 31 16:01:56] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 16:01:56] (DBG) Flushing finished, buffer 4 unlocked
-[Jul 31 16:01:56] (DBG) Waiting for buffer 5 to be ready to flush
-[Jul 31 16:01:59] (INF) Processed 126000 packets
-[Jul 31 16:02:00] (INF) Processed 127000 packets
-[Jul 31 16:02:04] (INF) Processed 128000 packets
-[Jul 31 16:02:06] (INF) Processed 129000 packets
-[Jul 31 16:02:10] (INF) Processed 130000 packets
-[Jul 31 16:02:10] (INF) 16 seconds since last update, effective sampling rate: 2123.8 samples/sec
-[Jul 31 16:02:10] (DBG) Requesting flush to disk : 32496 flow samples, 1485 counter samples
-[Jul 31 16:02:10] (DBG) Locking buffer 6 for collecting
-[Jul 31 16:02:10] (DBG) Unlocking buffer 5 for flushing
-[Jul 31 16:02:10] (DBG) Collecting to buffer 6
-[Jul 31 16:02:10] (DBG) Write buffer thread flushing buffer[5]
-[Jul 31 16:02:10] (DBG) Writing to disk (32496 flow samples, 1485 counter samples
-[Jul 31 16:02:11] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 16:02:11] (DBG) Flushing finished, buffer 5 unlocked
-[Jul 31 16:02:11] (DBG) Waiting for buffer 6 to be ready to flush
-[Jul 31 16:02:14] (INF) Processed 131000 packets
-[Jul 31 16:02:18] (INF) Processed 132000 packets
-[Jul 31 16:02:22] (INF) Processed 133000 packets
-[Jul 31 16:02:26] (INF) Processed 134000 packets
-[Jul 31 16:02:29] (INF) Processed 135000 packets
-[Jul 31 16:02:29] (INF) 19 seconds since last update, effective sampling rate: 1771.7 samples/sec
-[Jul 31 16:02:29] (DBG) Requesting flush to disk : 31747 flow samples, 1916 counter samples
-[Jul 31 16:02:29] (DBG) Locking buffer 7 for collecting
-[Jul 31 16:02:29] (DBG) Unlocking buffer 6 for flushing
-[Jul 31 16:02:29] (DBG) Collecting to buffer 7
-[Jul 31 16:02:29] (DBG) Write buffer thread flushing buffer[6]
-[Jul 31 16:02:29] (DBG) Writing to disk (31747 flow samples, 1916 counter samples
-[Jul 31 16:02:30] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 16:02:30] (DBG) Flushing finished, buffer 6 unlocked
-[Jul 31 16:02:30] (DBG) Waiting for buffer 7 to be ready to flush
-[Jul 31 16:02:31] (INF) Processed 136000 packets
-[Jul 31 16:02:35] (INF) Processed 137000 packets
-[Jul 31 16:02:37] (INF) Processed 138000 packets
-[Jul 31 16:02:42] (INF) Processed 139000 packets
-[Jul 31 16:02:46] (INF) Processed 140000 packets
-[Jul 31 16:02:46] (INF) 17 seconds since last update, effective sampling rate: 1993.8 samples/sec
-[Jul 31 16:02:46] (DBG) Requesting flush to disk : 32194 flow samples, 1700 counter samples
-[Jul 31 16:02:46] (DBG) Locking buffer 8 for collecting
-[Jul 31 16:02:46] (DBG) Unlocking buffer 7 for flushing
-[Jul 31 16:02:46] (DBG) Collecting to buffer 8
-[Jul 31 16:02:46] (DBG) Write buffer thread flushing buffer[7]
-[Jul 31 16:02:46] (DBG) Writing to disk (32194 flow samples, 1700 counter samples
-[Jul 31 16:02:48] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 16:02:48] (DBG) Flushing finished, buffer 7 unlocked
-[Jul 31 16:02:48] (DBG) Waiting for buffer 8 to be ready to flush
-[Jul 31 16:02:51] (INF) Processed 141000 packets
-[Jul 31 16:02:56] (INF) Processed 142000 packets
-[Jul 31 16:02:59] (INF) Processed 143000 packets
-[Jul 31 16:03:01] (INF) Processed 144000 packets
-[Jul 31 16:03:04] (INF) Processed 145000 packets
-[Jul 31 16:03:04] (INF) 18 seconds since last update, effective sampling rate: 1868.3 samples/sec
-[Jul 31 16:03:04] (DBG) Requesting flush to disk : 31892 flow samples, 1737 counter samples
-[Jul 31 16:03:04] (DBG) Locking buffer 9 for collecting
-[Jul 31 16:03:04] (DBG) Unlocking buffer 8 for flushing
-[Jul 31 16:03:04] (DBG) Collecting to buffer 9
-[Jul 31 16:03:04] (DBG) Write buffer thread flushing buffer[8]
-[Jul 31 16:03:04] (DBG) Writing to disk (31892 flow samples, 1737 counter samples
-[Jul 31 16:03:05] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 16:03:05] (DBG) Flushing finished, buffer 8 unlocked
-[Jul 31 16:03:05] (DBG) Waiting for buffer 9 to be ready to flush
-[Jul 31 16:03:06] (INF) Processed 146000 packets
-[Jul 31 16:03:10] (INF) Processed 147000 packets
-[Jul 31 16:03:14] (INF) Processed 148000 packets
-[Jul 31 16:03:17] (INF) Processed 149000 packets
-[Jul 31 16:03:22] (INF) Processed 150000 packets
-[Jul 31 16:03:22] (INF) 18 seconds since last update, effective sampling rate: 1872.1 samples/sec
-[Jul 31 16:03:22] (DBG) Requesting flush to disk : 31928 flow samples, 1769 counter samples
-[Jul 31 16:03:22] (DBG) Locking buffer 0 for collecting
-[Jul 31 16:03:22] (DBG) Unlocking buffer 9 for flushing
-[Jul 31 16:03:22] (DBG) Collecting to buffer 0
-[Jul 31 16:03:22] (DBG) Write buffer thread flushing buffer[9]
-[Jul 31 16:03:22] (DBG) Writing to disk (31928 flow samples, 1769 counter samples
-[Jul 31 16:03:23] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 16:03:23] (DBG) Flushing finished, buffer 9 unlocked
-[Jul 31 16:03:23] (DBG) Waiting for buffer 0 to be ready to flush
-[Jul 31 16:03:26] (INF) Processed 151000 packets
-[Jul 31 16:03:29] (INF) Processed 152000 packets
-[Jul 31 16:03:31] (INF) Processed 153000 packets
-[Jul 31 16:03:34] (INF) Processed 154000 packets
-[Jul 31 16:03:37] (INF) Processed 155000 packets
-[Jul 31 16:03:37] (INF) 15 seconds since last update, effective sampling rate: 2284.4 samples/sec
-[Jul 31 16:03:37] (DBG) Requesting flush to disk : 32752 flow samples, 1514 counter samples
-[Jul 31 16:03:37] (DBG) Locking buffer 1 for collecting
-[Jul 31 16:03:37] (DBG) Unlocking buffer 0 for flushing
-[Jul 31 16:03:37] (DBG) Collecting to buffer 1
-[Jul 31 16:03:37] (DBG) Write buffer thread flushing buffer[0]
-[Jul 31 16:03:37] (DBG) Writing to disk (32752 flow samples, 1514 counter samples
-[Jul 31 16:03:38] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 16:03:38] (DBG) Flushing finished, buffer 0 unlocked
-[Jul 31 16:03:38] (DBG) Waiting for buffer 1 to be ready to flush
-[Jul 31 16:03:42] (INF) Processed 156000 packets
-[Jul 31 16:03:46] (INF) Processed 157000 packets
-[Jul 31 16:03:50] (INF) Processed 158000 packets
-[Jul 31 16:03:54] (INF) Processed 159000 packets
-[Jul 31 16:03:57] (INF) Processed 160000 packets
-[Jul 31 16:03:57] (INF) 20 seconds since last update, effective sampling rate: 1609.5 samples/sec
-[Jul 31 16:03:57] (DBG) Requesting flush to disk : 30159 flow samples, 2031 counter samples
-[Jul 31 16:03:57] (DBG) Locking buffer 2 for collecting
-[Jul 31 16:03:57] (DBG) Unlocking buffer 1 for flushing
-[Jul 31 16:03:57] (DBG) Collecting to buffer 2
-[Jul 31 16:03:57] (DBG) Write buffer thread flushing buffer[1]
-[Jul 31 16:03:57] (DBG) Writing to disk (30159 flow samples, 2031 counter samples
-[Jul 31 16:03:59] (DBG) Done writing to disk, zeroing buffer
-[Jul 31 16:03:59] (DBG) Flushing finished, buffer 1 unlocked
-[Jul 31 16:03:59] (DBG) Waiting for buffer 2 to be ready to flush
-[Jul 31 16:03:59] (INF) Processed 161000 packets
-[Jul 31 16:04:01] (INF) Processed 162000 packets
-[Jul 31 16:04:04] (INF) Processed 163000 packets
-[Jul 31 16:04:06] (INF) Processed 164000 packets
-[Jul 31 16:04:10] (INF) Processed 165000 packets
-[Jul 31 16:04:10] (INF) 13 seconds since last update, effective sampling rate: 2655.3 samples/sec
-[Jul 31 16:04:10] (DBG) Requesting flush to disk : 33273 flow samples, 1246 counter samples
-[Jul 31 16:04:10] (DBG) Locking buffer 3 for collecting
-[Jul 31 16:04:10] (DBG) Unlocking buffer 2 for flushing
-[Jul 31 16:04:10] (DBG) Collecting to buffer 3
-[Jul 31 16:04:10] (DBG) Write buffer thread flushing buffer[2]
-[Jul 31 16:04:10] (DBG) Writing to disk (33273 flow samples, 1246 counter samples
+[Jul 31 16:44:07] (DBG) Parsed command line
+[Jul 31 16:44:07] (DBG) Size of a single flow sample is 196 bytes
+[Jul 31 16:44:07] (DBG) Size of a single cntr sample is 164 bytes
+[Jul 31 16:44:07] (DBG) Allocated memory for buffer 0
+[Jul 31 16:44:07] (DBG) Zeroed memory in buffer 0
+[Jul 31 16:44:07] (DBG) Allocated memory for buffer 1
+[Jul 31 16:44:07] (DBG) Zeroed memory in buffer 1
+[Jul 31 16:44:07] (DBG) Allocated memory for buffer 2
+[Jul 31 16:44:07] (DBG) Zeroed memory in buffer 2
+[Jul 31 16:44:07] (DBG) Allocated memory for buffer 3
+[Jul 31 16:44:07] (DBG) Zeroed memory in buffer 3
+[Jul 31 16:44:07] (DBG) Allocated memory for buffer 4
+[Jul 31 16:44:07] (DBG) Zeroed memory in buffer 4
+[Jul 31 16:44:07] (DBG) Allocated memory for buffer 5
+[Jul 31 16:44:07] (DBG) Zeroed memory in buffer 5
+[Jul 31 16:44:07] (DBG) Allocated memory for buffer 6
+[Jul 31 16:44:07] (DBG) Zeroed memory in buffer 6
+[Jul 31 16:44:07] (DBG) Allocated memory for buffer 7
+[Jul 31 16:44:07] (DBG) Zeroed memory in buffer 7
+[Jul 31 16:44:07] (DBG) Allocated memory for buffer 8
+[Jul 31 16:44:07] (DBG) Zeroed memory in buffer 8
+[Jul 31 16:44:07] (DBG) Allocated memory for buffer 9
+[Jul 31 16:44:07] (DBG) Zeroed memory in buffer 9
+[Jul 31 16:44:07] (DBG) Initialized buffer pointers to buffer 0
+[Jul 31 16:44:07] (DBG) Data directory : /storage/sflow
+[Jul 31 16:44:07] (DBG) Starting diskwriter
+[Jul 31 16:44:07] (DBG) Waiting for buffer 0 to be ready to flush
+[Jul 31 16:44:07] (DBG) Starting collector
+[Jul 31 16:44:07] (DBG) Created new socket (3)
+[Jul 31 16:44:07] (DBG) Binding socket to interface
+[Jul 31 16:44:07] (DBG) Waiting for packets...
+[Jul 31 16:44:09] (INF) Processed 1000 packets
+[Jul 31 16:44:11] (INF) Processed 2000 packets
+[Jul 31 16:44:13] (INF) Processed 3000 packets
+[Jul 31 16:44:14] (INF) Processed 4000 packets
+[Jul 31 16:44:15] (INF) Processed 5000 packets
+[Jul 31 16:44:15] (INF) 8 seconds since last update, effective sampling rate: 4447.8 samples/sec
+[Jul 31 16:44:15] (DBG) Requesting flush to disk : 34818 flow samples, 764 counter samples
+[Jul 31 16:44:15] (DBG) Locking buffer 1 for collecting
+[Jul 31 16:44:15] (DBG) Write buffer thread flushing buffer[0]
+[Jul 31 16:44:15] (DBG) Unlocking buffer 0 for flushing
+[Jul 31 16:44:15] (DBG) Writing to disk (34818 flow samples, 764 counter samples
+[Jul 31 16:44:15] (DBG) Collecting to buffer 1
+[Jul 31 16:44:17] (INF) Processed 6000 packets
+[Jul 31 16:44:17] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 16:44:17] (DBG) Flushing finished, buffer 0 unlocked
+[Jul 31 16:44:17] (DBG) Waiting for buffer 1 to be ready to flush
+[Jul 31 16:44:18] (INF) Processed 7000 packets
+[Jul 31 16:44:20] (INF) Processed 8000 packets
+[Jul 31 16:44:22] (INF) Processed 9000 packets
+[Jul 31 16:44:24] (INF) Processed 10000 packets
+[Jul 31 16:44:24] (INF) 9 seconds since last update, effective sampling rate: 3959.2 samples/sec
+[Jul 31 16:44:24] (DBG) Requesting flush to disk : 34782 flow samples, 851 counter samples
+[Jul 31 16:44:24] (DBG) Locking buffer 2 for collecting
+[Jul 31 16:44:24] (DBG) Unlocking buffer 1 for flushing
+[Jul 31 16:44:24] (DBG) Write buffer thread flushing buffer[1]
+[Jul 31 16:44:24] (DBG) Collecting to buffer 2
+[Jul 31 16:44:24] (DBG) Writing to disk (34782 flow samples, 851 counter samples
+[Jul 31 16:44:26] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 16:44:26] (DBG) Flushing finished, buffer 1 unlocked
+[Jul 31 16:44:26] (DBG) Waiting for buffer 2 to be ready to flush
+[Jul 31 16:44:26] (INF) Processed 11000 packets
+[Jul 31 16:44:28] (DBG) Requesting flush to disk : 12465 flow samples, 359 counter samples
+[Jul 31 16:44:28] (DBG) Locking buffer 3 for collecting
+[Jul 31 16:44:28] (DBG) Unlocking buffer 2 for flushing
+[Jul 31 16:44:28] (DBG) Write buffer thread flushing buffer[2]
+[Jul 31 16:44:28] (DBG) Collecting to buffer 3
+[Jul 31 16:44:28] (DBG) Writing to disk (12465 flow samples, 359 counter samples
+[Jul 31 16:44:29] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 16:44:29] (DBG) Flushing finished, buffer 2 unlocked
+[Jul 31 16:44:29] (DBG) Closing socket
+[Jul 31 16:44:29] (INF) Ran for 21 seconds
+[Jul 31 16:44:29] (INF) Total: 11837 packet(s), 82065 flow samples, 1974 counter samples, average sampling rate 4001.9 samples/sec
+[Jul 31 16:44:29] (DBG) Releasing all resources
+[Jul 31 16:44:29] (DBG) De-allocating memory for buffer 0
+[Jul 31 16:44:29] (DBG) De-allocating memory for buffer 1
+[Jul 31 16:44:29] (DBG) De-allocating memory for buffer 2
+[Jul 31 16:44:29] (DBG) De-allocating memory for buffer 3
+[Jul 31 16:44:29] (DBG) De-allocating memory for buffer 4
+[Jul 31 16:44:29] (DBG) De-allocating memory for buffer 5
+[Jul 31 16:44:29] (DBG) De-allocating memory for buffer 6
+[Jul 31 16:44:29] (DBG) De-allocating memory for buffer 7
+[Jul 31 16:44:29] (DBG) De-allocating memory for buffer 8
+[Jul 31 16:44:29] (DBG) De-allocating memory for buffer 9
+[Jul 31 16:44:29] (DBG) Exiting
+[Jul 31 17:17:54] (DBG) Parsed command line
+[Jul 31 17:17:54] (DBG) Size of a single flow sample is 196 bytes
+[Jul 31 17:17:54] (DBG) Size of a single cntr sample is 164 bytes
+[Jul 31 17:17:54] (DBG) Allocated memory for buffer 0
+[Jul 31 17:17:54] (DBG) Zeroed memory in buffer 0
+[Jul 31 17:17:54] (DBG) Allocated memory for buffer 1
+[Jul 31 17:17:54] (DBG) Zeroed memory in buffer 1
+[Jul 31 17:17:54] (DBG) Allocated memory for buffer 2
+[Jul 31 17:17:54] (DBG) Zeroed memory in buffer 2
+[Jul 31 17:17:54] (DBG) Allocated memory for buffer 3
+[Jul 31 17:17:54] (DBG) Zeroed memory in buffer 3
+[Jul 31 17:17:54] (DBG) Allocated memory for buffer 4
+[Jul 31 17:17:55] (DBG) Zeroed memory in buffer 4
+[Jul 31 17:17:55] (DBG) Allocated memory for buffer 5
+[Jul 31 17:17:55] (DBG) Zeroed memory in buffer 5
+[Jul 31 17:17:55] (DBG) Allocated memory for buffer 6
+[Jul 31 17:17:55] (DBG) Zeroed memory in buffer 6
+[Jul 31 17:17:55] (DBG) Allocated memory for buffer 7
+[Jul 31 17:17:55] (DBG) Zeroed memory in buffer 7
+[Jul 31 17:17:55] (DBG) Allocated memory for buffer 8
+[Jul 31 17:17:55] (DBG) Zeroed memory in buffer 8
+[Jul 31 17:17:55] (DBG) Allocated memory for buffer 9
+[Jul 31 17:17:55] (DBG) Zeroed memory in buffer 9
+[Jul 31 17:17:55] (DBG) Initialized buffer pointers to buffer 0
+[Jul 31 17:17:55] (DBG) Data directory : /storage/sflow
+[Jul 31 17:17:55] (DBG) Starting diskwriter
+[Jul 31 17:17:55] (DBG) Waiting for buffer 0 to be ready to flush
+[Jul 31 17:17:55] (DBG) Starting collector
+[Jul 31 17:17:55] (DBG) Created new socket (3)
+[Jul 31 17:17:55] (DBG) Binding socket to interface
+[Jul 31 17:17:55] (DBG) Waiting for packets...
+[Jul 31 17:17:58] (INF) Processed 1000 packets
+[Jul 31 17:18:01] (INF) Processed 2000 packets
+[Jul 31 17:18:03] (INF) Processed 3000 packets
+[Jul 31 17:18:06] (INF) Processed 4000 packets
+[Jul 31 17:18:08] (INF) Processed 5000 packets
+[Jul 31 17:18:08] (INF) 13 seconds since last update, effective sampling rate: 2714.0 samples/sec
+[Jul 31 17:18:08] (DBG) Requesting flush to disk : 33930 flow samples, 1352 counter samples
+[Jul 31 17:18:08] (DBG) Locking buffer 1 for collecting
+[Jul 31 17:18:08] (DBG) Unlocking buffer 0 for flushing
+[Jul 31 17:18:08] (DBG) Write buffer thread flushing buffer[0]
+[Jul 31 17:18:08] (DBG) Collecting to buffer 1
+[Jul 31 17:18:08] (DBG) Writing to disk (33930 flow samples, 1352 counter samples
+[Jul 31 17:18:10] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:18:10] (DBG) Flushing finished, buffer 0 unlocked
+[Jul 31 17:18:10] (DBG) Waiting for buffer 1 to be ready to flush
+[Jul 31 17:18:11] (INF) Processed 6000 packets
+[Jul 31 17:18:13] (INF) Processed 7000 packets
+[Jul 31 17:18:14] (INF) Processed 8000 packets
+[Jul 31 17:18:15] (INF) Processed 9000 packets
+[Jul 31 17:18:17] (INF) Processed 10000 packets
+[Jul 31 17:18:17] (INF) 9 seconds since last update, effective sampling rate: 3972.2 samples/sec
+[Jul 31 17:18:17] (DBG) Requesting flush to disk : 34913 flow samples, 837 counter samples
+[Jul 31 17:18:17] (DBG) Locking buffer 2 for collecting
+[Jul 31 17:18:17] (DBG) Unlocking buffer 1 for flushing
+[Jul 31 17:18:17] (DBG) Write buffer thread flushing buffer[1]
+[Jul 31 17:18:17] (DBG) Collecting to buffer 2
+[Jul 31 17:18:17] (DBG) Writing to disk (34913 flow samples, 837 counter samples
+[Jul 31 17:18:19] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:18:19] (DBG) Flushing finished, buffer 1 unlocked
+[Jul 31 17:18:19] (DBG) Waiting for buffer 2 to be ready to flush
+[Jul 31 17:18:19] (INF) Processed 11000 packets
+[Jul 31 17:18:21] (INF) Processed 12000 packets
+[Jul 31 17:18:23] (INF) Processed 13000 packets
+[Jul 31 17:18:27] (INF) Processed 14000 packets
+[Jul 31 17:18:29] (INF) Processed 15000 packets
+[Jul 31 17:18:29] (INF) 12 seconds since last update, effective sampling rate: 2927.2 samples/sec
+[Jul 31 17:18:29] (DBG) Requesting flush to disk : 33967 flow samples, 1160 counter samples
+[Jul 31 17:18:29] (DBG) Locking buffer 3 for collecting
+[Jul 31 17:18:29] (DBG) Unlocking buffer 2 for flushing
+[Jul 31 17:18:29] (DBG) Write buffer thread flushing buffer[2]
+[Jul 31 17:18:29] (DBG) Collecting to buffer 3
+[Jul 31 17:18:29] (DBG) Writing to disk (33967 flow samples, 1160 counter samples
+[Jul 31 17:18:31] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:18:31] (DBG) Flushing finished, buffer 2 unlocked
+[Jul 31 17:18:31] (DBG) Waiting for buffer 3 to be ready to flush
+[Jul 31 17:18:33] (INF) Processed 17000 packets
+[Jul 31 17:18:34] (INF) Processed 18000 packets
+[Jul 31 17:18:36] (INF) Processed 19000 packets
+[Jul 31 17:18:38] (INF) Processed 20000 packets
+[Jul 31 17:18:38] (INF) 9 seconds since last update, effective sampling rate: 3959.3 samples/sec
+[Jul 31 17:18:38] (DBG) Requesting flush to disk : 34722 flow samples, 912 counter samples
+[Jul 31 17:18:38] (DBG) Locking buffer 4 for collecting
+[Jul 31 17:18:38] (DBG) Unlocking buffer 3 for flushing
+[Jul 31 17:18:38] (DBG) Write buffer thread flushing buffer[3]
+[Jul 31 17:18:38] (DBG) Writing to disk (34722 flow samples, 912 counter samples
+[Jul 31 17:18:38] (DBG) Collecting to buffer 4
+[Jul 31 17:18:40] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:18:40] (INF) Processed 21000 packets
+[Jul 31 17:18:41] (DBG) Flushing finished, buffer 3 unlocked
+[Jul 31 17:18:41] (DBG) Waiting for buffer 4 to be ready to flush
+[Jul 31 17:18:43] (INF) Processed 22000 packets
+[Jul 31 17:18:44] (INF) Processed 23000 packets
+[Jul 31 17:18:45] (INF) Processed 24000 packets
+[Jul 31 17:18:46] (INF) Processed 25000 packets
+[Jul 31 17:18:46] (INF) 8 seconds since last update, effective sampling rate: 4467.5 samples/sec
+[Jul 31 17:18:46] (DBG) Requesting flush to disk : 34976 flow samples, 764 counter samples
+[Jul 31 17:18:46] (DBG) Locking buffer 5 for collecting
+[Jul 31 17:18:46] (DBG) Unlocking buffer 4 for flushing
+[Jul 31 17:18:46] (DBG) Write buffer thread flushing buffer[4]
+[Jul 31 17:18:46] (DBG) Collecting to buffer 5
+[Jul 31 17:18:46] (DBG) Writing to disk (34976 flow samples, 764 counter samples
+[Jul 31 17:18:47] (INF) Processed 26000 packets
+[Jul 31 17:18:48] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:18:48] (DBG) Flushing finished, buffer 4 unlocked
+[Jul 31 17:18:48] (DBG) Waiting for buffer 5 to be ready to flush
+[Jul 31 17:18:50] (INF) Processed 27000 packets
+[Jul 31 17:18:51] (INF) Processed 28000 packets
+[Jul 31 17:18:54] (INF) Processed 29000 packets
+[Jul 31 17:18:56] (INF) Processed 30000 packets
+[Jul 31 17:18:56] (INF) 10 seconds since last update, effective sampling rate: 3541.4 samples/sec
+[Jul 31 17:18:56] (DBG) Requesting flush to disk : 34460 flow samples, 954 counter samples
+[Jul 31 17:18:56] (DBG) Locking buffer 6 for collecting
+[Jul 31 17:18:56] (DBG) Unlocking buffer 5 for flushing
+[Jul 31 17:18:56] (DBG) Write buffer thread flushing buffer[5]
+[Jul 31 17:18:56] (DBG) Writing to disk (34460 flow samples, 954 counter samples
+[Jul 31 17:18:56] (DBG) Collecting to buffer 6
+[Jul 31 17:18:58] (INF) Processed 31000 packets
+[Jul 31 17:18:58] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:18:58] (DBG) Flushing finished, buffer 5 unlocked
+[Jul 31 17:18:58] (DBG) Waiting for buffer 6 to be ready to flush
+[Jul 31 17:19:00] (INF) Processed 32000 packets
+[Jul 31 17:19:02] (INF) Processed 33000 packets
+[Jul 31 17:19:04] (INF) Processed 34000 packets
+[Jul 31 17:19:06] (INF) Processed 35000 packets
+[Jul 31 17:19:06] (INF) 10 seconds since last update, effective sampling rate: 3535.6 samples/sec
+[Jul 31 17:19:06] (DBG) Requesting flush to disk : 34349 flow samples, 1007 counter samples
+[Jul 31 17:19:06] (DBG) Locking buffer 7 for collecting
+[Jul 31 17:19:06] (DBG) Unlocking buffer 6 for flushing
+[Jul 31 17:19:06] (DBG) Write buffer thread flushing buffer[6]
+[Jul 31 17:19:06] (DBG) Writing to disk (34349 flow samples, 1007 counter samples
+[Jul 31 17:19:06] (DBG) Collecting to buffer 7
+[Jul 31 17:19:08] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:19:08] (DBG) Flushing finished, buffer 6 unlocked
+[Jul 31 17:19:08] (DBG) Waiting for buffer 7 to be ready to flush
+[Jul 31 17:19:08] (INF) Processed 36000 packets
+[Jul 31 17:19:11] (INF) Processed 37000 packets
+[Jul 31 17:19:13] (INF) Processed 38000 packets
+[Jul 31 17:19:15] (INF) Processed 39000 packets
+[Jul 31 17:19:16] (INF) Processed 40000 packets
+[Jul 31 17:19:16] (INF) 10 seconds since last update, effective sampling rate: 3538.1 samples/sec
+[Jul 31 17:19:16] (DBG) Requesting flush to disk : 34417 flow samples, 964 counter samples
+[Jul 31 17:19:16] (DBG) Locking buffer 8 for collecting
+[Jul 31 17:19:16] (DBG) Unlocking buffer 7 for flushing
+[Jul 31 17:19:16] (DBG) Write buffer thread flushing buffer[7]
+[Jul 31 17:19:16] (DBG) Collecting to buffer 8
+[Jul 31 17:19:16] (DBG) Writing to disk (34417 flow samples, 964 counter samples
+[Jul 31 17:19:18] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:19:18] (DBG) Flushing finished, buffer 7 unlocked
+[Jul 31 17:19:18] (DBG) Waiting for buffer 8 to be ready to flush
+[Jul 31 17:19:18] (INF) Processed 41000 packets
+[Jul 31 17:19:20] (INF) Processed 42000 packets
+[Jul 31 17:19:21] (INF) Processed 43000 packets
+[Jul 31 17:19:23] (INF) Processed 44000 packets
+[Jul 31 17:19:24] (INF) Processed 45000 packets
+[Jul 31 17:19:24] (INF) 8 seconds since last update, effective sampling rate: 4459.5 samples/sec
+[Jul 31 17:19:24] (DBG) Requesting flush to disk : 34833 flow samples, 843 counter samples
+[Jul 31 17:19:24] (DBG) Locking buffer 9 for collecting
+[Jul 31 17:19:24] (DBG) Unlocking buffer 8 for flushing
+[Jul 31 17:19:24] (DBG) Write buffer thread flushing buffer[8]
+[Jul 31 17:19:24] (DBG) Collecting to buffer 9
+[Jul 31 17:19:24] (DBG) Writing to disk (34833 flow samples, 843 counter samples
+[Jul 31 17:19:26] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:19:26] (INF) Processed 46000 packets
+[Jul 31 17:19:26] (DBG) Flushing finished, buffer 8 unlocked
+[Jul 31 17:19:26] (DBG) Waiting for buffer 9 to be ready to flush
+[Jul 31 17:19:29] (INF) Processed 47000 packets
+[Jul 31 17:19:31] (INF) Processed 48000 packets
+[Jul 31 17:19:33] (INF) Processed 49000 packets
+[Jul 31 17:19:35] (INF) Processed 50000 packets
+[Jul 31 17:19:35] (INF) 11 seconds since last update, effective sampling rate: 3200.3 samples/sec
+[Jul 31 17:19:35] (DBG) Requesting flush to disk : 34089 flow samples, 1114 counter samples
+[Jul 31 17:19:35] (DBG) Locking buffer 0 for collecting
+[Jul 31 17:19:35] (DBG) Unlocking buffer 9 for flushing
+[Jul 31 17:19:35] (DBG) Write buffer thread flushing buffer[9]
+[Jul 31 17:19:36] (DBG) Writing to disk (34089 flow samples, 1114 counter samples
+[Jul 31 17:19:36] (DBG) Collecting to buffer 0
+[Jul 31 17:19:38] (INF) Processed 51000 packets
+[Jul 31 17:19:39] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:19:39] (DBG) Flushing finished, buffer 9 unlocked
+[Jul 31 17:19:39] (DBG) Waiting for buffer 0 to be ready to flush
+[Jul 31 17:19:41] (INF) Processed 52000 packets
+[Jul 31 17:19:44] (INF) Processed 53000 packets
+[Jul 31 17:19:46] (INF) Processed 54000 packets
+[Jul 31 17:19:48] (INF) Processed 55000 packets
+[Jul 31 17:19:48] (INF) 13 seconds since last update, effective sampling rate: 2691.5 samples/sec
+[Jul 31 17:19:48] (DBG) Requesting flush to disk : 33723 flow samples, 1267 counter samples
+[Jul 31 17:19:48] (DBG) Locking buffer 1 for collecting
+[Jul 31 17:19:48] (DBG) Unlocking buffer 0 for flushing
+[Jul 31 17:19:48] (DBG) Write buffer thread flushing buffer[0]
+[Jul 31 17:19:48] (DBG) Collecting to buffer 1
+[Jul 31 17:19:48] (DBG) Writing to disk (33723 flow samples, 1267 counter samples
+[Jul 31 17:19:50] (INF) Processed 56000 packets
+[Jul 31 17:19:50] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:19:51] (DBG) Flushing finished, buffer 0 unlocked
+[Jul 31 17:19:51] (DBG) Waiting for buffer 1 to be ready to flush
+[Jul 31 17:19:51] (INF) Processed 57000 packets
+[Jul 31 17:19:54] (INF) Processed 58000 packets
+[Jul 31 17:19:57] (INF) Processed 59000 packets
+[Jul 31 17:20:00] (INF) Processed 60000 packets
+[Jul 31 17:20:00] (INF) 12 seconds since last update, effective sampling rate: 2928.4 samples/sec
+[Jul 31 17:20:00] (DBG) Requesting flush to disk : 33940 flow samples, 1201 counter samples
+[Jul 31 17:20:00] (DBG) Locking buffer 2 for collecting
+[Jul 31 17:20:00] (DBG) Unlocking buffer 1 for flushing
+[Jul 31 17:20:00] (DBG) Write buffer thread flushing buffer[1]
+[Jul 31 17:20:00] (DBG) Collecting to buffer 2
+[Jul 31 17:20:00] (DBG) Writing to disk (33940 flow samples, 1201 counter samples
+[Jul 31 17:20:01] (INF) Processed 61000 packets
+[Jul 31 17:20:03] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:20:03] (DBG) Flushing finished, buffer 1 unlocked
+[Jul 31 17:20:03] (DBG) Waiting for buffer 2 to be ready to flush
+[Jul 31 17:20:04] (INF) Processed 62000 packets
+[Jul 31 17:20:07] (INF) Processed 63000 packets
+[Jul 31 17:20:09] (INF) Processed 64000 packets
+[Jul 31 17:20:11] (INF) Processed 65000 packets
+[Jul 31 17:20:11] (INF) 11 seconds since last update, effective sampling rate: 3141.1 samples/sec
+[Jul 31 17:20:11] (DBG) Requesting flush to disk : 33507 flow samples, 1045 counter samples
+[Jul 31 17:20:11] (DBG) Locking buffer 3 for collecting
+[Jul 31 17:20:11] (DBG) Write buffer thread flushing buffer[2]
+[Jul 31 17:20:11] (DBG) Unlocking buffer 2 for flushing
+[Jul 31 17:20:11] (DBG) Writing to disk (33507 flow samples, 1045 counter samples
+[Jul 31 17:20:11] (DBG) Collecting to buffer 3
+[Jul 31 17:20:13] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:20:13] (INF) Processed 66000 packets
+[Jul 31 17:20:13] (DBG) Flushing finished, buffer 2 unlocked
+[Jul 31 17:20:13] (DBG) Waiting for buffer 3 to be ready to flush
+[Jul 31 17:20:14] (INF) Processed 67000 packets
+[Jul 31 17:20:16] (INF) Processed 68000 packets
+[Jul 31 17:20:17] (INF) Processed 69000 packets
+[Jul 31 17:20:19] (INF) Processed 70000 packets
+[Jul 31 17:20:19] (INF) 8 seconds since last update, effective sampling rate: 4489.1 samples/sec
+[Jul 31 17:20:19] (DBG) Requesting flush to disk : 35082 flow samples, 831 counter samples
+[Jul 31 17:20:19] (DBG) Locking buffer 4 for collecting
+[Jul 31 17:20:19] (DBG) Unlocking buffer 3 for flushing
+[Jul 31 17:20:19] (DBG) Write buffer thread flushing buffer[3]
+[Jul 31 17:20:19] (DBG) Collecting to buffer 4
+[Jul 31 17:20:19] (DBG) Writing to disk (35082 flow samples, 831 counter samples
+[Jul 31 17:20:21] (INF) Processed 71000 packets
+[Jul 31 17:20:21] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:20:21] (DBG) Flushing finished, buffer 3 unlocked
+[Jul 31 17:20:21] (DBG) Waiting for buffer 4 to be ready to flush
+[Jul 31 17:20:22] (INF) Processed 72000 packets
+[Jul 31 17:20:24] (INF) Processed 73000 packets
+[Jul 31 17:20:26] (INF) Processed 74000 packets
+[Jul 31 17:20:28] (INF) Processed 75000 packets
+[Jul 31 17:20:28] (INF) 9 seconds since last update, effective sampling rate: 3950.1 samples/sec
+[Jul 31 17:20:28] (DBG) Requesting flush to disk : 34683 flow samples, 868 counter samples
+[Jul 31 17:20:28] (DBG) Locking buffer 5 for collecting
+[Jul 31 17:20:28] (DBG) Unlocking buffer 4 for flushing
+[Jul 31 17:20:28] (DBG) Write buffer thread flushing buffer[4]
+[Jul 31 17:20:28] (DBG) Collecting to buffer 5
+[Jul 31 17:20:28] (DBG) Writing to disk (34683 flow samples, 868 counter samples
+[Jul 31 17:20:30] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:20:30] (DBG) Flushing finished, buffer 4 unlocked
+[Jul 31 17:20:30] (DBG) Waiting for buffer 5 to be ready to flush
+[Jul 31 17:20:31] (INF) Processed 76000 packets
+[Jul 31 17:20:33] (INF) Processed 77000 packets
+[Jul 31 17:20:35] (INF) Processed 78000 packets
+[Jul 31 17:20:37] (INF) Processed 79000 packets
+[Jul 31 17:20:39] (INF) Processed 80000 packets
+[Jul 31 17:20:39] (INF) 11 seconds since last update, effective sampling rate: 3258.5 samples/sec
+[Jul 31 17:20:39] (DBG) Requesting flush to disk : 34849 flow samples, 994 counter samples
+[Jul 31 17:20:39] (DBG) Locking buffer 6 for collecting
+[Jul 31 17:20:39] (DBG) Unlocking buffer 5 for flushing
+[Jul 31 17:20:39] (DBG) Write buffer thread flushing buffer[5]
+[Jul 31 17:20:39] (DBG) Writing to disk (34849 flow samples, 994 counter samples
+[Jul 31 17:20:39] (DBG) Collecting to buffer 6
+[Jul 31 17:20:40] (INF) Processed 81000 packets
+[Jul 31 17:20:41] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:20:41] (DBG) Flushing finished, buffer 5 unlocked
+[Jul 31 17:20:41] (DBG) Waiting for buffer 6 to be ready to flush
+[Jul 31 17:20:42] (INF) Processed 82000 packets
+[Jul 31 17:20:44] (INF) Processed 83000 packets
+[Jul 31 17:20:46] (INF) Processed 84000 packets
+[Jul 31 17:20:48] (INF) Processed 85000 packets
+[Jul 31 17:20:48] (INF) 9 seconds since last update, effective sampling rate: 3987.4 samples/sec
+[Jul 31 17:20:48] (DBG) Requesting flush to disk : 35064 flow samples, 823 counter samples
+[Jul 31 17:20:48] (DBG) Locking buffer 7 for collecting
+[Jul 31 17:20:48] (DBG) Unlocking buffer 6 for flushing
+[Jul 31 17:20:48] (DBG) Write buffer thread flushing buffer[6]
+[Jul 31 17:20:48] (DBG) Collecting to buffer 7
+[Jul 31 17:20:48] (DBG) Writing to disk (35064 flow samples, 823 counter samples
+[Jul 31 17:20:49] (INF) Processed 86000 packets
+[Jul 31 17:20:50] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:20:50] (DBG) Flushing finished, buffer 6 unlocked
+[Jul 31 17:20:50] (DBG) Waiting for buffer 7 to be ready to flush
+[Jul 31 17:20:51] (INF) Processed 87000 packets
+[Jul 31 17:20:53] (INF) Processed 88000 packets
+[Jul 31 17:20:55] (INF) Processed 89000 packets
+[Jul 31 17:20:57] (INF) Processed 90000 packets
+[Jul 31 17:20:57] (INF) 9 seconds since last update, effective sampling rate: 3937.6 samples/sec
+[Jul 31 17:20:57] (DBG) Requesting flush to disk : 34478 flow samples, 960 counter samples
+[Jul 31 17:20:57] (DBG) Locking buffer 8 for collecting
+[Jul 31 17:20:57] (DBG) Unlocking buffer 7 for flushing
+[Jul 31 17:20:57] (DBG) Write buffer thread flushing buffer[7]
+[Jul 31 17:20:57] (DBG) Collecting to buffer 8
+[Jul 31 17:20:57] (DBG) Writing to disk (34478 flow samples, 960 counter samples
+[Jul 31 17:20:59] (INF) Processed 91000 packets
+[Jul 31 17:21:00] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:21:00] (DBG) Flushing finished, buffer 7 unlocked
+[Jul 31 17:21:00] (DBG) Waiting for buffer 8 to be ready to flush
+[Jul 31 17:21:02] (INF) Processed 92000 packets
+[Jul 31 17:21:04] (INF) Processed 93000 packets
+[Jul 31 17:21:07] (INF) Processed 94000 packets
+[Jul 31 17:21:09] (INF) Processed 95000 packets
+[Jul 31 17:21:09] (INF) 12 seconds since last update, effective sampling rate: 2918.0 samples/sec
+[Jul 31 17:21:09] (DBG) Requesting flush to disk : 33836 flow samples, 1180 counter samples
+[Jul 31 17:21:09] (DBG) Locking buffer 9 for collecting
+[Jul 31 17:21:09] (DBG) Unlocking buffer 8 for flushing
+[Jul 31 17:21:09] (DBG) Write buffer thread flushing buffer[8]
+[Jul 31 17:21:09] (DBG) Writing to disk (33836 flow samples, 1180 counter samples
+[Jul 31 17:21:09] (DBG) Collecting to buffer 9
+[Jul 31 17:21:11] (INF) Processed 96000 packets
+[Jul 31 17:21:12] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:21:12] (DBG) Flushing finished, buffer 8 unlocked
+[Jul 31 17:21:12] (DBG) Waiting for buffer 9 to be ready to flush
+[Jul 31 17:21:13] (INF) Processed 97000 packets
+[Jul 31 17:21:15] (INF) Processed 98000 packets
+[Jul 31 17:21:16] (INF) Processed 99000 packets
+[Jul 31 17:21:18] (INF) Processed 100000 packets
+[Jul 31 17:21:18] (INF) 9 seconds since last update, effective sampling rate: 3955.4 samples/sec
+[Jul 31 17:21:18] (DBG) Requesting flush to disk : 34692 flow samples, 907 counter samples
+[Jul 31 17:21:18] (DBG) Locking buffer 0 for collecting
+[Jul 31 17:21:18] (DBG) Unlocking buffer 9 for flushing
+[Jul 31 17:21:18] (DBG) Write buffer thread flushing buffer[9]
+[Jul 31 17:21:18] (DBG) Writing to disk (34692 flow samples, 907 counter samples
+[Jul 31 17:21:18] (DBG) Collecting to buffer 0
+[Jul 31 17:21:20] (INF) Processed 101000 packets
+[Jul 31 17:21:20] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:21:20] (DBG) Flushing finished, buffer 9 unlocked
+[Jul 31 17:21:20] (DBG) Waiting for buffer 0 to be ready to flush
+[Jul 31 17:21:22] (INF) Processed 102000 packets
+[Jul 31 17:21:24] (INF) Processed 103000 packets
+[Jul 31 17:21:27] (INF) Processed 104000 packets
+[Jul 31 17:21:29] (INF) Processed 105000 packets
+[Jul 31 17:21:29] (INF) 11 seconds since last update, effective sampling rate: 3186.9 samples/sec
+[Jul 31 17:21:29] (DBG) Requesting flush to disk : 33908 flow samples, 1148 counter samples
+[Jul 31 17:21:29] (DBG) Locking buffer 1 for collecting
+[Jul 31 17:21:29] (DBG) Unlocking buffer 0 for flushing
+[Jul 31 17:21:29] (DBG) Write buffer thread flushing buffer[0]
+[Jul 31 17:21:29] (DBG) Collecting to buffer 1
+[Jul 31 17:21:29] (DBG) Writing to disk (33908 flow samples, 1148 counter samples
+[Jul 31 17:21:31] (INF) Processed 106000 packets
+[Jul 31 17:21:32] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:21:32] (DBG) Flushing finished, buffer 0 unlocked
+[Jul 31 17:21:32] (DBG) Waiting for buffer 1 to be ready to flush
+[Jul 31 17:21:33] (INF) Processed 107000 packets
+[Jul 31 17:21:36] (INF) Processed 108000 packets
+[Jul 31 17:21:38] (INF) Processed 109000 packets
+[Jul 31 17:21:41] (INF) Processed 110000 packets
+[Jul 31 17:21:41] (INF) 12 seconds since last update, effective sampling rate: 2912.7 samples/sec
+[Jul 31 17:21:41] (DBG) Requesting flush to disk : 33856 flow samples, 1096 counter samples
+[Jul 31 17:21:41] (DBG) Locking buffer 2 for collecting
+[Jul 31 17:21:41] (DBG) Unlocking buffer 1 for flushing
+[Jul 31 17:21:41] (DBG) Write buffer thread flushing buffer[1]
+[Jul 31 17:21:41] (DBG) Collecting to buffer 2
+[Jul 31 17:21:41] (DBG) Writing to disk (33856 flow samples, 1096 counter samples
+[Jul 31 17:21:44] (INF) Processed 111000 packets
+[Jul 31 17:21:44] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:21:44] (DBG) Flushing finished, buffer 1 unlocked
+[Jul 31 17:21:44] (DBG) Waiting for buffer 2 to be ready to flush
+[Jul 31 17:21:45] (INF) Processed 112000 packets
+[Jul 31 17:21:47] (INF) Processed 113000 packets
+[Jul 31 17:21:49] (INF) Processed 114000 packets
+[Jul 31 17:21:51] (INF) Processed 115000 packets
+[Jul 31 17:21:51] (INF) 10 seconds since last update, effective sampling rate: 3525.0 samples/sec
+[Jul 31 17:21:51] (DBG) Requesting flush to disk : 34218 flow samples, 1032 counter samples
+[Jul 31 17:21:51] (DBG) Locking buffer 3 for collecting
+[Jul 31 17:21:51] (DBG) Unlocking buffer 2 for flushing
+[Jul 31 17:21:51] (DBG) Write buffer thread flushing buffer[2]
+[Jul 31 17:21:51] (DBG) Collecting to buffer 3
+[Jul 31 17:21:51] (DBG) Writing to disk (34218 flow samples, 1032 counter samples
+[Jul 31 17:21:53] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:21:53] (DBG) Flushing finished, buffer 2 unlocked
+[Jul 31 17:21:53] (DBG) Waiting for buffer 3 to be ready to flush
+[Jul 31 17:21:53] (INF) Processed 116000 packets
+[Jul 31 17:21:55] (INF) Processed 117000 packets
+[Jul 31 17:21:57] (INF) Processed 118000 packets
+[Jul 31 17:21:59] (INF) Processed 119000 packets
+[Jul 31 17:22:01] (INF) Processed 120000 packets
+[Jul 31 17:22:01] (INF) 10 seconds since last update, effective sampling rate: 3508.2 samples/sec
+[Jul 31 17:22:01] (DBG) Requesting flush to disk : 33995 flow samples, 1087 counter samples
+[Jul 31 17:22:01] (DBG) Locking buffer 4 for collecting
+[Jul 31 17:22:01] (DBG) Write buffer thread flushing buffer[3]
+[Jul 31 17:22:01] (DBG) Unlocking buffer 3 for flushing
+[Jul 31 17:22:01] (DBG) Collecting to buffer 4
+[Jul 31 17:22:01] (DBG) Writing to disk (33995 flow samples, 1087 counter samples
+[Jul 31 17:22:03] (INF) Processed 121000 packets
+[Jul 31 17:22:04] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:22:04] (DBG) Flushing finished, buffer 3 unlocked
+[Jul 31 17:22:04] (DBG) Waiting for buffer 4 to be ready to flush
+[Jul 31 17:22:05] (INF) Processed 122000 packets
+[Jul 31 17:22:08] (INF) Processed 123000 packets
+[Jul 31 17:22:10] (INF) Processed 124000 packets
+[Jul 31 17:22:13] (INF) Processed 125000 packets
+[Jul 31 17:22:13] (INF) 12 seconds since last update, effective sampling rate: 2923.9 samples/sec
+[Jul 31 17:22:13] (DBG) Requesting flush to disk : 34025 flow samples, 1062 counter samples
+[Jul 31 17:22:13] (DBG) Locking buffer 5 for collecting
+[Jul 31 17:22:13] (DBG) Unlocking buffer 4 for flushing
+[Jul 31 17:22:13] (DBG) Write buffer thread flushing buffer[4]
+[Jul 31 17:22:13] (DBG) Collecting to buffer 5
+[Jul 31 17:22:13] (DBG) Writing to disk (34025 flow samples, 1062 counter samples
+[Jul 31 17:22:14] (INF) Processed 126000 packets
+[Jul 31 17:22:15] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:22:15] (DBG) Flushing finished, buffer 4 unlocked
+[Jul 31 17:22:15] (DBG) Waiting for buffer 5 to be ready to flush
+[Jul 31 17:22:16] (INF) Processed 127000 packets
+[Jul 31 17:22:17] (INF) Processed 128000 packets
+[Jul 31 17:22:19] (INF) Processed 129000 packets
+[Jul 31 17:22:20] (INF) Processed 130000 packets
+[Jul 31 17:22:20] (INF) 7 seconds since last update, effective sampling rate: 5135.3 samples/sec
+[Jul 31 17:22:20] (DBG) Requesting flush to disk : 35216 flow samples, 731 counter samples
+[Jul 31 17:22:20] (DBG) Locking buffer 6 for collecting
+[Jul 31 17:22:20] (DBG) Unlocking buffer 5 for flushing
+[Jul 31 17:22:20] (DBG) Write buffer thread flushing buffer[5]
+[Jul 31 17:22:20] (DBG) Writing to disk (35216 flow samples, 731 counter samples
+[Jul 31 17:22:20] (DBG) Collecting to buffer 6
+[Jul 31 17:22:21] (INF) Processed 131000 packets
+[Jul 31 17:22:22] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:22:22] (DBG) Flushing finished, buffer 5 unlocked
+[Jul 31 17:22:22] (DBG) Waiting for buffer 6 to be ready to flush
+[Jul 31 17:22:23] (INF) Processed 132000 packets
+[Jul 31 17:22:25] (INF) Processed 133000 packets
+[Jul 31 17:22:27] (INF) Processed 134000 packets
+[Jul 31 17:22:29] (INF) Processed 135000 packets
+[Jul 31 17:22:29] (INF) 9 seconds since last update, effective sampling rate: 3986.1 samples/sec
+[Jul 31 17:22:29] (DBG) Requesting flush to disk : 35006 flow samples, 869 counter samples
+[Jul 31 17:22:29] (DBG) Locking buffer 7 for collecting
+[Jul 31 17:22:29] (DBG) Unlocking buffer 6 for flushing
+[Jul 31 17:22:29] (DBG) Write buffer thread flushing buffer[6]
+[Jul 31 17:22:29] (DBG) Collecting to buffer 7
+[Jul 31 17:22:29] (DBG) Writing to disk (35006 flow samples, 869 counter samples
+[Jul 31 17:22:31] (INF) Processed 136000 packets
+[Jul 31 17:22:31] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:22:31] (DBG) Flushing finished, buffer 6 unlocked
+[Jul 31 17:22:31] (DBG) Waiting for buffer 7 to be ready to flush
+[Jul 31 17:22:34] (INF) Processed 137000 packets
+[Jul 31 17:22:36] (INF) Processed 138000 packets
+[Jul 31 17:22:38] (INF) Processed 139000 packets
+[Jul 31 17:22:40] (INF) Processed 140000 packets
+[Jul 31 17:22:40] (INF) 11 seconds since last update, effective sampling rate: 3201.3 samples/sec
+[Jul 31 17:22:40] (DBG) Requesting flush to disk : 34111 flow samples, 1103 counter samples
+[Jul 31 17:22:40] (DBG) Locking buffer 8 for collecting
+[Jul 31 17:22:40] (DBG) Unlocking buffer 7 for flushing
+[Jul 31 17:22:40] (DBG) Write buffer thread flushing buffer[7]
+[Jul 31 17:22:40] (DBG) Writing to disk (34111 flow samples, 1103 counter samples
+[Jul 31 17:22:40] (DBG) Collecting to buffer 8
+[Jul 31 17:22:42] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:22:42] (DBG) Flushing finished, buffer 7 unlocked
+[Jul 31 17:22:42] (DBG) Waiting for buffer 8 to be ready to flush
+[Jul 31 17:22:43] (INF) Processed 141000 packets
+[Jul 31 17:22:45] (INF) Processed 142000 packets
+[Jul 31 17:22:46] (INF) Processed 143000 packets
+[Jul 31 17:22:48] (INF) Processed 144000 packets
+[Jul 31 17:22:51] (INF) Processed 145000 packets
+[Jul 31 17:22:51] (INF) 11 seconds since last update, effective sampling rate: 3229.9 samples/sec
+[Jul 31 17:22:51] (DBG) Requesting flush to disk : 34503 flow samples, 1026 counter samples
+[Jul 31 17:22:51] (DBG) Locking buffer 9 for collecting
+[Jul 31 17:22:51] (DBG) Unlocking buffer 8 for flushing
+[Jul 31 17:22:51] (DBG) Write buffer thread flushing buffer[8]
+[Jul 31 17:22:51] (DBG) Collecting to buffer 9
+[Jul 31 17:22:51] (DBG) Writing to disk (34503 flow samples, 1026 counter samples
+[Jul 31 17:22:53] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:22:53] (DBG) Flushing finished, buffer 8 unlocked
+[Jul 31 17:22:53] (DBG) Waiting for buffer 9 to be ready to flush
+[Jul 31 17:22:54] (INF) Processed 146000 packets
+[Jul 31 17:22:56] (INF) Processed 147000 packets
+[Jul 31 17:22:59] (INF) Processed 148000 packets
+[Jul 31 17:23:01] (INF) Processed 149000 packets
+[Jul 31 17:23:04] (INF) Processed 150000 packets
+[Jul 31 17:23:04] (INF) 13 seconds since last update, effective sampling rate: 2693.0 samples/sec
+[Jul 31 17:23:04] (DBG) Requesting flush to disk : 33685 flow samples, 1324 counter samples
+[Jul 31 17:23:04] (DBG) Locking buffer 0 for collecting
+[Jul 31 17:23:04] (DBG) Unlocking buffer 9 for flushing
+[Jul 31 17:23:04] (DBG) Write buffer thread flushing buffer[9]
+[Jul 31 17:23:04] (DBG) Collecting to buffer 0
+[Jul 31 17:23:04] (DBG) Writing to disk (33685 flow samples, 1324 counter samples
+[Jul 31 17:23:06] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:23:06] (DBG) Flushing finished, buffer 9 unlocked
+[Jul 31 17:23:06] (DBG) Waiting for buffer 0 to be ready to flush
+[Jul 31 17:23:06] (INF) Processed 151000 packets
+[Jul 31 17:23:09] (INF) Processed 152000 packets
+[Jul 31 17:23:11] (INF) Processed 153000 packets
+[Jul 31 17:23:13] (INF) Processed 154000 packets
+[Jul 31 17:23:14] (INF) Processed 155000 packets
+[Jul 31 17:23:14] (INF) 10 seconds since last update, effective sampling rate: 3572.9 samples/sec
+[Jul 31 17:23:14] (DBG) Requesting flush to disk : 34664 flow samples, 1065 counter samples
+[Jul 31 17:23:14] (DBG) Locking buffer 1 for collecting
+[Jul 31 17:23:14] (DBG) Unlocking buffer 0 for flushing
+[Jul 31 17:23:14] (DBG) Write buffer thread flushing buffer[0]
+[Jul 31 17:23:14] (DBG) Collecting to buffer 1
+[Jul 31 17:23:14] (DBG) Writing to disk (34664 flow samples, 1065 counter samples
+[Jul 31 17:23:15] (INF) Processed 156000 packets
+[Jul 31 17:23:17] (INF) Processed 157000 packets
+[Jul 31 17:23:17] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:23:17] (DBG) Flushing finished, buffer 0 unlocked
+[Jul 31 17:23:17] (DBG) Waiting for buffer 1 to be ready to flush
+[Jul 31 17:23:20] (INF) Processed 158000 packets
+[Jul 31 17:23:22] (INF) Processed 159000 packets
+[Jul 31 17:23:25] (INF) Processed 160000 packets
+[Jul 31 17:23:25] (INF) 11 seconds since last update, effective sampling rate: 3242.2 samples/sec
+[Jul 31 17:23:25] (DBG) Requesting flush to disk : 34680 flow samples, 984 counter samples
+[Jul 31 17:23:25] (DBG) Locking buffer 2 for collecting
+[Jul 31 17:23:25] (DBG) Unlocking buffer 1 for flushing
+[Jul 31 17:23:25] (DBG) Write buffer thread flushing buffer[1]
+[Jul 31 17:23:25] (DBG) Writing to disk (34680 flow samples, 984 counter samples
+[Jul 31 17:23:25] (DBG) Collecting to buffer 2
+[Jul 31 17:23:27] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:23:27] (DBG) Flushing finished, buffer 1 unlocked
+[Jul 31 17:23:27] (DBG) Waiting for buffer 2 to be ready to flush
+[Jul 31 17:23:27] (INF) Processed 161000 packets
+[Jul 31 17:23:30] (INF) Processed 162000 packets
+[Jul 31 17:23:32] (INF) Processed 163000 packets
+[Jul 31 17:23:35] (INF) Processed 164000 packets
+[Jul 31 17:23:38] (INF) Processed 165000 packets
+[Jul 31 17:23:38] (INF) 13 seconds since last update, effective sampling rate: 2686.5 samples/sec
+[Jul 31 17:23:38] (DBG) Requesting flush to disk : 33523 flow samples, 1402 counter samples
+[Jul 31 17:23:38] (DBG) Locking buffer 3 for collecting
+[Jul 31 17:23:38] (DBG) Unlocking buffer 2 for flushing
+[Jul 31 17:23:38] (DBG) Write buffer thread flushing buffer[2]
+[Jul 31 17:23:38] (DBG) Collecting to buffer 3
+[Jul 31 17:23:38] (DBG) Writing to disk (33523 flow samples, 1402 counter samples
+[Jul 31 17:23:40] (INF) Processed 166000 packets
+[Jul 31 17:23:40] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:23:40] (DBG) Flushing finished, buffer 2 unlocked
+[Jul 31 17:23:40] (DBG) Waiting for buffer 3 to be ready to flush
+[Jul 31 17:23:43] (INF) Processed 167000 packets
+[Jul 31 17:23:44] (INF) Processed 168000 packets
+[Jul 31 17:23:46] (INF) Processed 169000 packets
+[Jul 31 17:23:47] (INF) Processed 170000 packets
+[Jul 31 17:23:47] (INF) 9 seconds since last update, effective sampling rate: 3976.9 samples/sec
+[Jul 31 17:23:47] (DBG) Requesting flush to disk : 34916 flow samples, 876 counter samples
+[Jul 31 17:23:47] (DBG) Locking buffer 4 for collecting
+[Jul 31 17:23:47] (DBG) Unlocking buffer 3 for flushing
+[Jul 31 17:23:47] (DBG) Write buffer thread flushing buffer[3]
+[Jul 31 17:23:47] (DBG) Writing to disk (34916 flow samples, 876 counter samples
+[Jul 31 17:23:47] (DBG) Collecting to buffer 4
+[Jul 31 17:23:49] (INF) Processed 171000 packets
+[Jul 31 17:23:49] (DBG) Done writing to disk, zeroing buffer
+[Jul 31 17:23:49] (DBG) Flushing finished, buffer 3 unlocked
+[Jul 31 17:23:49] (DBG) Waiting for buffer 4 to be ready to flush
+[Jul 31 17:23:51] (INF) Processed 172000 packets
+[Jul 31 17:23:53] (INF) Processed 173000 packets
