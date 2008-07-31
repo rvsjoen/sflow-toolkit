@@ -1,0 +1,5 @@
+* bzip2 compression ? (maybe this should be done afterwards, history)
+* syslog logging
+* check that data folder exists before collecting
+* check the datagram sequence number and print something if we are missing packets
+* clean/improve makefile
