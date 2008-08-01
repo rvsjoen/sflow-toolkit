@@ -413,7 +413,7 @@ void allocateMemory(){
  */
 int main(int argc, char** argv){
 	parseCommandLine(argc, argv);
-	disable_echo(true);
+//	disable_echo(true);
 	(void)signal(SIGINT, handle_signal);
 
 	log(LOGLEVEL_DEBUG, "Parsed command line");
