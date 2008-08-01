@@ -1,6 +1,5 @@
-CC= g++
-#CFLAGS=-ggdb -dv -pg -dr
-CFLAGS=-ggdb #-ansi -pedantic -Wall -Wextra #-Werror
+CC= gcc
+CFLAGS=-ggdb -Wall -Wextra --std=c99 -pedantic
 #CFLAGS=-O3
 LDFLAGS=-lpthread
 
@@ -9,7 +8,7 @@ LIBS=
 COLLECTORFLAGS=
 EXECFILE=collector
 
-all: collector
+all: collector sftconvert file_iotest
 
 clean:
 	rm -f *.o
@@ -40,8 +39,8 @@ util: util.c
 sftconvert: util filesorter logger
 	$(CC) -o sftconvert $(CFLAGS) sftconvert.c util.o filesorter.o logger.o
 
-fileio_test:
-	$(CC) -o fileio_test fileio_test.c
+file_iotest:
+	$(CC) -o file_iotest file_iotest.c
 
 install:
 	cp $(EXECFILE) /home/sjoen/work/sflow/collector

@@ -1,26 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
-#include <errno.h>
-#include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <bzlib.h>
-
-#include "sflow_parser.h"
-#include "util.h"
-#include "logger.h"
 #include "filesorter.h"
-
-#define PCAP_MAGIC 0xa1b2c3d4;
-#define PCAP_VERSION_MAJOR 2
-#define PCAP_VERSION_MINOR 4
 
 void createFolder(char* s)
 {
@@ -44,7 +22,7 @@ void createFolder(char* s)
 				chdir(token);
 			}
 		}
-	} while ( token = strtok(NULL, "/"));
+	} while ( (token = strtok(NULL, "/")) );
 
 	chdir(cwd);
 }
@@ -108,7 +86,7 @@ void writeToBinary(const char* filename, const void* data, SFSample_t type){
 	FILE* f;
 	if((f=fopen(filename, "a")) == NULL)
 	{
-		log(LOGLEVEL_ERROR, "%s", strerror(errno));
+		logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
 		exit_collector(1);
 	}
 	if(type == SFTYPE_FLOW)

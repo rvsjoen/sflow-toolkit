@@ -60,7 +60,7 @@ int main(int argc, char** argv)
 
 		FILE* f;
 		if((f=fopen(fin, "r")) == NULL){
-			log(LOGLEVEL_ERROR, "%s", strerror(errno));
+			logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
 			exit(1);
 		}
 		SFFlowSample sample;

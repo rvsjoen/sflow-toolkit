@@ -1,29 +1,13 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
-#include <string.h>
-
-#include <errno.h>
-#include <netdb.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-
 #include "sflow_parser.h"
-#include "logger.h"
 
 extern int log_level;
-bool print_parse = false;
-
 extern int cnt_total_f;
 extern int cnt_current_f;
 extern int cnt_total_c;
 extern int cnt_current_c;
-
 extern SFFlowSample* samples_f;
 extern SFCntrSample* samples_c;
+bool print_parse = false;
 
 /* 
  * ===  FUNCTION  ======================================================================
@@ -31,7 +15,7 @@ extern SFCntrSample* samples_c;
  *  Description:  Same as getData32 except we do not move the data pointer
  * =====================================================================================
  */
-static u_int32_t peekData32(SFDatagram *sample) {
+u_int32_t peekData32(SFDatagram *sample) {
 	return ntohl(*(sample->data));
 }
 
@@ -41,7 +25,7 @@ static u_int32_t peekData32(SFDatagram *sample) {
  *  Description:  Same as getData32_nobswap except we do not move the data pointer
  * =====================================================================================
  */
-static uint32_t peekData32_nobswap(SFDatagram *sample) {
+uint32_t peekData32_nobswap(SFDatagram *sample) {
 	return *(sample->data);
 }
 
@@ -52,7 +36,7 @@ static uint32_t peekData32_nobswap(SFDatagram *sample) {
  *  network byter order to host byte order and move the data pointer in the datagram
  * =====================================================================================
  */
-static uint32_t getData32(SFDatagram *sample) {
+uint32_t getData32(SFDatagram *sample) {
 	return ntohl(*(sample->data)++);
 }
 
@@ -63,7 +47,7 @@ static uint32_t getData32(SFDatagram *sample) {
  *  data pointer in the datagram without swapping endian-ness
  * =====================================================================================
  */
-static uint32_t getData32_nobswap(SFDatagram *sample) {
+uint32_t getData32_nobswap(SFDatagram *sample) {
 	return *(sample->data)++;
 }
 
@@ -73,7 +57,7 @@ static uint32_t getData32_nobswap(SFDatagram *sample) {
  *  Description:  Move the data pointer in the SFDatagram 'skip' bytes forward
  * =====================================================================================
  */
-static void skipBytes(SFDatagram *sample, int skip) {
+void skipBytes(SFDatagram *sample, int skip) {
 	int quads = (skip + 3) / 4;
 	sample->data += quads;
 }
@@ -85,7 +69,7 @@ static void skipBytes(SFDatagram *sample, int skip) {
  *  Description:  
  * =====================================================================================
  */
-static uint64_t getData64(SFDatagram *sample) {
+uint64_t getData64(SFDatagram *sample) {
   u_int64_t tmpLo, tmpHi;
   tmpHi = getData32(sample);
   tmpLo = getData32(sample);
@@ -99,7 +83,7 @@ static uint64_t getData64(SFDatagram *sample) {
  *  data pointer in the datagram relative to the address type
  * =====================================================================================
  */
-static u_int32_t getAddress(SFDatagram *sample, SFLAddress *address) {
+u_int32_t getAddress(SFDatagram *sample, SFLAddress *address) {
 	address->type = getData32(sample);
 	if(address->type == SFLADDRESSTYPE_IP_V4)
 		address->address.ip_v4.s_addr = getData32_nobswap(sample);
@@ -207,7 +191,7 @@ void parseSampledHeader(SFDatagram* datagram, SFFlowSample* sample)
 	// pointer in the sample structure and copy the raw header
 	//sample->raw_header = (unsigned char*)malloc(hdr.header_length);
 	memset(sample->raw_header, 0, RAW_HEADER_SIZE);
-	memcpy(sample->raw_header, datagram->data, hdr.header_length<RAW_HEADER_SIZE ? hdr.header_length : RAW_HEADER_SIZE);
+	memcpy(sample->raw_header, datagram->data, hdr.header_length<(uint32_t)RAW_HEADER_SIZE ? hdr.header_length : (uint32_t)RAW_HEADER_SIZE);
 
 	// Since memcpy doesnt update the data pointer, we need to do this manually
 	skipBytes(datagram, hdr.header_length); 
@@ -314,7 +298,7 @@ void parseCounterSample(SFDatagram* datagram, SFCntrSample* sample, bool expande
 	sample->sample_source_id_type  = s.ds_class;
 	sample->sample_source_id_index = s.ds_index;
 
-	int i=0;
+	uint32_t i=0;
 	for( ; i<s.num_elements ; i++ )
 		parseCounterRecordHeader(datagram, sample);
 }
@@ -442,7 +426,7 @@ void parseSample(SFDatagram* datagram, SFSample* s_tmpl){
 		if(hdr.tag == SFLFLOW_SAMPLE_EXPANDED)
 			parseFlowSample(datagram, s, true);
 		else
-			parseFlowSample(datagram, s); 
+			parseFlowSample(datagram, s, false); 
 
 	} else if (hdr.tag == SFLCOUNTERS_SAMPLE || hdr.tag == SFLCOUNTERS_SAMPLE_EXPANDED) {
 
@@ -457,7 +441,7 @@ void parseSample(SFDatagram* datagram, SFSample* s_tmpl){
 		if(hdr.tag == SFLCOUNTERS_SAMPLE_EXPANDED)
 			parseCounterSample(datagram, s, true);
 		else
-			parseCounterSample(datagram, s);
+			parseCounterSample(datagram, s, false);
 	} else {
 		// We dont know what it is, skip ahead to the next sample
 		skipBytes(datagram, hdr.length);
@@ -531,7 +515,7 @@ void parseDatagram(unsigned char* data, int n )
 	s_template.agent_address 	= ntohl(hdr.agent_address.address.ip_v4.s_addr);
 	s_template.sub_agent_id		= hdr.sub_agent_id;
 
-	int i;
+	uint32_t i;
 	for( i=0; i < hdr.num_records; i++ ){
 		parseSample(&datagram, &s_template); 				// Populate the sample using the datagram
 	}

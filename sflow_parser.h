@@ -1,16 +1,29 @@
 #ifndef __sflow_parser_h__
 #define __sflow_parser_h__
 
+#include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include "logger.h"
+#include <stdio.h>
+#include <time.h>
+#include <string.h>
+
+#include <errno.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 #include "sflow.h"
 
-// Ethernet headers (14 byte) + IP headers (20 byte) + TCP headers (20 byte)
-const int RAW_HEADER_SIZE = 128;
+#define RAW_HEADER_SIZE 128
 
-enum SFSample_t {
+typedef enum _SFSample_t {
 	SFTYPE_FLOW = 0,
 	SFTYPE_CNTR = 1
-};
+} SFSample_t;
 
 typedef struct _SFDatagram {
         time_t timestamp;
@@ -154,7 +167,7 @@ typedef struct _SFCntrSample {
  *  Description:  Same as getData32 except we do not move the data pointer
  * =====================================================================================
  */
-static u_int32_t peekData32(SFDatagram *sample);
+u_int32_t peekData32(SFDatagram *sample);
 
 /*
  * ===  FUNCTION  ======================================================================
@@ -162,7 +175,7 @@ static u_int32_t peekData32(SFDatagram *sample);
  *  Description:  Same as getData32_nobswap except we do not move the data pointer
  * =====================================================================================
  */
-static u_int32_t peekData32_nobswap(SFDatagram *sample);
+u_int32_t peekData32_nobswap(SFDatagram *sample);
 
 /*
  * ===  FUNCTION  ======================================================================
@@ -171,7 +184,7 @@ static u_int32_t peekData32_nobswap(SFDatagram *sample);
  *  network byter order to host byte order and move the data pointer in the datagram
  * =====================================================================================
  */
-static u_int32_t getData32(SFDatagram *sample);
+u_int32_t getData32(SFDatagram *sample);
 
 /*
  * ===  FUNCTION  ======================================================================
@@ -180,7 +193,7 @@ static u_int32_t getData32(SFDatagram *sample);
  *  data pointer in the datagram without swapping endian-ness
  * =====================================================================================
  */
-static u_int32_t getData32_nobswap(SFDatagram *sample);
+u_int32_t getData32_nobswap(SFDatagram *sample);
 
 /*
  * ===  FUNCTION  ======================================================================
@@ -188,7 +201,7 @@ static u_int32_t getData32_nobswap(SFDatagram *sample);
  *  Description:  Move the data pointer in the SFDatagram 'skip' bytes forward
  * =====================================================================================
  */
-static void skipBytes(SFDatagram *sample, int skip);
+void skipBytes(SFDatagram *sample, int skip);
 
 /*
  * ===  FUNCTION  ======================================================================
@@ -197,7 +210,7 @@ static void skipBytes(SFDatagram *sample, int skip);
  *  data pointer in the datagram relative to the address type
  * =====================================================================================
  */
-static u_int32_t getAddress(SFDatagram *sample, SFLAddress *address);
+u_int32_t getAddress(SFDatagram *sample, SFLAddress *address);
 
 void parseCountersGeneric(SFDatagram* datagram, SFCntrSample* sample);
 void parseCountersEthernet(SFDatagram* datagram, SFCntrSample* sample);
@@ -238,7 +251,7 @@ void printFlowRecordHeader(SFLFlowRecord_hdr* hdr);
 void parseFlowRecordHeader(SFDatagram* datagram, SFFlowSample* sample);
 
 void printCounterSample(SFLCounters_sample_expanded* s);
-void parseCounterSample(SFDatagram* datagram, SFCntrSample* sample, bool expanded=false);
+void parseCounterSample(SFDatagram* datagram, SFCntrSample* sample, bool expanded);
 
 /*
  * ===  FUNCTION  ======================================================================
@@ -255,7 +268,7 @@ void printFlowSample(SFLFlow_sample_expanded* s);
  *  SFLFlow_sample_expanded structure and call the function to parse the record header
  * =====================================================================================
  */
-void parseFlowSample(SFDatagram* datagram, SFFlowSample* sample, bool expanded=false);
+void parseFlowSample(SFDatagram* datagram, SFFlowSample* sample, bool expanded);
 
 /*
  * ===  FUNCTION  ======================================================================

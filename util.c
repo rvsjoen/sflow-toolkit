@@ -1,13 +1,8 @@
-#include <stdlib.h>
-#include <termios.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#define  _GNU_SOURCE
+
 #include "util.h"
 
-tcflag_t tflags     = 0;
+tcflag_t tflags = 0;
 
 /*
  * ===  FUNCTION  ======================================================================
@@ -16,7 +11,7 @@ tcflag_t tflags     = 0;
  * =====================================================================================
  */
 void disable_echo(bool b){
-    int res = open(ctermid(NULL), O_WRONLY);
+    int res = open((char*)ctermid(NULL), O_WRONLY);
     if(res != -1){
         struct termios tios;
         tcgetattr(res, &tios);
