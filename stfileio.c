@@ -12,8 +12,13 @@
 #include <time.h>
 #include <math.h>
 
+#include "util.h"
+
 int main(int argc, char** argv)
 {
+		UNUSED_ARGUMENT(argc);
+		UNUSED_ARGUMENT(argv);
+
 		int num = 5000000;
 		int length = 164;
 		char data[256];
@@ -28,7 +33,7 @@ int main(int argc, char** argv)
 		char filename[128];
 
 		int i=0;
-		sprintf(filename, "/storage/sflow/file_iotest.dat", i);
+		sprintf(filename, "/storage/sflow/file_iotest.dat");
 		for(; i<num; i++)
 		{	
 			if((f=fopen(filename, "a")) == NULL)

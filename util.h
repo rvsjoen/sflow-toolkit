@@ -8,6 +8,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#define UNUSED_ARGUMENT(x) (void)x
+
 /* 
  * ===  FUNCTION  ======================================================================
  *         Name:  disable_echo
