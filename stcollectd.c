@@ -32,21 +32,24 @@
 #define MAX_DATAGRAM_SAMPLES 10
 #define NUM_BUFFERS 10
 
-int port 			= DEFAULT_PORT;
-int flush_interval 	= DEFAULT_FLUSH_INTERVAL;
-int print_interval	= 1000;
+uint32_t port 			= DEFAULT_PORT;
+uint32_t flush_interval = DEFAULT_FLUSH_INTERVAL;
+uint32_t print_interval	= 1000;
+
 char* interface 	= NULL;
 char* cwd			= NULL;
 
-int cnt 			= 0;
-int cnt_total_f  	= 0;
-int cnt_total_c 	= 0;
-int cnt_current_f 	= 0;
-int cnt_current_c	= 0;
+uint32_t cnt 			= 0;
+uint32_t cnt_total_f  	= 0;
+uint32_t cnt_total_c 	= 0;
+uint32_t cnt_current_f 	= 0;
+uint32_t cnt_current_c	= 0;
+uint32_t sock_fd 		= 0;
+uint32_t time_start 	= 0;
+uint32_t time_end 		= 0;
+uint32_t write_f 		= 0;
+uint32_t write_c 		= 0;
 
-int sock_fd 		= 0;
-int time_start 		= 0;
-int time_end 		= 0;
 bool compress		= false;
 bool exit_var		= 0;
 
@@ -58,13 +61,13 @@ pthread_t write_thread;
  *  How many packets to capture before we close and go home
  *  This is a command line option
  *-----------------------------------------------------------------------------*/
-unsigned int num_packets	= -1;
+uint32_t num_packets = -1;
 
 /*-----------------------------------------------------------------------------
  * This is declared in the logger but we need to change it according to the
  * command line options
  *-----------------------------------------------------------------------------*/
-extern int log_level;
+extern uint32_t log_level;
 
 /*-----------------------------------------------------------------------------
  *  This is declared in the sflow parser but we need to change it according
@@ -84,8 +87,8 @@ bool print_hex;
 
 SFFlowSample* sfbuf[NUM_BUFFERS];
 SFCntrSample* scbuf[NUM_BUFFERS];
-int buffer_current_collect 	= 0;
-int buffer_current_flush 	= 0;
+uint32_t buffer_current_collect = 0;
+uint32_t buffer_current_flush 	= 0;
 SFFlowSample* samples_f;
 SFCntrSample* samples_c;
 
@@ -98,10 +101,10 @@ SFCntrSample* samples_c;
  *  Description:  Print an unsigned char array using hex
  * =====================================================================================
  */
-void printInHex(unsigned char* pkt, int len){
+void printInHex(unsigned char* pkt, uint32_t len){
         printf("\n\tHEX dump\n\t");
-	int j=0;
-        int i;
+	uint32_t j=0;
+        uint32_t i;
         for(i=0; i<len; i++){
 		if(j++%2 == 0)
 			printf(" ");
@@ -120,8 +123,8 @@ void printInHex(unsigned char* pkt, int len){
  *  Description:  Used to print the array of unsigned chars on a single line in hex
  * =====================================================================================
  */
-void printSingleLineHex(unsigned char* pkt, int len){
-	int i;
+void printSingleLineHex(unsigned char* pkt, uint32_t len){
+	uint32_t i;
 	for(i=0; i<len; i++){
 		printf("%.2X", *pkt);
 		pkt++;
@@ -196,8 +199,8 @@ void parseCommandLine(int argc, char** argv){
  *  the first interface returned by getaddrinfo
  * =====================================================================================
  */
-int createAndBindSocket(){
-	int sock_fd = socket(PF_INET, SOCK_DGRAM, 0);
+uint32_t createAndBindSocket(){
+	int32_t sock_fd = socket(PF_INET, SOCK_DGRAM, 0);
 	if(sock_fd == -1){
 		logmsg(LOGLEVEL_ERROR, strerror(errno));
 		exit_collector(1); // Critical error
@@ -240,7 +243,7 @@ void zeroAll(SFFlowSample* sf, SFCntrSample* sc){
  * =====================================================================================
  */
 void freeAll(){
-	int i = 0;
+	uint32_t i = 0;
 	for(;i<NUM_BUFFERS;i++)
 	{
 		logmsg(LOGLEVEL_DEBUG, "De-allocating memory for buffer %u", i);
@@ -249,8 +252,6 @@ void freeAll(){
 	}
 }
 
-int write_f = 0;
-int write_c = 0;
 
 void* writeBufferToDisk(){
 	while(exit_var != true){
@@ -263,7 +264,7 @@ void* writeBufferToDisk(){
 	
 		logmsg(LOGLEVEL_DEBUG, "Writing to disk (%u flow samples, %u counter samples", write_f, write_c);
 	
-		int i=0;
+		uint32_t i=0;
 		for(;i<write_f;i++){
 			SFFlowSample* fls = sfbuf[buffer_current_flush];
 	//		SFFlowSample* fls = &samples_f_write[i];
@@ -301,7 +302,7 @@ void flushLists()
 {
 	logmsg(LOGLEVEL_DEBUG, "Requesting flush to disk : %u flow samples, %u counter samples", cnt_current_f, cnt_current_c);
 
-	int b = buffer_current_collect;
+	uint32_t b = buffer_current_collect;
 	// Take the next buffer and lock it for the collector
 	buffer_current_collect = (buffer_current_collect+1)%NUM_BUFFERS;
 	logmsg(LOGLEVEL_DEBUG, "Locking buffer %u for collecting", buffer_current_collect);
@@ -333,7 +334,7 @@ void collect()
 	for(;i<num_packets;i++)
 	{
 		unsigned char buf[RECEIVE_BUFFER_SIZE];
-		int bytes_received = recv(sock_fd, &buf, RECEIVE_BUFFER_SIZE, 0);
+		uint32_t bytes_received = recv(sock_fd, &buf, RECEIVE_BUFFER_SIZE, 0);
 		cnt++;
 		if(time_start == 0)time_start = time(NULL);
 		if(t==0) t = time(NULL);

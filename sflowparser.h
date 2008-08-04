@@ -28,98 +28,98 @@ typedef enum _SFSample_t {
 typedef struct _SFDatagram {
         time_t timestamp;
         /* the raw pdu and some pointers to ease navigation*/
-        unsigned char* raw_sample;
-        unsigned char* raw_start;
-        unsigned char* raw_end;
-        unsigned int raw_length;
+        uint8_t* raw_sample;
+        uint8_t* raw_start;
+        uint8_t* raw_end;
+        uint32_t raw_length;
         /* decode cursor */
-        unsigned int * data;
+        uint32_t * data;
 } SFDatagram;
 
 typedef struct _SFLSample_hdr {
-        unsigned int tag;
-        unsigned int length;
+        uint32_t tag;
+        uint32_t length;
 } SFLSample_hdr;
 
 typedef struct _SFLFlowRecord_hdr {
-        unsigned int tag;
-        unsigned int length;
+        uint32_t tag;
+        uint32_t length;
 } SFLFlowRecord_hdr;
 
 typedef struct _SFLCounterRecord_hdr {
-        unsigned int tag;
-        unsigned int length;
+        uint32_t tag;
+        uint32_t length;
 } SFLCounterRecord_hdr;
 
 typedef struct _SFSample {
         // Datagram
         time_t timestamp;
-        unsigned int agent_address;
-        unsigned int sub_agent_id;
+        uint32_t agent_address;
+        uint32_t sub_agent_id;
 
         // Sample header
-        unsigned int sample_tag_enterprise;
-        unsigned int sample_tag_format;
-        unsigned int sample_length;
+        uint32_t sample_tag_enterprise;
+        uint32_t sample_tag_format;
+        uint32_t sample_length;
 } SFSample;
 
 typedef struct _SFFlowSample {
         // Datagram
         time_t timestamp;
-        unsigned int agent_address;
-        unsigned int sub_agent_id;
+        uint32_t agent_address;
+        uint32_t sub_agent_id;
 
         // Sample header
-        // unsigned int sample_tag_enterprise;
-        // unsigned int sample_tag_format;
-        // unsigned int sample_length;
+        // uint32_t sample_tag_enterprise;
+        // uint32_t sample_tag_format;
+        // uint32_t sample_length;
 
         // Flow sample
-        unsigned int sample_sequence_number;
-        unsigned int sample_source_id_type;
-        unsigned int sample_source_id_index;
-        unsigned int sample_sampling_rate;
-        unsigned int sample_sample_pool;
-        unsigned int sample_drops;
-        unsigned int sample_input_if_format;
-        unsigned int sample_input_if_value;
-        unsigned int sample_output_if_format;
-        unsigned int sample_output_if_value;
+        uint32_t sample_sequence_number;
+        uint32_t sample_source_id_type;
+        uint32_t sample_source_id_index;
+        uint32_t sample_sampling_rate;
+        uint32_t sample_sample_pool;
+        uint32_t sample_drops;
+        uint32_t sample_input_if_format;
+        uint32_t sample_input_if_value;
+        uint32_t sample_output_if_format;
+        uint32_t sample_output_if_value;
 
         // Record Header
-        // unsigned int record_tag_enterprise;
-        // unsigned int record_tag_format;
-        // unsigned int record_length;
+        // uint32_t record_tag_enterprise;
+        // uint32_t record_tag_format;
+        // uint32_t record_length;
 
         // Sampled raw packetheader
-        unsigned int raw_header_protocol;
-        unsigned int raw_header_frame_length;
-        unsigned int raw_header_stripped;
-        unsigned int raw_header_length;
-        unsigned char raw_header[RAW_HEADER_SIZE];
+        uint32_t raw_header_protocol;
+        uint32_t raw_header_frame_length;
+        uint32_t raw_header_stripped;
+        uint32_t raw_header_length;
+        uint8_t raw_header[RAW_HEADER_SIZE];
 } SFFlowSample;
 
 
 typedef struct _SFCntrSample {
         // Datagram
         time_t timestamp;
-        unsigned int agent_address;
-        unsigned int sub_agent_id;
+        uint32_t agent_address;
+        uint32_t sub_agent_id;
 
         // Sample header
-        // unsigned int sample_tag_enterprise;
-        // unsigned int sample_tag_format;
-        // unsigned int sample_length;
+        // uint32_t sample_tag_enterprise;
+        // uint32_t sample_tag_format;
+        // uint32_t sample_length;
 		
 		// Counter sample
-        unsigned int sample_sequence_number;
-        unsigned int sample_source_id_type;
-        unsigned int sample_source_id_index;
+        uint32_t sample_sequence_number;
+        uint32_t sample_source_id_type;
+        uint32_t sample_source_id_index;
 
         // Record Header
-        // unsigned int record_tag_enterprise;
-        // unsigned int record_tag_format;
-        // unsigned int record_length;
+        // uint32_t record_tag_enterprise;
+        // uint32_t record_tag_format;
+        // uint32_t record_length;
 
 		// Generic counters
 		uint32_t counter_generic_if_index;
@@ -201,18 +201,31 @@ u_int32_t getData32_nobswap(SFDatagram *sample);
  *  Description:  Move the data pointer in the SFDatagram 'skip' bytes forward
  * =====================================================================================
  */
-void skipBytes(SFDatagram *sample, int skip);
+void skipBytes(SFDatagram *sample, uint32_t skip);
 
 /*
  * ===  FUNCTION  ======================================================================
  *         Name:  getAddress
- *  Description:  Return the agent address as a 32-bit unsigned integer and move the
+ *  Description:  Return the agent address as a 32-bit uint32_teger and move the
  *  data pointer in the datagram relative to the address type
  * =====================================================================================
  */
 u_int32_t getAddress(SFDatagram *sample, SFLAddress *address);
 
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  parseCountersGeneric
+ *  Description:  Parse generic counter record
+ * =====================================================================================
+ */
 void parseCountersGeneric(SFDatagram* datagram, SFCntrSample* sample);
+
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  parseCountersEthernet
+ *  Description:  Parse ethernet counter record
+ * =====================================================================================
+ */
 void parseCountersEthernet(SFDatagram* datagram, SFCntrSample* sample);
 
 /*
@@ -231,7 +244,20 @@ void printSampledHeader(SFLSampled_header* hdr);
  */
 void parseSampledHeader(SFDatagram* datagram, SFFlowSample* sample);
 
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  printCounterRecordHeader
+ *  Description:  Print the information in a coutner record
+ * =====================================================================================
+ */
 void printCounterRecordHeader(SFLCounterRecord_hdr* hdr);
+
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  parseCounterRecordHeader
+ *  Description:  Parse the header of a counter sample record
+ * =====================================================================================
+ */
 void parseCounterRecordHeader(SFDatagram* datagram, SFCntrSample* sample);
 
 /*
@@ -250,7 +276,20 @@ void printFlowRecordHeader(SFLFlowRecord_hdr* hdr);
  */
 void parseFlowRecordHeader(SFDatagram* datagram, SFFlowSample* sample);
 
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  printCounterSample
+ *  Description:  Print the information in a SFLCounters_sample_expanded structure
+ * =====================================================================================
+ */
 void printCounterSample(SFLCounters_sample_expanded* s);
+
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  parseCounterSample
+ *  Description:  Parse the counter sample
+ * =====================================================================================
+ */
 void parseCounterSample(SFDatagram* datagram, SFCntrSample* sample, bool expanded);
 
 /*
@@ -304,6 +343,6 @@ void printDatagramHeader(const SFLSample_datagram_hdr* hdr);
  *  Then we parse each sample and store it
  * =====================================================================================
  */
-void parseDatagram(unsigned char* data, int n);
+void parseDatagram(uint8_t* data, uint32_t n);
 
 #endif

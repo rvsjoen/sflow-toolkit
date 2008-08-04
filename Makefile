@@ -1,7 +1,9 @@
 CC			:= gcc
 CFLAGS		:= -ggdb -Wall -Wextra --std=c99 -pedantic
 LIBS		:= pthread
-CMD_RM		:= rm -f
+CMD_RM		:= rm -fv
+CMD_CP		:= cp -v
+INSTALLDIR	:= /home/sjoen/work/sflow/collector
 
 EXEC_COLLECTOR 		:= stcollectd
 EXEC_CONVERTER		:= stconvert
@@ -42,3 +44,9 @@ distclean: clean
 #include $(patsubst %.c, %.d, $(SOURCES))
 
 .PHONY: all clean
+
+install: all
+	$(CMD_CP) $(EXEC_COLLECTOR) $(INSTALLDIR)
+	$(CMD_CP) $(EXEC_CONVERTER) $(INSTALLDIR)
+	$(CMD_CP) $(EXEC_TEST_FILEIO) $(INSTALLDIR)
+

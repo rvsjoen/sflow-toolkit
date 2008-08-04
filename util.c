@@ -4,12 +4,6 @@
 
 tcflag_t tflags = 0;
 
-/*
- * ===  FUNCTION  ======================================================================
- *         Name:  disable_echo
- *  Description:  This function enables/disables echo in the terminal
- * =====================================================================================
- */
 void disable_echo(bool b){
     int res = open((char*)ctermid(NULL), O_WRONLY);
     if(res != -1){

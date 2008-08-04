@@ -1,8 +1,8 @@
 #include "logger.h"
 
-int log_level = 0;
+uint32_t log_level = 0;
 
-void logmsg(int severity, const char* format, ...)
+void logmsg(uint32_t severity, const char* format, ...)
 {
 	time_t timestamp = time(NULL);
 	struct tm* t;
@@ -35,6 +35,7 @@ void logmsg(int severity, const char* format, ...)
 			fprintf(stdout, "\n");
 			fflush(stdout);
 		}
+
 		va_end( args );
 	}
 }

@@ -1,74 +1,35 @@
 #include "sflowparser.h"
 
-extern int log_level;
-extern int cnt_total_f;
-extern int cnt_current_f;
-extern int cnt_total_c;
-extern int cnt_current_c;
+extern int32_t log_level;
+extern int32_t cnt_total_f;
+extern int32_t cnt_current_f;
+extern int32_t cnt_total_c;
+extern int32_t cnt_current_c;
 extern SFFlowSample* samples_f;
 extern SFCntrSample* samples_c;
 bool print_parse = false;
 
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  peekData32
- *  Description:  Same as getData32 except we do not move the data pointer
- * =====================================================================================
- */
-u_int32_t peekData32(SFDatagram *sample) {
+uint32_t peekData32(SFDatagram *sample) {
 	return ntohl(*(sample->data));
 }
 
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  peekData32_nobswap
- *  Description:  Same as getData32_nobswap except we do not move the data pointer
- * =====================================================================================
- */
 uint32_t peekData32_nobswap(SFDatagram *sample) {
 	return *(sample->data);
 }
 
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  getData32
- *  Description:  Return the next 32-bit integer from the SFDatagram converting it from
- *  network byter order to host byte order and move the data pointer in the datagram
- * =====================================================================================
- */
 uint32_t getData32(SFDatagram *sample) {
 	return ntohl(*(sample->data)++);
 }
 
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  getData32_nobswap
- *  Description:  Return the next 32-bit integer from the SFDatagram and move the
- *  data pointer in the datagram without swapping endian-ness
- * =====================================================================================
- */
 uint32_t getData32_nobswap(SFDatagram *sample) {
 	return *(sample->data)++;
 }
 
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  skipBytes
- *  Description:  Move the data pointer in the SFDatagram 'skip' bytes forward
- * =====================================================================================
- */
-void skipBytes(SFDatagram *sample, int skip) {
+void skipBytes(SFDatagram *sample, uint32_t skip) {
 	int quads = (skip + 3) / 4;
 	sample->data += quads;
 }
 
-
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  getData64
- *  Description:  
- * =====================================================================================
- */
 uint64_t getData64(SFDatagram *sample) {
   u_int64_t tmpLo, tmpHi;
   tmpHi = getData32(sample);
@@ -76,14 +37,7 @@ uint64_t getData64(SFDatagram *sample) {
   return (tmpHi << 32) + tmpLo;
 }
 
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  getAddress
- *  Description:  Return the agent address as a 32-bit unsigned integer and move the
- *  data pointer in the datagram relative to the address type
- * =====================================================================================
- */
-u_int32_t getAddress(SFDatagram *sample, SFLAddress *address) {
+uint32_t getAddress(SFDatagram *sample, SFLAddress *address) {
 	address->type = getData32(sample);
 	if(address->type == SFLADDRESSTYPE_IP_V4)
 		address->address.ip_v4.s_addr = getData32_nobswap(sample);
@@ -94,13 +48,6 @@ u_int32_t getAddress(SFDatagram *sample, SFLAddress *address) {
 	return address->type;
 }
 
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  parseCountersGeneric
- *  Description:  Read the generic counter values from the datagram and into
- *				  the structure we are going to store
- * =====================================================================================
- */
 void parseCountersGeneric(SFDatagram* datagram, SFCntrSample* sample)
 {
 		sample->counter_generic_if_index 			 = getData32(datagram);
@@ -124,13 +71,6 @@ void parseCountersGeneric(SFDatagram* datagram, SFCntrSample* sample)
 		sample->counter_generic_if_promisc 			 = getData32(datagram);
 }
 
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  parseCountersEthernet
- *  Description:  Read the ethernet counter values from the datagram and into
- *				  the structure we are going to store
- * =====================================================================================
- */
 void parseCountersEthernet(SFDatagram* datagram, SFCntrSample* sample)
 {
 		sample->counter_ethernet_dot3_stats_AlignmentErrors 			= getData32(datagram);
@@ -148,12 +88,6 @@ void parseCountersEthernet(SFDatagram* datagram, SFCntrSample* sample)
 		sample->counter_ethernet_dot3_stats_SymbolErrors 				= getData32(datagram);
 }
 
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  printSampledHeader
- *  Description:  Print the information contained in a SFLSampled_header structure
- * =====================================================================================
- */
 void printSampledHeader(SFLSampled_header* hdr)
 {
 	printf(
@@ -165,12 +99,6 @@ void printSampledHeader(SFLSampled_header* hdr)
 	);
 }
 
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  parseSampledHeader
- *  Description:  Parse the sampled raw header
- * =====================================================================================
- */
 void parseSampledHeader(SFDatagram* datagram, SFFlowSample* sample)
 {
 	SFLSampled_header hdr;
@@ -189,7 +117,6 @@ void parseSampledHeader(SFDatagram* datagram, SFFlowSample* sample)
 
 	// Allocate dynamic space for the raw header on the heap using the raw_header
 	// pointer in the sample structure and copy the raw header
-	//sample->raw_header = (unsigned char*)malloc(hdr.header_length);
 	memset(sample->raw_header, 0, RAW_HEADER_SIZE);
 	memcpy(sample->raw_header, datagram->data, hdr.header_length<(uint32_t)RAW_HEADER_SIZE ? hdr.header_length : (uint32_t)RAW_HEADER_SIZE);
 
@@ -225,12 +152,6 @@ void parseCounterRecordHeader(SFDatagram* datagram, SFCntrSample* sample)
 	}
 }
 
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  printFlowRecordHeader
- *  Description:  Print the information contained in a SFLFlowRecord_hdr structure
- * =====================================================================================
- */
 void printFlowRecordHeader(SFLFlowRecord_hdr* hdr)
 {
 	printf(
@@ -240,12 +161,6 @@ void printFlowRecordHeader(SFLFlowRecord_hdr* hdr)
 	);
 }
 
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  parseFlowRecordHeader
- *  Description:  Parse the flow record header and extract the data
- * =====================================================================================
- */
 void parseFlowRecordHeader(SFDatagram* datagram, SFFlowSample* sample)
 {
 	SFLFlowRecord_hdr hdr;
@@ -303,12 +218,6 @@ void parseCounterSample(SFDatagram* datagram, SFCntrSample* sample, bool expande
 		parseCounterRecordHeader(datagram, sample);
 }
 
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  printFlowSample
- *  Description:  Print the information in a SFLFlow_sample structure
- * =====================================================================================
- */
 void printFlowSample(SFLFlow_sample_expanded* s)
 {
 	printf(
@@ -327,13 +236,6 @@ void printFlowSample(SFLFlow_sample_expanded* s)
 	);
 }
 
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  parseFlowSample
- *  Description:  Parse the sample, extract the information into a 
- *  SFLFlow_sample_expanded structure and call the function to parse the record header
- * =====================================================================================
- */
 void parseFlowSample(SFDatagram* datagram, SFFlowSample* sample, bool expanded)
 {
 
@@ -345,7 +247,7 @@ void parseFlowSample(SFDatagram* datagram, SFFlowSample* sample, bool expanded)
 		s.ds_class = getData32(datagram);
 		s.ds_index = getData32(datagram);
 	} else {
-		int tmp = getData32(datagram);
+		int32_t tmp = getData32(datagram);
 		s.ds_class = tmp >> 24;
 		s.ds_index = tmp & 0x00ffffff;
 	}
@@ -386,12 +288,6 @@ void parseFlowSample(SFDatagram* datagram, SFFlowSample* sample, bool expanded)
 	parseFlowRecordHeader(datagram, sample);
 }
 
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  printSampleHeader
- *  Description:  Print out the information in the SFLSample_hdr structure
- * =====================================================================================
- */
 void printSampleHeader(SFLSample_hdr* hdr){
 	printf("\tSAMPLE ");
 	printf("tag: %u:%u ", 	hdr->tag >> 12, hdr->tag & 0x00000FFF);
@@ -399,13 +295,6 @@ void printSampleHeader(SFLSample_hdr* hdr){
 	printf("\n");
 }
 
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  parseSample
- *  Description:  Parse the sample header and pass control to the correct parser
- *  based on the sample tag
- * =====================================================================================
- */
 void parseSample(SFDatagram* datagram, SFSample* s_tmpl){
 	SFLSample_hdr hdr;
 	hdr.tag		= getData32(datagram);
@@ -448,12 +337,6 @@ void parseSample(SFDatagram* datagram, SFSample* s_tmpl){
 	}
 }
 
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  printDatagramHeader
- *  Description:  Print out all the information in the datagram header structure
- * =====================================================================================
- */
 void printDatagramHeader(const SFLSample_datagram_hdr* hdr){
 	printf(
 			"DATAGRAM sflow version: %u ip version: %u agent address: %s sub agent: %u sequence number: %u uptime: %u samples: %u\n",
@@ -467,22 +350,13 @@ void printDatagramHeader(const SFLSample_datagram_hdr* hdr){
 		  );
 }
 
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  parseDatagram
- *  Description:  Populate the datagram structure with the pointers and a timestamp
- *  Then we populate the SFLSample_datagram_hdr structure and extract the fields we want
- *  from it to build a template for the samples we intend to store
- *  Then we parse each sample and store it
- * =====================================================================================
- */
-void parseDatagram(unsigned char* data, int n )
+void parseDatagram(uint8_t* data, uint32_t n )
 {
 	// Initialize the pointers in the SFDatagram structure
 	// Also set the timestamp this packet was received
 	SFDatagram datagram;
 	memset(&datagram, 0, sizeof(SFDatagram));
-	datagram.data = (unsigned int*)data;
+	datagram.data = (uint32_t*)data;
 	datagram.raw_length = n;
 	datagram.raw_sample = data;
 	datagram.raw_start = data;

@@ -8,7 +8,21 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  disable_echo
+ *  Description:  Disable echo to the terminal to remove output of ctrl-characters
+ * =====================================================================================
+ */
 void disable_echo(bool b);
+
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  exit_collector
+ *  Description:  This function helps do a clean shutdown of the collector with a
+ *  			  specific return value
+ * =====================================================================================
+ */
 void exit_collector(int r);
 
 #endif
