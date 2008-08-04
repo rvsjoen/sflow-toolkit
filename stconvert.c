@@ -9,7 +9,7 @@
 
 #include "logger.h"
 #include "filesorter.h"
-#include "sflow_parser.h"
+#include "sflowparser.h"
 
 bool write_pcap;
 

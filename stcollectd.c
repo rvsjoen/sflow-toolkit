@@ -22,7 +22,7 @@
 
 #include "util.h"
 #include "logger.h"
-#include "sflow_parser.h"
+#include "sflowparser.h"
 #include "filesorter.h"
 
 #define DEFAULT_FLUSH_INTERVAL 100

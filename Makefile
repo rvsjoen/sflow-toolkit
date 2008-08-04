@@ -1,47 +1,44 @@
-CC= gcc
-CFLAGS=-ggdb -Wall -Wextra --std=c99 -pedantic
-#CFLAGS=-O3
-LDFLAGS=-lpthread
+CC			:= gcc
+CFLAGS		:= -ggdb -Wall -Wextra --std=c99 -pedantic
+LIBS		:= pthread
+CMD_RM		:= rm -f
 
-LIBS=
+EXEC_COLLECTOR 		:= stcollectd
+EXEC_CONVERTER		:= stconvert
+EXEC_TEST_FILEIO	:= stfileio
 
-COLLECTORFLAGS=
-EXECFILE=collector
+SOURCES 	:= $(wildcard *.c)
+OBJS 		:= $(patsubst %.c, %.o, $(SOURCES))
 
-all: collector sftconvert file_iotest
+all: $(EXEC_COLLECTOR) $(EXEC_CONVERTER) $(EXEC_TEST_FILEIO)
+
+$(EXEC_COLLECTOR): $(EXEC_COLLECTOR).c filesorter.o util.o logger.o sflowparser.o
+	$(CC) $(CFLAGS) $(addprefix -l,$(LIBS))  -o $(EXEC_COLLECTOR) $^
+
+$(EXEC_CONVERTER): $(EXEC_CONVERTER).c filesorter.o logger.o util.o
+	$(CC) $(CFLAGS) $(addprefix -l,$(LIBS))  -o $(EXEC_CONVERTER) $^
+
+$(EXEC_TEST_FILEIO): $(EXEC_TEST_FILEIO).c
+	$(CC) $(CFLAGS) -o $(EXEC_TEST_FILEIO) $^
 
 clean:
-	rm -f *.o
+	$(CMD_RM) *.o
+	$(CMD_RM) *.d
 
 distclean: clean
-	rm -f $(EXECFILE)
+	$(CMD_RM) $(EXEC_COLLECTOR)
+	$(CMD_RM) $(EXEC_CONVERTER)
+	$(CMD_RM) $(EXEC_TEST_FILEIO)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $<
+
+%.d: %.c
+	@set -e; rm -f $@; \
+	$(CC) -M $(CPPFLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
+
+#include $(patsubst %.c, %.d, $(SOURCES))
 
 .PHONY: all clean
-
-file_nametest: filesorter util logger
-	$(CC) -o file_nametest file_nametest.c logger.o filesorter.o util.o
-
-collector: sflow_parser filesorter logger util collector.c
-	$(CC) -o $(EXECFILE) $(LDFLAGS) $(CFLAGS) collector.c sflow_parser.o filesorter.o logger.o util.o
-
-sflow_parser: logger sflow_parser.c
-	$(CC) $(CFLAGS) -c sflow_parser.c
-
-filesorter: logger filesorter.c
-	$(CC) $(CFLAGS) -c filesorter.c
-
-logger: logger.c
-	$(CC) $(CFLAGS) -c logger.c
-
-util: util.c
-	$(CC) $(CFLAGS) -c util.c
-
-sftconvert: util filesorter logger
-	$(CC) -o sftconvert $(CFLAGS) sftconvert.c util.o filesorter.o logger.o
-
-file_iotest:
-	$(CC) -o file_iotest file_iotest.c
-
-install:
-	cp $(EXECFILE) /home/sjoen/work/sflow/collector
-	cp sftconvert /home/sjoen/work/sflow/collector

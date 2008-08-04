@@ -15,7 +15,7 @@
 
 #include <netinet/in.h>
 
-#include "sflow_parser.h"
+#include "sflowparser.h"
 #include "util.h"
 #include "logger.h"
 
