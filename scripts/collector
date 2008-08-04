@@ -10,10 +10,12 @@
 # Author: Rune V. Sjoen <rune.sjoen@cern.ch>
 # Do NOT "set -e"
 
+set -x
+
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="sFlow toolkit collector"
-NAME=collector
+NAME=stcollectd
 HOME=/home/sjoen/work/sflow/collector
 DAEMON=$HOME/$NAME
 DAEMON_ARGS="-f 5000 -p 6343 -i 137.138.130.66 -o /storage/sflow -vv"
