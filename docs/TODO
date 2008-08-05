@@ -3,3 +3,4 @@
 * check that data folder exists before collecting
 * add option in stcollectd for forking to background of staying in foreground
 * check the datagram sequence number and print something if we are missing packets
+* list of allowed agents, ability to allow or deny 

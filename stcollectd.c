@@ -420,7 +420,12 @@ void allocateMemory(){
 int main(int argc, char** argv){
 	parseCommandLine(argc, argv);
 	disable_echo(true);
+
 	(void)signal(SIGINT, handle_signal);
+	(void)signal(SIGHUP, handle_signal);
+	(void)signal(SIGQUIT, handle_signal);
+	(void)signal(SIGABRT, handle_signal);
+	(void)signal(SIGTERM, handle_signal);
 
 	logmsg(LOGLEVEL_DEBUG, "Parsed command line");
 	logmsg(LOGLEVEL_DEBUG, "Size of a single flow sample is %u bytes", sizeof(SFFlowSample));

@@ -16,7 +16,7 @@ DESC="sFlow toolkit collector"
 NAME=stcollectd
 HOME=/home/sjoen/work/sflow/collector
 DAEMON=$HOME/$NAME
-DAEMON_ARGS="-f 5000 -p 6343 -i 137.138.130.66 -o /storage/sflow -vv"
+DAEMON_ARGS="-f 2000 -p 6343 -i 137.138.130.66 -o /storage/sflow -vv"
 PIDFILE=$HOME/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
 

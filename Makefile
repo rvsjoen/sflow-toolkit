@@ -51,8 +51,8 @@ install: all
 	$(CMD_CP) $(EXEC_TEST_FILEIO) $(INSTALLDIR)
 
 reinstall:
-	/home/sjoen/prog/collector/scripts/collector stop
+	/home/sjoen/work/git/sftoolkit/scripts/collector stop
 	$(CMD_CP) $(EXEC_COLLECTOR) $(INSTALLDIR)
 	$(CMD_CP) $(EXEC_CONVERTER) $(INSTALLDIR)
 	$(CMD_CP) $(EXEC_TEST_FILEIO) $(INSTALLDIR)
-	/home/sjoen/prog/collector/scripts/collector start
+	/home/sjoen/work/git/sftoolkit/scripts/collector start
