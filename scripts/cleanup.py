@@ -40,11 +40,13 @@ def main():
 	agents = [agent for agent in agents if agent != "0.0.0.0"]
 
 	for agent in agents:
-		os.system("rm -rf %s" % storagedir+"/"+agent+t.strftime("/%Y%m%d/%H"))
-
-		parentdir = os.listdir(storagedir+"/"+agent+t.strftime("/%Y%m%d/"))
-		if not parentdir:
-			os.system("rm -rf %s" % storagedir+"/"+agent+t.strftime("/%Y%m%d/"))
+		try:
+			os.system("rm -rf %s" % storagedir+"/"+agent+t.strftime("/%Y%m%d/%H"))
+			parentdir = os.listdir(storagedir+"/"+agent+t.strftime("/%Y%m%d/"))
+			if not parentdir:
+				os.system("rm -rf %s" % storagedir+"/"+agent+t.strftime("/%Y%m%d/"))
+		except OSError:
+			pass
 
 if __name__ == "__main__":
 	main()
