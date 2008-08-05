@@ -419,7 +419,7 @@ void allocateMemory(){
  */
 int main(int argc, char** argv){
 	parseCommandLine(argc, argv);
-//	disable_echo(true);
+	disable_echo(true);
 	(void)signal(SIGINT, handle_signal);
 
 	logmsg(LOGLEVEL_DEBUG, "Parsed command line");
@@ -429,10 +429,8 @@ int main(int argc, char** argv){
 	allocateMemory();
 	pthread_mutex_lock(&locks[buffer_current_collect]);
 
-samples_f = sfbuf[buffer_current_collect];
-samples_c = scbuf[buffer_current_collect];
-//samples_f_write = sfbuf[buffer_current_flush];
-//samples_c_write = scbuf[buffer_current_flush];
+	samples_f = sfbuf[buffer_current_collect];
+	samples_c = scbuf[buffer_current_collect];
 
 	logmsg(LOGLEVEL_DEBUG, "Initialized buffer pointers to buffer 0");
 	
