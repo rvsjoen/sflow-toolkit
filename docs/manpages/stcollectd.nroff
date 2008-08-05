@@ -1,0 +1,21 @@
+.TH "<program name>" 1
+.SH NAME
+<program name> \- <one line description of program>
+.SH SYNOPSIS
+.B <program name>
+<grammar for command line>
+.SH DESCRIPTION
+<detailed description of what the program does>
+.SH OPTIONS
+.TP
+.B \-<a command line switch>
+<description of what that switch does>
+.TP
+.B \-<a command line switch>
+<description of what that switch does>
+.TP
+.B <etc . . .>
+.SH "SEE ALSO"
+<a list of related man pages>
+.SH BUGS
+<known bugs if any>
