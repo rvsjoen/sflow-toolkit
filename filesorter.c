@@ -17,7 +17,8 @@ void createFolder(char* s)
 		{
 			if(mkdir(token, (mode_t) 0777) == -1)
 			{
-				exit_collector(1);
+				printf("mkdir(token, (mode_t) 0777) == -1");
+			//	exit_collector(1);
 			} else  {
 				chdir(token);
 			}
@@ -87,13 +88,15 @@ void writeToBinary(const char* filename, const void* data, SFSample_t type){
 	if((f=fopen(filename, "a")) == NULL)
 	{
 		logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
-		exit_collector(1);
+		//printf("(f=fopen(filename, 'a')) == NULL");
+		//exit_collector(1);
+	} else {
+		if(type == SFTYPE_FLOW)
+			fwrite(data, sizeof(SFFlowSample), 1, f);
+		else if(type == SFTYPE_CNTR)
+			fwrite(data, sizeof(SFCntrSample), 1, f);
+		fclose(f);
 	}
-	if(type == SFTYPE_FLOW)
-		fwrite(data, sizeof(SFFlowSample), 1, f);
-	else if(type == SFTYPE_CNTR)
-		fwrite(data, sizeof(SFCntrSample), 1, f);
-	fclose(f);
 }
 
 void getFilePath(uint32_t agent_address, time_t timestamp, char* filename){
