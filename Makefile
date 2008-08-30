@@ -1,6 +1,6 @@
 CC			:= gcc
 CFLAGS		:= -ggdb -Wall -Wextra --std=c99 -pedantic
-LIBS		:= pthread
+LIBS		:= pthread cmph
 CMD_RM		:= rm -fv
 CMD_CP		:= cp -v
 INSTALLDIR	:= /home/sjoen/work/sflow/collector
