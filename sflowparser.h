@@ -1,6 +1,7 @@
 #ifndef __sflow_parser_h__
 #define __sflow_parser_h__
 
+#include <cmph.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -19,6 +20,16 @@
 #include "sflow.h"
 
 #define RAW_HEADER_SIZE 128
+
+typedef struct _agent_stat {
+	int agent_index;
+	int datagram_latest_seq;
+	int tot_datagrams_received;
+	int tot_datagrams_dropped;
+} agent_stat;
+
+extern agent_stat* agent_stats;
+extern cmph_t* h;
 
 typedef enum _SFSample_t {
 	SFTYPE_FLOW = 0,

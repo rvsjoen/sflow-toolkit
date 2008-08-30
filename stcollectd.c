@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include <cmph.h>
 #include <time.h>
 #include <string.h>
 #include <signal.h>
@@ -38,7 +39,11 @@ uint32_t print_interval	= 1000;
 
 char* interface 	= NULL;
 char* cwd			= NULL;
+cmph_t *h 			= NULL;
 
+agent_stat* agent_stats;
+
+//TODO See if some of these can be removed
 uint32_t cnt 			= 0;
 uint32_t cnt_total_f  	= 0;
 uint32_t cnt_total_c 	= 0;
@@ -52,7 +57,6 @@ uint32_t write_c 		= 0;
 
 bool compress		= false;
 bool exit_var		= 0;
-
 
 pthread_mutex_t locks[NUM_BUFFERS];
 pthread_t write_thread;
@@ -89,6 +93,8 @@ SFFlowSample* sfbuf[NUM_BUFFERS];
 SFCntrSample* scbuf[NUM_BUFFERS];
 uint32_t buffer_current_collect = 0;
 uint32_t buffer_current_flush 	= 0;
+
+//TODO See if these can be removed
 SFFlowSample* samples_f;
 SFCntrSample* samples_c;
 
@@ -108,6 +114,7 @@ void printInHex(unsigned char* pkt, uint32_t len){
         for(i=0; i<len; i++){
 		if(j++%2 == 0)
 			printf(" ");
+
                 printf("%.2X", *pkt);
                 pkt++;
 		j++;
@@ -254,20 +261,17 @@ void freeAll(){
 
 
 void* writeBufferToDisk(){
+
 	while(exit_var != true){
-	//	samples_f_write = sfbuf[buffer_current_flush];
-	//	samples_c_write = scbuf[buffer_current_flush];
 
 		logmsg(LOGLEVEL_DEBUG, "Waiting for buffer %u to be ready to flush", buffer_current_flush);
 		pthread_mutex_lock(&locks[buffer_current_flush]);
 		logmsg(LOGLEVEL_DEBUG, "Write buffer thread flushing buffer[%u]", buffer_current_flush);	
-	
 		logmsg(LOGLEVEL_DEBUG, "Writing to disk (%u flow samples, %u counter samples", write_f, write_c);
 	
 		uint32_t i=0;
 		for(;i<write_f;i++){
 			SFFlowSample* fls = sfbuf[buffer_current_flush];
-	//		SFFlowSample* fls = &samples_f_write[i];
 			addSampleToFile(fls, cwd, SFTYPE_FLOW);
 		}
 		write_f = 0;
@@ -275,9 +279,9 @@ void* writeBufferToDisk(){
 		i=0;
 		for(;i<write_c;i++){
 			SFCntrSample* fls = scbuf[buffer_current_flush];
-	//		SFCntrSample* fls = &samples_c_write[i];
 			addSampleToFile(fls, cwd, SFTYPE_CNTR);
 		}
+
 		write_c = 0;
 	
 		logmsg(LOGLEVEL_DEBUG, "Done writing to disk, zeroing buffer");
@@ -288,8 +292,8 @@ void* writeBufferToDisk(){
 
 		buffer_current_flush = (buffer_current_flush + 1 )%NUM_BUFFERS;
 	}
-	void* p;
-	return p;
+
+	void* p; return p;
 }
 
 /* 
@@ -336,6 +340,11 @@ void collect()
 		unsigned char buf[RECEIVE_BUFFER_SIZE];
 		uint32_t bytes_received = recv(sock_fd, &buf, RECEIVE_BUFFER_SIZE, 0);
 		cnt++;
+	
+		//TODO REMOVE Do something useful here, this is just for testing
+		//	const char *key = "10.144.46.50";
+		//	unsigned int id = cmph_search(h, key, strlen(key));
+
 		if(time_start == 0)time_start = time(NULL);
 		if(t==0) t = time(NULL);
 		parseDatagram(buf, bytes_received);
@@ -357,6 +366,10 @@ void collect()
 
 	}
 	logmsg(LOGLEVEL_DEBUG, "Socket closed", cnt);
+}
+
+void destroyHash(){
+	cmph_destroy(h);
 }
 
 /* 
@@ -381,6 +394,8 @@ void hook_exit(int signal){
 
 	freeAll();
 	logmsg(LOGLEVEL_DEBUG, "Exiting with signal %u", signal);
+
+	destroyHash();
 
 	exit_collector(0);
 }
@@ -410,6 +425,31 @@ void allocateMemory(){
 		logmsg(LOGLEVEL_DEBUG, "Zeroed memory in buffer %u", i);
 	}
 }
+
+
+void initHash(){
+	FILE * keys_fd = fopen("agents.txt", "r");
+	logmsg(LOGLEVEL_DEBUG, "Reading agents from file");
+	if (keys_fd == NULL) {
+		fprintf(stderr, "File \"agents.txt\" not found\n");
+		exit(1);
+	}
+	cmph_io_adapter_t *source = cmph_io_nlfile_adapter(keys_fd);
+
+	cmph_config_t *config = cmph_config_new(source);
+	cmph_config_set_algo(config, CMPH_BMZ);
+	h = cmph_new(config);
+	cmph_config_destroy(config);
+
+	//Destroy hash
+	cmph_io_nlfile_adapter_destroy(source);
+	fclose(keys_fd);
+	
+	// Allocate some space for the agent stats
+	agent_stats = calloc(cmph_size(h), sizeof(agent_stat));
+	memset(agent_stats, 0, sizeof(agent_stat)*cmph_size(h));
+}
+
 
 /* 
  * ===  FUNCTION  ======================================================================
@@ -443,6 +483,8 @@ int main(int argc, char** argv){
 	if(cwd==NULL)
 		cwd = get_current_dir_name();
 	logmsg(LOGLEVEL_DEBUG, "Data directory : %s", cwd);
+
+	initHash();
 
 	// Start the thread which is going to help us write when the buffers are marked for flushing
 	logmsg(LOGLEVEL_DEBUG, "Starting diskwriter");
