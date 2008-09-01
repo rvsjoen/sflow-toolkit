@@ -1,4 +1,3 @@
-* bzip2 compression ? (maybe this should be done afterwards, history)
 * syslog logging
 * check that data folder exists before collecting
 * add option in stcollectd for forking to background of staying in foreground

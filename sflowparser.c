@@ -358,12 +358,12 @@ void parseDatagram(uint8_t* data, uint32_t n )
 	// Also set the timestamp this packet was received
 	SFDatagram datagram;
 	memset(&datagram, 0, sizeof(SFDatagram));
-	datagram.data = (uint32_t*)data;
+	datagram.data 		= (uint32_t*)data;
 	datagram.raw_length = n;
 	datagram.raw_sample = data;
-	datagram.raw_start = data;
-	datagram.raw_end = data + n;
-	datagram.timestamp = time(NULL);
+	datagram.raw_start 	= data;
+	datagram.raw_end 	= data + n;
+	datagram.timestamp 	= time(NULL);
 
 	// We extract the information from the sFlow datagram header and populate this structure
 	SFLSample_datagram_hdr hdr;
@@ -382,8 +382,6 @@ void parseDatagram(uint8_t* data, uint32_t n )
 	hdr.uptime 				= getData32(&datagram);
 	hdr.num_records 		= getData32(&datagram);
 	
-	if(print_parse) printDatagramHeader(&hdr);
-
 	// We extract the fields we want from our datagram and put it in our template sample
 	// This is the information we want in all the samples from the datagram
 	SFSample s_template;
@@ -402,16 +400,25 @@ void parseDatagram(uint8_t* data, uint32_t n )
 			(s_template.agent_address & 0x000000ff)
 		   );
 	
+	// Search for this agent in the hash of agents
 	unsigned int id = cmph_search(h, key, strlen(key));
 
 	// If the agent address is valid process the datagram, if not just skip it
 	if(strcmp(key, validagents[id]) == 0)
 	{
-		int tmp = agent_stats[id].datagram_latest_seq;
+		if(print_parse) printDatagramHeader(&hdr);
+
 		agent_stat* agent = &agent_stats[id];
-		agent->datagram_latest_seq = hdr.sequence_number;
 		agent->tot_datagrams_received++;
-		agent->tot_datagrams_dropped += agent->datagram_latest_seq-tmp;
+
+		int tmp = agent->datagram_latest_seq;
+		agent->datagram_latest_seq = hdr.sequence_number;
+
+		//agent->tot_datagrams_dropped += agent->datagram_latest_seq-tmp;
+		
+		printf("%s, %u %u %u %u\n", key, agent->tot_datagrams_received, agent->tot_datagrams_dropped, agent->datagram_latest_seq, tmp);
+
+
 
 		uint32_t i;
 		for( i=0; i < hdr.num_records; i++ ){

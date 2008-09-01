@@ -26,20 +26,25 @@
 #include "sflowparser.h"
 #include "filesorter.h"
 
-#define DEFAULT_FLUSH_INTERVAL 100
-#define DEFAULT_PORT 6343
-#define RECEIVE_BUFFER_SIZE 1500
+#define DEFAULT_FLUSH_INTERVAL 	100
+#define DEFAULT_PORT 			6343
+#define RECEIVE_BUFFER_SIZE 	1500
+#define MAX_DATAGRAM_SAMPLES 	10
 
-#define MAX_DATAGRAM_SAMPLES 10
-#define NUM_BUFFERS 10
+//TODO Make this configurable using a switch
+#define NUM_BUFFERS 			10
 
 uint32_t port 			= DEFAULT_PORT;
 uint32_t flush_interval = DEFAULT_FLUSH_INTERVAL;
+
+//TODO Make this configurable using a switch
 uint32_t print_interval	= 1000;
 
 char* interface 	= NULL;
 char* cwd			= NULL;
+
 char** validagents	= NULL;
+int num_agents 		= 0;
 cmph_t *h 			= NULL;
 agent_stat* agent_stats = NULL;
 
@@ -55,7 +60,6 @@ uint32_t time_end 		= 0;
 uint32_t write_f 		= 0;
 uint32_t write_c 		= 0;
 
-bool compress		= false;
 bool exit_var		= 0;
 
 pthread_mutex_t locks[NUM_BUFFERS];
@@ -168,7 +172,6 @@ void help()
 	printf("\t-vv\tEven more information\n\n");
 	printf("\t-x\tPrints the parsed information\n\n");
 	printf("\t-X\tPrints the HEX dump of each recieved packet\n\n");
-	printf("\t-z\tCompress the saved files using bzip2\n\n");
 }
 
 /* 
@@ -184,16 +187,15 @@ void parseCommandLine(int argc, char** argv){
 	{
 		switch(opt)
 		{
-			case 'p': port = atoi(optarg); 			break;
-			case 'i': interface = optarg; 			break;
-			case 'v': log_level++; 					break;
-			case 'n': num_packets = atoi(optarg); 	break;
-			case 'f': flush_interval = atoi(optarg);break;
-			case 'x': print_parse = true; 			break;
-			case 'X': print_hex = true; 			break;
+			case 'p': port = atoi(optarg); 					break;
+			case 'i': interface = optarg; 					break;
+			case 'v': log_level++; 							break;
+			case 'n': num_packets = atoi(optarg); 			break;
+			case 'f': flush_interval = atoi(optarg);		break;
+			case 'x': print_parse = true; 					break;
+			case 'X': print_hex = true; 					break;
 			case 'h': usage(); help(); exit_collector(0); 	break;
-			case 'o': cwd = optarg; 				break;
-			case 'z': compress = true;				break;
+			case 'o': cwd = optarg; 						break;
 			default : usage(); exit_collector(1);			break;
 		}
 	}
@@ -372,6 +374,16 @@ void destroyHash(){
 	cmph_destroy(h);
 }
 
+void printAgentStats(){
+	int i = 0;
+	logmsg(LOGLEVEL_DEBUG, "Agent Stats:");
+	for( ; i<num_agents; i++ )
+	{
+		agent_stat* as = &agent_stats[i];
+		logmsg(LOGLEVEL_DEBUG, "agent %s received %u dropped %u", validagents[as->agent_index], as->tot_datagrams_received, as->tot_datagrams_dropped);
+	}
+}
+
 /* 
  * ===  FUNCTION  ======================================================================
  *         Name:  hook_exit
@@ -390,6 +402,9 @@ void hook_exit(int signal){
 	time_t d_t = time_end - time_start;
 	logmsg(LOGLEVEL_INFO, "Ran for %u seconds", d_t);
 	logmsg(LOGLEVEL_INFO, "Total: %u packet(s), %u flow samples, %u counter samples, average sampling rate %.1f samples/sec", cnt, cnt_total_f, cnt_total_c, (cnt_total_f+cnt_total_c)/(double)(d_t));
+
+	printAgentStats();
+
 	logmsg(LOGLEVEL_DEBUG, "Releasing all resources");
 
 	freeAll();
@@ -426,12 +441,13 @@ void allocateMemory(){
 	}
 }
 
-
 void initHash(){
+	//TODO Add a switch for this filename
 	FILE * keys_fd = fopen("agents.txt", "r");
 	logmsg(LOGLEVEL_DEBUG, "Reading agents from file");
+
 	if (keys_fd == NULL) {
-		fprintf(stderr, "File \"agents.txt\" not found\n");
+		logmsg(LOGLEVEL_ERROR, "File \"agents.txt\" not found\n");
 		exit(1);
 	}
 	cmph_io_adapter_t *source = cmph_io_nlfile_adapter(keys_fd);
@@ -446,11 +462,11 @@ void initHash(){
 
 	rewind(keys_fd);
 
-	int size = cmph_size(h);
-	validagents=malloc(sizeof(char*) * size);
+	num_agents = cmph_size(h);
+	validagents=malloc(sizeof(char*) * num_agents);
 	int maxkeylength = 15;
 	int i;
-	for( i=0; i<size; i++ )
+	for( i=0; i<num_agents; i++ )
 	{
 		// Add 2 because of newline and null-terminator
 		char tmp[maxkeylength+2];
@@ -467,8 +483,8 @@ void initHash(){
 	fclose(keys_fd);
 
 	// Allocate some space for the agent stats
-	agent_stats = calloc(cmph_size(h), sizeof(agent_stat));
-	memset(agent_stats, 0, sizeof(agent_stat)*cmph_size(h));
+	agent_stats = calloc(num_agents, sizeof(agent_stat));
+	memset(agent_stats, 0, sizeof(agent_stat)*num_agents);
 }
 
 

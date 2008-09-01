@@ -1,5 +1,5 @@
 CC			:= gcc
-CFLAGS		:= -ggdb -Wall -Wextra --std=c99 -pedantic
+CFLAGS		:= -ggdb -Wall -Wextra --std=c99 -pedantic -fno-common -ffloat-store
 LIBS		:= pthread cmph
 CMD_RM		:= rm -fv
 CMD_CP		:= cp -v
