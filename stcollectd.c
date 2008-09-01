@@ -519,6 +519,18 @@ int main(int argc, char** argv){
 	// If current working directory was not set from the command line we set it here
 	if(cwd==NULL)
 		cwd = get_current_dir_name();
+	{
+		// If we set it on the command line, check that it exists
+		char* tmp;
+		tmp = get_current_dir_name();
+		if(chdir(cwd) == -1) {
+			logmsg(LOGLEVEL_ERROR, "Data directory: %s", strerror(errno));
+			disable_echo(false);
+			exit(1);
+		}
+		chdir(tmp);
+	}
+
 	logmsg(LOGLEVEL_DEBUG, "Data directory : %s", cwd);
 
 	initHash();
