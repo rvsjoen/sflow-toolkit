@@ -412,6 +412,7 @@ void hook_exit(int signal){
 
 	destroyHash();
 
+	destroyLogger();
 	exit_collector(0);
 }
 
@@ -495,6 +496,7 @@ void initHash(){
  * =====================================================================================
  */
 int main(int argc, char** argv){
+	initLogger();
 	parseCommandLine(argc, argv);
 	disable_echo(true);
 
