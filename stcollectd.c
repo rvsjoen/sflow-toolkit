@@ -150,7 +150,7 @@ void printSingleLineHex(unsigned char* pkt, uint32_t len){
  */
 void usage()
 {
-	printf("Usage : collector [-p <port>] [-i <listen address>] [-h] [-v[v]]] [-x] [-X] [-z] [-f <value>] [-n <value>] [-o <dir>]\n");	
+	printf("Usage : collector [options]\n");	
 }
 
 /* 
