@@ -1,21 +1,43 @@
-.TH "<program name>" 1
+.TH "stcollectd" 1
 .SH NAME
-<program name> \- <one line description of program>
+stcollectd \- sFlow collector daemon
 .SH SYNOPSIS
-.B <program name>
-<grammar for command line>
+.B stcollectd
+[options]
 .SH DESCRIPTION
-<detailed description of what the program does>
+This daemon collects sFlow samples
 .SH OPTIONS
 .TP
-.B \-<a command line switch>
-<description of what that switch does>
+.B \-f <value>
+Set the flushing interval in packets, the collector will flush data to disk when <value> packets are captured
 .TP
-.B \-<a command line switch>
-<description of what that switch does>
+.B \-i <ip address>
+Address to listen on, if no address is specified the collector will choose the first it finds
 .TP
-.B <etc . . .>
+.B \-n <value>
+Define the number of packets to capture before exiting, if this is not specified it will capture until told otherwise
+.TP
+.B \-o <path>
+Define the directory to save data in, in this directory the collector will create a data folder, no trailing slash!
+.TP
+.B \-p <port>
+Port to listen on, if no port is specified the default (6343) will be used
+.TP
+.B \-v
+Print info messages
+.TP
+.B \-vv
+Print both info and debug messages
+.TP
+.B \-x
+Print out the parsed samples
+.TP
+.B \-X
+Print out the samples in HEX
+.TP
+.B \-h
+Show the help
 .SH "SEE ALSO"
-<a list of related man pages>
+None
 .SH BUGS
-<known bugs if any>
+None
