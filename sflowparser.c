@@ -407,19 +407,8 @@ void parseDatagram(uint8_t* data, uint32_t n )
 	if(strcmp(key, validagents[id]) == 0)
 	{
 		if(print_parse) printDatagramHeader(&hdr);
-
 		agent_stat* agent = &agent_stats[id];
 		agent->tot_datagrams_received++;
-
-		int tmp = agent->datagram_latest_seq;
-		agent->datagram_latest_seq = hdr.sequence_number;
-
-		//agent->tot_datagrams_dropped += agent->datagram_latest_seq-tmp;
-		
-		printf("%s, %u %u %u %u\n", key, agent->tot_datagrams_received, agent->tot_datagrams_dropped, agent->datagram_latest_seq, tmp);
-
-
-
 		uint32_t i;
 		for( i=0; i < hdr.num_records; i++ ){
 			parseSample(&datagram, &s_template); 				// Populate the sample using the datagram

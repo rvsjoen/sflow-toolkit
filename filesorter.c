@@ -17,8 +17,7 @@ void createFolder(char* s)
 		{
 			if(mkdir(token, (mode_t) 0777) == -1)
 			{
-				printf("mkdir(token, (mode_t) 0777) == -1");
-			//	exit_collector(1);
+				logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
 			} else  {
 				chdir(token);
 			}
@@ -88,7 +87,6 @@ void writeToBinary(const char* filename, const void* data, SFSample_t type){
 	if((f=fopen(filename, "a")) == NULL)
 	{
 		logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
-		//printf("(f=fopen(filename, 'a')) == NULL");
 		//exit_collector(1);
 	} else {
 		if(type == SFTYPE_FLOW)

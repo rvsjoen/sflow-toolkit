@@ -23,9 +23,7 @@
 
 typedef struct _agent_stat {
 	int agent_index;
-	int datagram_latest_seq;
 	int tot_datagrams_received;
-	int tot_datagrams_dropped;
 } agent_stat;
 
 extern agent_stat* agent_stats;
@@ -80,11 +78,6 @@ typedef struct _SFFlowSample {
         uint32_t agent_address;
         uint32_t sub_agent_id;
 
-        // Sample header
-        // uint32_t sample_tag_enterprise;
-        // uint32_t sample_tag_format;
-        // uint32_t sample_length;
-
         // Flow sample
         uint32_t sample_sequence_number;
         uint32_t sample_source_id_type;
@@ -96,11 +89,6 @@ typedef struct _SFFlowSample {
         uint32_t sample_input_if_value;
         uint32_t sample_output_if_format;
         uint32_t sample_output_if_value;
-
-        // Record Header
-        // uint32_t record_tag_enterprise;
-        // uint32_t record_tag_format;
-        // uint32_t record_length;
 
         // Sampled raw packetheader
         uint32_t raw_header_protocol;
@@ -117,20 +105,10 @@ typedef struct _SFCntrSample {
         uint32_t agent_address;
         uint32_t sub_agent_id;
 
-        // Sample header
-        // uint32_t sample_tag_enterprise;
-        // uint32_t sample_tag_format;
-        // uint32_t sample_length;
-		
 		// Counter sample
         uint32_t sample_sequence_number;
         uint32_t sample_source_id_type;
         uint32_t sample_source_id_index;
-
-        // Record Header
-        // uint32_t record_tag_enterprise;
-        // uint32_t record_tag_format;
-        // uint32_t record_length;
 
 		// Generic counters
 		uint32_t counter_generic_if_index;
@@ -169,7 +147,6 @@ typedef struct _SFCntrSample {
 		uint32_t counter_ethernet_dot3_stats_FrameTooLongs;
 		uint32_t counter_ethernet_dot3_stats_InternalMacReceiveErrors;
 		uint32_t counter_ethernet_dot3_stats_SymbolErrors;
-
 } SFCntrSample;
 
 /*

@@ -380,7 +380,7 @@ void printAgentStats(){
 	for( ; i<num_agents; i++ )
 	{
 		agent_stat* as = &agent_stats[i];
-		logmsg(LOGLEVEL_DEBUG, "agent %s received %u dropped %u", validagents[as->agent_index], as->tot_datagrams_received, as->tot_datagrams_dropped);
+		logmsg(LOGLEVEL_DEBUG, "agent %s received %u ", validagents[as->agent_index], as->tot_datagrams_received);
 	}
 }
 
