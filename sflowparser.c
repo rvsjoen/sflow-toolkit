@@ -1,5 +1,7 @@
 #include "sflowparser.h"
 
+extern char** validagents;
+
 extern int32_t log_level;
 extern int32_t cnt_total_f;
 extern int32_t cnt_current_f;
@@ -389,7 +391,7 @@ void parseDatagram(uint8_t* data, uint32_t n )
 	s_template.agent_address 	= ntohl(hdr.agent_address.address.ip_v4.s_addr);
 	s_template.sub_agent_id		= hdr.sub_agent_id;
 
-	// Do some stats here
+	// Do some stats here (there might be a better way of doing this
 	char key[16];
 	sprintf(
 			key,
@@ -398,19 +400,22 @@ void parseDatagram(uint8_t* data, uint32_t n )
 			((s_template.agent_address & 0x00ff0000) >> 16),
 			((s_template.agent_address & 0x0000ff00) >> 8),
 			(s_template.agent_address & 0x000000ff)
-	);
+		   );
+	
 	unsigned int id = cmph_search(h, key, strlen(key));
-	int tmp = agent_stats[id].datagram_latest_seq;
-	agent_stat* agent = &agent_stats[id];
-	agent->datagram_latest_seq = hdr.sequence_number;
-	agent->tot_datagrams_received++;
-	agent->tot_datagrams_dropped += agent->datagram_latest_seq-tmp;
 
-	id = cmph_search(h,"192.168.0.12", 16);
-	printf("Testid %i\n", id);
+	// If the agent address is valid process the datagram, if not just skip it
+	if(strcmp(key, validagents[id]) == 0)
+	{
+		int tmp = agent_stats[id].datagram_latest_seq;
+		agent_stat* agent = &agent_stats[id];
+		agent->datagram_latest_seq = hdr.sequence_number;
+		agent->tot_datagrams_received++;
+		agent->tot_datagrams_dropped += agent->datagram_latest_seq-tmp;
 
-	uint32_t i;
-	for( i=0; i < hdr.num_records; i++ ){
-		parseSample(&datagram, &s_template); 				// Populate the sample using the datagram
+		uint32_t i;
+		for( i=0; i < hdr.num_records; i++ ){
+			parseSample(&datagram, &s_template); 				// Populate the sample using the datagram
+		}
 	}
 }

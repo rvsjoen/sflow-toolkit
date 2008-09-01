@@ -39,9 +39,9 @@ uint32_t print_interval	= 1000;
 
 char* interface 	= NULL;
 char* cwd			= NULL;
+char** validagents	= NULL;
 cmph_t *h 			= NULL;
-
-agent_stat* agent_stats;
+agent_stat* agent_stats = NULL;
 
 //TODO See if some of these can be removed
 uint32_t cnt 			= 0;
@@ -437,14 +437,35 @@ void initHash(){
 	cmph_io_adapter_t *source = cmph_io_nlfile_adapter(keys_fd);
 
 	cmph_config_t *config = cmph_config_new(source);
-	cmph_config_set_algo(config, CMPH_BMZ);
+	cmph_config_set_algo(config, CMPH_CHM);
 	h = cmph_new(config);
 	cmph_config_destroy(config);
 
 	//Destroy hash
 	cmph_io_nlfile_adapter_destroy(source);
+
+	rewind(keys_fd);
+
+	int size = cmph_size(h);
+	validagents=malloc(sizeof(char*) * size);
+	int maxkeylength = 15;
+	int i;
+	for( i=0; i<size; i++ )
+	{
+		// Add 2 because of newline and null-terminator
+		char tmp[maxkeylength+2];
+		fgets(tmp, maxkeylength+2, keys_fd);
+
+		// Now we create the char array to hold the key
+		char*  thiskey;
+		thiskey=malloc(sizeof(char)*(strlen(tmp)));
+		memset(thiskey, 0, sizeof(char)*(strlen(tmp)));
+		strncpy(thiskey, tmp, strlen(tmp)-1);
+		thiskey[strlen(tmp)] = '\0';
+		validagents[i] = thiskey;
+	}
 	fclose(keys_fd);
-	
+
 	// Allocate some space for the agent stats
 	agent_stats = calloc(cmph_size(h), sizeof(agent_stat));
 	memset(agent_stats, 0, sizeof(agent_stat)*cmph_size(h));
