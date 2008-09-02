@@ -444,11 +444,11 @@ void allocateMemory(){
 
 void initHash(){
 	//TODO Add a switch for this filename
-	FILE * keys_fd = fopen("agents.txt", "r");
+	FILE * keys_fd = fopen("/etc/stcollectd.agents", "r");
 	logmsg(LOGLEVEL_DEBUG, "Reading agents from file");
 
 	if (keys_fd == NULL) {
-		logmsg(LOGLEVEL_ERROR, "File \"agents.txt\" not found\n");
+		logmsg(LOGLEVEL_ERROR, "File \"/etc/stcollectd.agents\" not found\n");
 		exit(1);
 	}
 	cmph_io_adapter_t *source = cmph_io_nlfile_adapter(keys_fd);
@@ -519,8 +519,14 @@ int main(int argc, char** argv){
 	logmsg(LOGLEVEL_DEBUG, "Initialized buffer pointers to buffer 0");
 	
 	// If current working directory was not set from the command line we set it here
-	if(cwd==NULL)
-		cwd = get_current_dir_name();
+	if(cwd==NULL){
+//	cwd = get_current_dir_name();
+		logmsg(LOGLEVEL_ERROR, "Data directory no set");
+		disable_echo(false);
+		exit(1);
+
+	}
+
 	{
 		// If we set it on the command line, check that it exists
 		char* tmp;

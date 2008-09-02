@@ -4,9 +4,22 @@ AC_PREREQ(2.61)
 AC_INIT(sFlow toolkit, 0.1, rune.sjoen@cern.ch)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADER(config.h)
+AC_ARG_WITH(debugging, [  --with-debugging	  enable debugging symbols, disable optimization])
 
 # Checks for programs.
 AC_PROG_CC
+
+if test "${CFLAGS+set}" = set
+then
+	if test "$with_debugging" == "yes"
+	then
+		AC_MSG_NOTICE([You enabled debugging. Good for you.])
+		AC_SUBST(CFLAGS, "-ggdb")
+	else
+		AC_SUBST(CFLAGS, "-g -O2")
+	fi
+fi
+
 
 # Checks for libraries.
 
@@ -33,6 +46,7 @@ AC_PROG_CC
 #AC_FUNC_STRFTIME
 #AC_FUNC_VPRINTF
 #AC_CHECK_FUNCS([getcwd gettimeofday inet_ntoa memset mkdir socket strerror])
+
 
 AC_CONFIG_FILES([Makefile src/Makefile man/Makefile doc/Makefile scripts/Makefile conf/Makefile])
 AC_OUTPUT

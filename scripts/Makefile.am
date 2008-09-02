@@ -1,4 +1,4 @@
 initdir = /etc/init.d
 
-bin_SCRIPTS = cleanup.py 
+bin_SCRIPTS = stcleanup
 init_SCRIPTS = stcollectd

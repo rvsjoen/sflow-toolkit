@@ -1242,6 +1242,11 @@ Optional Features:
   --disable-dependency-tracking  speeds up one-time build
   --enable-dependency-tracking   do not reject slow dependency extractors
 
+Optional Packages:
+  --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
+  --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-debugging	  enable debugging symbols, disable optimization
+
 Some influential environment variables:
   CC          C compiler command
   CFLAGS      C compiler flags
@@ -2166,6 +2171,12 @@ am__tar='${AMTAR} chof - "$$tardir"'; am__untar='${AMTAR} xf -'
 
 
 ac_config_headers="$ac_config_headers config.h"
+
+
+# Check whether --with-debugging was given.
+if test "${with_debugging+set}" = set; then
+  withval=$with_debugging;
+fi
 
 
 # Checks for programs.
@@ -3259,6 +3270,21 @@ fi
 
 
 
+if test "${CFLAGS+set}" = set
+then
+	if test "$with_debugging" == "yes"
+	then
+		{ echo "$as_me:$LINENO: You enabled debugging. Good for you." >&5
+echo "$as_me: You enabled debugging. Good for you." >&6;}
+		CFLAGS="-ggdb"
+
+	else
+		CFLAGS="-g -O2"
+
+	fi
+fi
+
+
 # Checks for libraries.
 
 # Checks for header files.
@@ -3284,6 +3310,7 @@ fi
 #AC_FUNC_STRFTIME
 #AC_FUNC_VPRINTF
 #AC_CHECK_FUNCS([getcwd gettimeofday inet_ntoa memset mkdir socket strerror])
+
 
 ac_config_files="$ac_config_files Makefile src/Makefile man/Makefile doc/Makefile scripts/Makefile conf/Makefile"
 
