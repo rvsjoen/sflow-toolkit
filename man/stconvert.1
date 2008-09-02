@@ -1,21 +1,25 @@
-.TH "<program name>" 1
+.TH "stconvert" 1
 .SH NAME
-<program name> \- <one line description of program>
+stconvert \- extract and convert collected sFlow data to various file formats
 .SH SYNOPSIS
-.B <program name>
-<grammar for command line>
+.B stconvert
+[-p] -i <filename> -o <filename>
 .SH DESCRIPTION
-<detailed description of what the program does>
+extract and convert collected sFlow data to various file formats
 .SH OPTIONS
 .TP
-.B \-<a command line switch>
-<description of what that switch does>
+.B \-h
+Show usage information
 .TP
-.B \-<a command line switch>
-<description of what that switch does>
+.B \-i <filename>
+Set input file (collected sFlow data)
 .TP
-.B <etc . . .>
+.B \-o <filename>
+Set output filename
+.TP
+.B \-p
+Output pcap format
 .SH "SEE ALSO"
-<a list of related man pages>
+stcollectd(1)
 .SH BUGS
-<known bugs if any>
+None

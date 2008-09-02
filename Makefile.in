@@ -76,6 +76,7 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
@@ -83,7 +84,9 @@ DEPDIR = @DEPDIR@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
+EGREP = @EGREP@
 EXEEXT = @EXEEXT@
+GREP = @GREP@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -151,6 +154,7 @@ top_srcdir = @top_srcdir@
 AM_CFLAGS = 
 AUTOMAKE_OPTIONS = foreign
 SUBDIRS = src doc man scripts conf
+EXTRA_DIST = doc scripts man conf
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
