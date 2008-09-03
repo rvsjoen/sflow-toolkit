@@ -8,6 +8,15 @@ stcollectd \- sFlow collector daemon
 This daemon collects sFlow samples
 .SH OPTIONS
 .TP
+.B \-a <filename>
+Use another agent file (default is /etc/stcollectd.agents), use an absolute path
+.TP
+.B \-c <filename>
+Use another configuration file (default is /etc/stcollectd.conf), use an absolute path
+.TP
+.B \-d
+Do not daemonize
+.TP
 .B \-f <value>
 Set the flushing interval in packets, the collector will flush data to disk when <value> packets are captured
 .TP

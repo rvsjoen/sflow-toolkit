@@ -1,0 +1,87 @@
+#!/bin/sh
+#
+# chkconfig: - 91 35
+# description: Starts and stops the sFlow collector daemon
+#
+# pidfile: /var/run/$DAEMON.pid
+# config:  /etc/$DAEMON.conf
+
+ARGS=" -f 1000 -p 6343 -i 10.146.41.225 -o /tmp/sflow -v "
+DAEMON=stcollectd
+DAEMON_HOME=/usr/local/bin
+SERVICE="sFlow collecting"
+
+# Source function library.
+if [ -f /etc/init.d/functions ] ; then
+  . /etc/init.d/functions
+elif [ -f /etc/rc.d/init.d/functions ] ; then
+  . /etc/rc.d/init.d/functions
+else
+  exit 1
+fi
+
+# Avoid using root's TMPDIR
+unset TMPDIR
+
+[ -f /etc/$DAEMON.conf ] || exit 6
+
+RETVAL=0
+
+start() {
+	echo -n $"Starting $SERVICE services: "
+	daemon /usr/local/bin/$DAEMON $ARGS
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/$DAEMON || \
+	   RETVAL=1
+	return $RETVAL
+}	
+
+stop() {
+	echo -n $"Shutting down $SERVICE services: "
+	killproc $DAEMON
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/$DAEMON
+	echo ""
+	return $RETVAL
+}	
+
+restart() {
+	stop
+	start
+}	
+
+rhstatus() {
+	status $DAEMON
+	RETVAL=$?
+	if [ $RETVAL -ne 0 ]; then
+		return $RETVAL
+	fi
+}	
+
+# Allow status as non-root.
+if [ "$1" = status ]; then
+       rhstatus
+       exit $?
+fi
+
+case "$1" in
+  start)
+  	start
+	;;
+  stop)
+  	stop
+	;;
+  restart)
+  	restart
+	;;
+  status)
+  	rhstatus
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|restart|status}"
+	exit 2
+esac
+
+exit $?

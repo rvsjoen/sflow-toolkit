@@ -9,7 +9,6 @@
 
 # Author: Rune V. Sjoen <rune.sjoen@cern.ch>
 # Do NOT "set -e"
-set -x
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/sbin:/usr/sbin:/bin:/usr/bin

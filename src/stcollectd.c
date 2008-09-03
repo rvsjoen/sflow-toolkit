@@ -30,22 +30,26 @@
 #define DEFAULT_PORT 			6343
 #define RECEIVE_BUFFER_SIZE 	1500
 #define MAX_DATAGRAM_SAMPLES 	10
+#define DEFAULT_CONFIG_FILE		"/etc/stcollectd.conf"
+#define DEFAULT_AGENTS_FILE		"/etc/stcollectd.agents"
 
 //TODO Make this configurable using a switch
 #define NUM_BUFFERS 			10
+//TODO Make this configurable using a switch
+uint32_t print_interval	= 1000;
+
 
 uint32_t port 			= DEFAULT_PORT;
 uint32_t flush_interval = DEFAULT_FLUSH_INTERVAL;
 
-//TODO Make this configurable using a switch
-uint32_t print_interval	= 1000;
-
 char* interface 	= NULL;
 char* cwd			= NULL;
+char* file_agents	= DEFAULT_AGENTS_FILE;
+char* file_config 	= DEFAULT_CONFIG_FILE;
 
-char** validagents	= NULL;
-int num_agents 		= 0;
-cmph_t *h 			= NULL;
+char** validagents		= NULL;
+int num_agents 			= 0;
+cmph_t *h 				= NULL;
 agent_stat* agent_stats = NULL;
 
 //TODO See if some of these can be removed
@@ -60,7 +64,8 @@ uint32_t time_end 		= 0;
 uint32_t write_f 		= 0;
 uint32_t write_c 		= 0;
 
-bool exit_var		= 0;
+bool exit_var			= false;
+bool daemonize			= true;
 
 pthread_mutex_t locks[NUM_BUFFERS];
 pthread_t write_thread;
@@ -101,9 +106,6 @@ uint32_t buffer_current_flush 	= 0;
 //TODO See if these can be removed
 SFFlowSample* samples_f;
 SFCntrSample* samples_c;
-
-//SFFlowSample* samples_f_write;
-//SFCntrSample* samples_c_write;
 
 /* 
  * ===  FUNCTION  ======================================================================
@@ -172,6 +174,9 @@ void help()
 	printf("\t-vv\tEven more information\n\n");
 	printf("\t-x\tPrints the parsed information\n\n");
 	printf("\t-X\tPrints the HEX dump of each recieved packet\n\n");
+	printf("\t-d\tDo not daemonize\n\n");
+	printf("\t-c <filename>\tUse another configuration file (default is /etc/stcollectd.conf)\n\n");
+	printf("\t-a <filename>\tUse another agent file (default is /etc/stcollectd.agents\n\n");
 }
 
 /* 
@@ -183,7 +188,7 @@ void help()
  */
 void parseCommandLine(int argc, char** argv){
 	int opt;
-	while((opt = getopt(argc, argv, "vhp:i:n:xXo:f:z"))  != -1)
+	while((opt = getopt(argc, argv, "vhp:i:n:xXo:f:zc:a:d"))  != -1)
 	{
 		switch(opt)
 		{
@@ -196,6 +201,9 @@ void parseCommandLine(int argc, char** argv){
 			case 'X': print_hex = true; 					break;
 			case 'h': usage(); help(); exit_collector(0); 	break;
 			case 'o': cwd = optarg; 						break;
+			case 'a': file_agents = optarg;					break;
+			case 'c': file_config = optarg;					break;
+			case 'd': daemonize = false;					break;
 			default : usage(); exit_collector(1);			break;
 		}
 	}
@@ -343,10 +351,6 @@ void collect()
 		uint32_t bytes_received = recv(sock_fd, &buf, RECEIVE_BUFFER_SIZE, 0);
 		cnt++;
 	
-		//TODO REMOVE Do something useful here, this is just for testing
-		//	const char *key = "10.144.46.50";
-		//	unsigned int id = cmph_search(h, key, strlen(key));
-
 		if(time_start == 0)time_start = time(NULL);
 		if(t==0) t = time(NULL);
 		parseDatagram(buf, bytes_received);
@@ -384,6 +388,14 @@ void printAgentStats(){
 	}
 }
 
+void exit_on_error()
+{
+	if(!daemonize)
+		disable_echo(false);
+	logmsg(LOGLEVEL_DEBUG, "Exiting on error");
+	exit(1);
+}
+
 /* 
  * ===  FUNCTION  ======================================================================
  *         Name:  hook_exit
@@ -413,6 +425,10 @@ void hook_exit(int signal){
 	destroyHash();
 
 	destroyLogger();
+
+	if(!daemonize)
+		disable_echo(false);
+
 	exit_collector(0);
 }
 
@@ -443,13 +459,12 @@ void allocateMemory(){
 }
 
 void initHash(){
-	//TODO Add a switch for this filename
-	FILE * keys_fd = fopen("/etc/stcollectd.agents", "r");
-	logmsg(LOGLEVEL_DEBUG, "Reading agents from file");
+	FILE * keys_fd = fopen(file_agents, "r");
+	logmsg(LOGLEVEL_DEBUG, "Reading agents from file %s", file_agents);
 
 	if (keys_fd == NULL) {
-		logmsg(LOGLEVEL_ERROR, "File \"/etc/stcollectd.agents\" not found\n");
-		exit(1);
+		logmsg(LOGLEVEL_ERROR, "File \"%s\" not found", file_agents);
+		exit_on_error();
 	}
 	cmph_io_adapter_t *source = cmph_io_nlfile_adapter(keys_fd);
 
@@ -488,6 +503,39 @@ void initHash(){
 	memset(agent_stats, 0, sizeof(agent_stat)*num_agents);
 }
 
+void daemonize_me()
+{	
+		pid_t pid, sid;
+
+		if ( getppid() == 1 ) return;
+
+		// Fork off the parent process
+		pid = fork();
+		if (pid < 0) 
+			exit(EXIT_FAILURE);
+	
+		// If we got a good PID, then we can exit the parent process
+		if (pid > 0) 
+			exit(EXIT_SUCCESS);
+	
+		// Change the file mode mask
+		umask(0);
+	
+		// Create a new SID for the child process
+		sid = setsid();
+		if (sid < 0)
+			exit(EXIT_FAILURE);
+	
+		// Change the current working directory
+		if ((chdir("/")) < 0) 
+			exit(EXIT_FAILURE);
+	
+		// Close out the standard file descriptors
+		freopen( "/dev/null", "r", stdin);
+		freopen( "/dev/null", "w", stdout);
+		freopen( "/dev/null", "w", stderr);
+}
+
 
 /* 
  * ===  FUNCTION  ======================================================================
@@ -496,9 +544,15 @@ void initHash(){
  * =====================================================================================
  */
 int main(int argc, char** argv){
+
 	initLogger();
 	parseCommandLine(argc, argv);
-	disable_echo(true);
+
+	if(daemonize){
+		daemonize_me();
+	} else {
+		disable_echo(true);
+	}
 
 	(void)signal(SIGINT, handle_signal);
 	(void)signal(SIGHUP, handle_signal);
@@ -520,27 +574,23 @@ int main(int argc, char** argv){
 	
 	// If current working directory was not set from the command line we set it here
 	if(cwd==NULL){
-//	cwd = get_current_dir_name();
-		logmsg(LOGLEVEL_ERROR, "Data directory no set");
-		disable_echo(false);
-		exit(1);
-
+		logmsg(LOGLEVEL_ERROR, "Data directory not set");
+		exit_on_error();
 	}
 
 	{
-		// If we set it on the command line, check that it exists
+		// Check that the data folder exists
 		char* tmp;
 		tmp = get_current_dir_name();
 		if(chdir(cwd) == -1) {
 			logmsg(LOGLEVEL_ERROR, "Data directory: %s", strerror(errno));
-			disable_echo(false);
-			exit(1);
+			exit_on_error();
 		}
 		chdir(tmp);
 	}
 
 	logmsg(LOGLEVEL_DEBUG, "Data directory : %s", cwd);
-
+	logmsg(LOGLEVEL_DEBUG, "Initializing agents hash");
 	initHash();
 
 	// Start the thread which is going to help us write when the buffers are marked for flushing
