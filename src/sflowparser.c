@@ -195,9 +195,7 @@ void parseCounterSample(SFDatagram* datagram, SFCntrSample* sample, bool expande
 {
 	SFLCounters_sample_expanded s;
 	memset(&s, 0, sizeof(SFLCounters_sample_expanded));
-	
 	s.sequence_number = getData32(datagram);
-
 
 	if(expanded){
 		s.ds_class = getData32(datagram);
@@ -304,7 +302,7 @@ void parseSample(SFDatagram* datagram, SFSample* s_tmpl){
 	if(print_parse) printSampleHeader(&hdr);
 	
 	if(hdr.tag == SFLFLOW_SAMPLE || hdr.tag == SFLFLOW_SAMPLE_EXPANDED){
-
+		
 		SFFlowSample* s = &samples_f[cnt_current_f];
 
 		cnt_total_f++;
@@ -318,7 +316,7 @@ void parseSample(SFDatagram* datagram, SFSample* s_tmpl){
 			parseFlowSample(datagram, s, true);
 		else
 			parseFlowSample(datagram, s, false); 
-
+		
 	} else if (hdr.tag == SFLCOUNTERS_SAMPLE || hdr.tag == SFLCOUNTERS_SAMPLE_EXPANDED) {
 
 		SFCntrSample* s = &samples_c[cnt_current_c];

@@ -280,18 +280,19 @@ void* writeBufferToDisk(){
 		logmsg(LOGLEVEL_DEBUG, "Writing to disk (%u flow samples, %u counter samples", write_f, write_c);
 	
 		uint32_t i=0;
+		SFFlowSample* fls = sfbuf[buffer_current_flush];
 		for(;i<write_f;i++){
-			SFFlowSample* fls = sfbuf[buffer_current_flush];
 			addSampleToFile(fls, cwd, SFTYPE_FLOW);
+			fls++;
 		}
 		write_f = 0;
 
 		i=0;
+		SFCntrSample* cs = scbuf[buffer_current_flush];
 		for(;i<write_c;i++){
-			SFCntrSample* fls = scbuf[buffer_current_flush];
-			addSampleToFile(fls, cwd, SFTYPE_CNTR);
+			addSampleToFile(cs, cwd, SFTYPE_CNTR);
+			cs++;
 		}
-
 		write_c = 0;
 	
 		logmsg(LOGLEVEL_DEBUG, "Done writing to disk, zeroing buffer");
@@ -303,7 +304,7 @@ void* writeBufferToDisk(){
 		buffer_current_flush = (buffer_current_flush + 1 )%NUM_BUFFERS;
 	}
 
-	void* p; return p;
+	void* p; p=NULL; return p;
 }
 
 /* 
@@ -519,7 +520,7 @@ void daemonize_me()
 			exit(EXIT_SUCCESS);
 	
 		// Change the file mode mask
-		umask(0);
+		//umask(0);
 	
 		// Create a new SID for the child process
 		sid = setsid();
