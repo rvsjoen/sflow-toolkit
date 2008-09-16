@@ -26,19 +26,19 @@
 #include "sflowparser.h"
 #include "filesorter.h"
 
+// Default configuration parameters
 #define DEFAULT_FLUSH_INTERVAL 	100
 #define DEFAULT_PORT 			6343
 #define RECEIVE_BUFFER_SIZE 	1500
 #define MAX_DATAGRAM_SAMPLES 	10
 #define DEFAULT_CONFIG_FILE		"/etc/stcollectd.conf"
 #define DEFAULT_AGENTS_FILE		"/etc/stcollectd.agents"
-
-//TODO Make this configurable using a switch
 #define NUM_BUFFERS 			10
-//TODO Make this configurable using a switch
-uint32_t print_interval	= 1000;
+#define PRINT_INTERVAL			1000
 
 
+uint32_t print_interval	= PRINT_INTERVAL;
+uint32_t num_buffers	= NUM_BUFFERS;
 uint32_t port 			= DEFAULT_PORT;
 uint32_t flush_interval = DEFAULT_FLUSH_INTERVAL;
 
@@ -52,23 +52,20 @@ int num_agents 			= 0;
 cmph_t *h 				= NULL;
 agent_stat* agent_stats = NULL;
 
-//TODO See if some of these can be removed
 uint32_t cnt 			= 0;
 uint32_t cnt_total_f  	= 0;
 uint32_t cnt_total_c 	= 0;
-uint32_t cnt_current_f 	= 0;
-uint32_t cnt_current_c	= 0;
 uint32_t sock_fd 		= 0;
 uint32_t time_start 	= 0;
 uint32_t time_end 		= 0;
-uint32_t write_f 		= 0;
-uint32_t write_c 		= 0;
 
-bool exit_var			= false;
-bool daemonize			= true;
+bool exit_writer_thread			= false;
+bool exit_collector_thread		= false;
+bool daemonize					= true;
 
-pthread_mutex_t locks[NUM_BUFFERS];
+pthread_mutex_t* locks;
 pthread_t write_thread;
+pthread_t collect_thread;
 
 /*-----------------------------------------------------------------------------
  *  How many packets to capture before we close and go home
@@ -98,14 +95,14 @@ bool print_hex;
  *  Our collection to hold pointers to the parsed samples from the parser
  *-----------------------------------------------------------------------------*/
 
-SFFlowSample* sfbuf[NUM_BUFFERS];
-SFCntrSample* scbuf[NUM_BUFFERS];
+SFFlowSample** sfbuf;
+SFCntrSample** scbuf;
+
+uint32_t* scnum;
+uint32_t* sfnum;
+
 uint32_t buffer_current_collect = 0;
 uint32_t buffer_current_flush 	= 0;
-
-//TODO See if these can be removed
-SFFlowSample* samples_f;
-SFCntrSample* samples_c;
 
 /* 
  * ===  FUNCTION  ======================================================================
@@ -152,7 +149,7 @@ void printSingleLineHex(unsigned char* pkt, uint32_t len){
  */
 void usage()
 {
-	printf("Usage : collector [options]\n");	
+	printf("Usage : stcollectd [options]\n");	
 }
 
 /* 
@@ -177,6 +174,8 @@ void help()
 	printf("\t-d\tDo not daemonize\n\n");
 	printf("\t-c <filename>\tUse another configuration file (default is /etc/stcollectd.conf)\n\n");
 	printf("\t-a <filename>\tUse another agent file (default is /etc/stcollectd.agents\n\n");
+	printf("\t-b <val>\tSet the number of buffers\n\n");
+	printf("\t-P <val>\tSet the interval for printing statistics (in packets)\n\n");
 }
 
 /* 
@@ -188,7 +187,7 @@ void help()
  */
 void parseCommandLine(int argc, char** argv){
 	int opt;
-	while((opt = getopt(argc, argv, "vhp:i:n:xXo:f:zc:a:d"))  != -1)
+	while((opt = getopt(argc, argv, "vhp:i:n:xXo:f:zc:a:db:P:"))  != -1)
 	{
 		switch(opt)
 		{
@@ -204,6 +203,8 @@ void parseCommandLine(int argc, char** argv){
 			case 'a': file_agents = optarg;					break;
 			case 'c': file_config = optarg;					break;
 			case 'd': daemonize = false;					break;
+			case 'b': num_buffers = atoi(optarg); 			break;
+			case 'P': print_interval = atoi(optarg); 		break;
 			default : usage(); exit_collector(1);			break;
 		}
 	}
@@ -249,8 +250,8 @@ uint32_t createAndBindSocket(){
  * =====================================================================================
  */
 void zeroAll(SFFlowSample* sf, SFCntrSample* sc){
-	memset(sf, 1, sizeof(SFFlowSample)*flush_interval*MAX_DATAGRAM_SAMPLES);
-	memset(sc, 1, sizeof(SFCntrSample)*flush_interval*(MAX_DATAGRAM_SAMPLES/4));
+	memset(sf, 0, sizeof(SFFlowSample)*flush_interval*MAX_DATAGRAM_SAMPLES);
+	memset(sc, 0, sizeof(SFCntrSample)*flush_interval*(MAX_DATAGRAM_SAMPLES/4));
 }
 
 /* 
@@ -260,119 +261,18 @@ void zeroAll(SFFlowSample* sf, SFCntrSample* sc){
  * =====================================================================================
  */
 void freeAll(){
+
 	uint32_t i = 0;
-	for(;i<NUM_BUFFERS;i++)
+	for(;i<num_buffers;i++)
 	{
 		logmsg(LOGLEVEL_DEBUG, "De-allocating memory for buffer %u", i);
 		free(sfbuf[i]);
 		free(scbuf[i]);
 	}
-}
-
-
-void* writeBufferToDisk(){
-
-	while(exit_var != true){
-
-		logmsg(LOGLEVEL_DEBUG, "Waiting for buffer %u to be ready to flush", buffer_current_flush);
-		pthread_mutex_lock(&locks[buffer_current_flush]);
-		logmsg(LOGLEVEL_DEBUG, "Write buffer thread flushing buffer[%u]", buffer_current_flush);	
-		logmsg(LOGLEVEL_DEBUG, "Writing to disk (%u flow samples, %u counter samples", write_f, write_c);
-	
-		uint32_t i=0;
-		SFFlowSample* fls = sfbuf[buffer_current_flush];
-		for(;i<write_f;i++){
-			addSampleToFile(fls, cwd, SFTYPE_FLOW);
-			fls++;
-		}
-		write_f = 0;
-
-		i=0;
-		SFCntrSample* cs = scbuf[buffer_current_flush];
-		for(;i<write_c;i++){
-			addSampleToFile(cs, cwd, SFTYPE_CNTR);
-			cs++;
-		}
-		write_c = 0;
-	
-		logmsg(LOGLEVEL_DEBUG, "Done writing to disk, zeroing buffer");
-		zeroAll(sfbuf[buffer_current_flush], scbuf[buffer_current_flush]);
-
-		pthread_mutex_unlock(&locks[buffer_current_flush]);
-		logmsg(LOGLEVEL_DEBUG, "Flushing finished, buffer %u unlocked",buffer_current_flush);
-
-		buffer_current_flush = (buffer_current_flush + 1 )%NUM_BUFFERS;
-	}
-
-	void* p; p=NULL; return p;
-}
-
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  flushLists
- *  Description:  Flushes the contents of the lists to disk
- * =====================================================================================
- */
-void flushLists()
-{
-	logmsg(LOGLEVEL_DEBUG, "Requesting flush to disk : %u flow samples, %u counter samples", cnt_current_f, cnt_current_c);
-
-	uint32_t b = buffer_current_collect;
-	// Take the next buffer and lock it for the collector
-	buffer_current_collect = (buffer_current_collect+1)%NUM_BUFFERS;
-	logmsg(LOGLEVEL_DEBUG, "Locking buffer %u for collecting", buffer_current_collect);
-	pthread_mutex_lock(&locks[buffer_current_collect]);
-
-	write_f = cnt_current_f;
-	write_c = cnt_current_c;
-
-	pthread_mutex_unlock(&locks[b]);
-	logmsg(LOGLEVEL_DEBUG, "Unlocking buffer %u for flushing", b);
-
-	// Change the pointes to the current buffer
-	samples_f = sfbuf[buffer_current_collect];
-	samples_c = scbuf[buffer_current_collect];
-
-	cnt_current_f = 0;
-	cnt_current_c = 0;
-
-	logmsg(LOGLEVEL_DEBUG, "Collecting to buffer %u", buffer_current_collect);
-	
-}
-
-void collect()
-{
-	sock_fd = createAndBindSocket();
-	logmsg(LOGLEVEL_DEBUG, "Waiting for packets...");
-	uint32_t i = 0;
-	time_t t = 0;
-	for(;i<num_packets;i++)
-	{
-		unsigned char buf[RECEIVE_BUFFER_SIZE];
-		uint32_t bytes_received = recv(sock_fd, &buf, RECEIVE_BUFFER_SIZE, 0);
-		cnt++;
-	
-		if(time_start == 0)time_start = time(NULL);
-		if(t==0) t = time(NULL);
-		parseDatagram(buf, bytes_received);
-		if(print_hex) printInHex(buf, bytes_received);
-
-		time_t d_t = time(NULL) - t;
-		if(cnt%print_interval==0)
-		{
-			logmsg(LOGLEVEL_INFO, "Processed %u packets", cnt);
-		}
-
-		if(cnt%flush_interval==0 && flush_interval>0)
-		{
-			logmsg(LOGLEVEL_INFO, "%u seconds since last update, effective sampling rate: %.1f samples/sec", d_t, ((cnt_current_f+cnt_current_c)/(double)d_t));
-			t = time(NULL);
-			flushLists();
-		}
-		time_end = time(NULL);
-
-	}
-	logmsg(LOGLEVEL_DEBUG, "Socket closed", cnt);
+	free(scbuf);
+	free(sfbuf);
+	free(sfnum);
+	free(scnum);
 }
 
 void destroyHash(){
@@ -389,12 +289,136 @@ void printAgentStats(){
 	}
 }
 
-void exit_on_error()
-{
+void exit_on_error() {
 	if(!daemonize)
 		disable_echo(false);
 	logmsg(LOGLEVEL_DEBUG, "Exiting on error");
 	exit(1);
+}
+
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  flushLists
+ *  Description:  Flushes the contents of the lists to disk
+ * =====================================================================================
+ */
+void flushLists()
+{
+	logmsg(LOGLEVEL_DEBUG, "Collected %u flow samples and %u counter samples to buffer %u, requesting flush", 
+			sfnum[buffer_current_collect], scnum[buffer_current_collect], buffer_current_collect);
+
+	// Take the next buffer and lock it for the collector, if it is still locked my the writing process we wait and lose samples
+	uint32_t buffer_next_collect = (buffer_current_collect+1)%num_buffers;
+
+	// Lock the next buffer we are going to collect into
+	logmsg(LOGLEVEL_DEBUG, "Locking buffer %u for collecting", buffer_next_collect);
+	if (pthread_mutex_lock(&locks[buffer_next_collect]) == 0)
+		logmsg(LOGLEVEL_DEBUG, "Buffer %u successfully locked for collecting", buffer_next_collect);
+
+	// Unlock the previous buffer we collected to so that the writing thread can write it to disk
+	logmsg(LOGLEVEL_DEBUG, "Unlocking buffer %u for flushing", buffer_current_collect);
+	if(pthread_mutex_unlock(&locks[buffer_current_collect])==0)
+		logmsg(LOGLEVEL_DEBUG, "Buffer %u successfully unlocked for flushing", buffer_current_collect);
+
+	buffer_current_collect = buffer_next_collect;
+	logmsg(LOGLEVEL_DEBUG, "Collecting to buffer %u", buffer_next_collect);
+}
+
+void* writeBufferToDisk(){
+
+	bool time_to_shutdown = false;
+	while(true){
+
+		if(exit_writer_thread && !time_to_shutdown){
+			logmsg(LOGLEVEL_DEBUG, "Starting to shut down writing thread");
+			time_to_shutdown = true;
+		}
+
+		if(exit_writer_thread && time_to_shutdown){
+			logmsg(LOGLEVEL_DEBUG, "Final flush of buffer %u", buffer_current_flush);
+			if(pthread_mutex_trylock(&locks[buffer_current_flush])==0)
+				break;
+		} else {
+
+			logmsg(LOGLEVEL_DEBUG, "Waiting for buffer %u to be ready to flush", buffer_current_flush);
+			if (pthread_mutex_lock(&locks[buffer_current_flush])==0)
+				logmsg(LOGLEVEL_DEBUG, "Write buffer thread flushing buffer %u ", buffer_current_flush);
+
+		}
+
+		logmsg(LOGLEVEL_DEBUG, "Writing to disk (%u flow samples, %u counter samples) from buffer %u", 
+				sfnum[buffer_current_flush], scnum[buffer_current_flush], buffer_current_flush);
+
+		if( sfnum[buffer_current_flush] >0 ){
+			uint32_t i=0;
+
+			SFFlowSample* fls = sfbuf[buffer_current_flush];
+
+			for(;i<sfnum[buffer_current_flush];i++){
+				addSampleToFile(fls, cwd, SFTYPE_FLOW);
+				fls++;
+			}
+			sfnum[buffer_current_flush] = 0;
+		}
+		if(scnum[buffer_current_flush] > 0){
+			uint32_t i=0;
+			SFCntrSample* cs = scbuf[buffer_current_flush];
+			for(;i<scnum[buffer_current_flush];i++){
+				addSampleToFile(cs, cwd, SFTYPE_CNTR);
+				cs++;
+			}
+			scnum[buffer_current_flush] = 0;
+		}
+
+		logmsg(LOGLEVEL_DEBUG, "Done writing to disk, zeroing buffer %u", buffer_current_flush);
+		zeroAll(sfbuf[buffer_current_flush], scbuf[buffer_current_flush]);
+
+		if (pthread_mutex_unlock(&locks[buffer_current_flush]) == 0)
+			logmsg(LOGLEVEL_DEBUG, "Flushing finished, buffer %u unlocked",buffer_current_flush);
+		buffer_current_flush = (buffer_current_flush + 1 )%num_buffers;
+	}
+	logmsg(LOGLEVEL_DEBUG, "Writing thread exiting");
+	void* p; p=NULL; return p;
+}
+
+void* collect()
+{
+	sock_fd = createAndBindSocket();
+	logmsg(LOGLEVEL_DEBUG, "Waiting for packets...");
+	uint32_t i = 0;
+	time_t t = 0;
+	for(;i<num_packets && !exit_collector_thread;i++)
+	{
+		unsigned char buf[RECEIVE_BUFFER_SIZE];
+		uint32_t bytes_received = recv(sock_fd, &buf, RECEIVE_BUFFER_SIZE, 0);
+		cnt++;
+	
+		if(time_start == 0)time_start = time(NULL);
+		if(t==0) t = time(NULL);
+		parseDatagram(buf, bytes_received);
+		if(print_hex) printInHex(buf, bytes_received);
+
+		time_t d_t = time(NULL) - t;
+		if(cnt%print_interval==0)
+		{
+			logmsg(LOGLEVEL_INFO, "Processed %u packets", cnt);
+		}
+		if(cnt%flush_interval==0 && flush_interval>0)
+		{
+			logmsg(LOGLEVEL_INFO, "%u seconds since last update, effective sampling rate: %.1f samples/sec", d_t, 
+					((scnum[buffer_current_collect]+sfnum[buffer_current_collect])/(double)d_t));
+			t = time(NULL);
+			flushLists();
+		}
+		time_end = time(NULL);
+	}
+	// Lock the next one (empty) to prevent over-running
+	pthread_mutex_lock(&locks[(buffer_current_collect+1)%num_buffers]);
+	logmsg(LOGLEVEL_DEBUG, "Collecting finished, unlocking the last buffer");
+	pthread_mutex_unlock(&locks[buffer_current_collect]);
+	logmsg(LOGLEVEL_DEBUG, "Collecting thread exiting");
+	exit_writer_thread = true;
+	void* p; p=NULL; return p;
 }
 
 /* 
@@ -404,29 +428,28 @@ void exit_on_error()
  * =====================================================================================
  */
 void hook_exit(int signal){
-	flushLists();
-
-	exit_var = true;
-	pthread_join(write_thread, NULL);
-
+	// We know the collecting thread already finished, if not we would not be here
+	// So we can do some collector-related cleanup
+	logmsg(LOGLEVEL_DEBUG, "Performing cleanup routine");
 	logmsg(LOGLEVEL_DEBUG, "Closing socket");
 	close(sock_fd);
 
+	// Wait for the writing thread
+	logmsg(LOGLEVEL_DEBUG, "Waiting for writing thread to finish");
+	pthread_join(write_thread, NULL);
+
 	time_t d_t = time_end - time_start;
 	logmsg(LOGLEVEL_INFO, "Ran for %u seconds", d_t);
-	logmsg(LOGLEVEL_INFO, "Total: %u packet(s), %u flow samples, %u counter samples, average sampling rate %.1f samples/sec", cnt, cnt_total_f, cnt_total_c, (cnt_total_f+cnt_total_c)/(double)(d_t));
+	logmsg(LOGLEVEL_INFO, "Total: %u packet(s), %u flow samples, %u counter samples, average sampling rate %.1f samples/sec", 
+			cnt, cnt_total_f, cnt_total_c, (cnt_total_f+cnt_total_c)/(double)(d_t));
 
 	printAgentStats();
-
 	logmsg(LOGLEVEL_DEBUG, "Releasing all resources");
-
 	freeAll();
 	logmsg(LOGLEVEL_DEBUG, "Exiting with signal %u", signal);
-
+	
 	destroyHash();
-
 	destroyLogger();
-
 	if(!daemonize)
 		disable_echo(false);
 
@@ -440,23 +463,44 @@ void hook_exit(int signal){
  * =====================================================================================
  */
 void handle_signal(int sig){
+	logmsg(LOGLEVEL_DEBUG, "Shutdown initiated");
+	exit_collector_thread = true;
+	pthread_join(collect_thread, NULL);
 	hook_exit(sig);
 }
 
 void allocateMemory(){
+	locks = (pthread_mutex_t*) malloc(sizeof(pthread_mutex_t)*num_buffers);
+	logmsg(LOGLEVEL_DEBUG, "Allocating memory for %u buffer pointers", num_buffers);
+	sfbuf = (SFFlowSample**) malloc(sizeof(SFFlowSample*)*num_buffers);
+	scbuf = (SFCntrSample**) malloc(sizeof(SFCntrSample*)*num_buffers);
+
 	// We create the arrays to store the samples in and allocate the memory for them and zero it
-	int i = 0;
-	for(;i<NUM_BUFFERS;i++)
+	uint32_t i = 0;
+	for(;i<num_buffers;i++)
 	{
 		pthread_mutex_init(&locks[i], NULL);
 		SFFlowSample* s_f = (SFFlowSample*) malloc(sizeof(SFFlowSample)*flush_interval*MAX_DATAGRAM_SAMPLES);
 		SFCntrSample* s_c = (SFCntrSample*) malloc(sizeof(SFCntrSample)*flush_interval*(MAX_DATAGRAM_SAMPLES/4));
-		logmsg(LOGLEVEL_DEBUG, "Allocated memory for buffer %u", i);
-		sfbuf[i] = s_f;
-		scbuf[i] = s_c;
-		zeroAll(s_f, s_c);
-		logmsg(LOGLEVEL_DEBUG, "Zeroed memory in buffer %u", i);
+
+		if(s_f == NULL || s_c == NULL){
+			logmsg(LOGLEVEL_ERROR, "Error allocating memory");
+			exit_on_error();
+		} else {
+
+			logmsg(LOGLEVEL_DEBUG, "Allocated memory for buffer %u", i);
+			sfbuf[i] = s_f;
+			scbuf[i] = s_c;
+			zeroAll(s_f, s_c);
+			logmsg(LOGLEVEL_DEBUG, "Zeroed memory in buffer %u", i);
+		}
 	}
+
+	logmsg(LOGLEVEL_DEBUG, "Allocating memory for %u counters", num_buffers);
+	scnum = (uint32_t*) malloc(sizeof(uint32_t)*num_buffers);
+	sfnum = (uint32_t*) malloc(sizeof(uint32_t)*num_buffers);
+	memset(scnum, 0, sizeof(uint32_t)*num_buffers);
+	memset(sfnum, 0, sizeof(uint32_t)*num_buffers);
 }
 
 void initHash(){
@@ -491,10 +535,13 @@ void initHash(){
 
 		// Now we create the char array to hold the key
 		char*  thiskey;
+
 		thiskey=malloc(sizeof(char)*(strlen(tmp)));
 		memset(thiskey, 0, sizeof(char)*(strlen(tmp)));
+
 		strncpy(thiskey, tmp, strlen(tmp)-1);
-		thiskey[strlen(tmp)] = '\0';
+//		thiskey[strlen(tmp)] = '\0';
+
 		validagents[i] = thiskey;
 	}
 	fclose(keys_fd);
@@ -504,8 +551,7 @@ void initHash(){
 	memset(agent_stats, 0, sizeof(agent_stat)*num_agents);
 }
 
-void daemonize_me()
-{	
+void daemonize_me() {	
 		pid_t pid, sid;
 
 		if ( getppid() == 1 ) return;
@@ -537,7 +583,6 @@ void daemonize_me()
 		freopen( "/dev/null", "w", stderr);
 }
 
-
 /* 
  * ===  FUNCTION  ======================================================================
  *         Name:  main
@@ -555,11 +600,11 @@ int main(int argc, char** argv){
 		disable_echo(true);
 	}
 
-	(void)signal(SIGINT, handle_signal);
-	(void)signal(SIGHUP, handle_signal);
-	(void)signal(SIGQUIT, handle_signal);
-	(void)signal(SIGABRT, handle_signal);
-	(void)signal(SIGTERM, handle_signal);
+	(void)signal(SIGINT, 	handle_signal);
+	(void)signal(SIGHUP, 	handle_signal);
+	(void)signal(SIGQUIT, 	handle_signal);
+	(void)signal(SIGABRT, 	handle_signal);
+	(void)signal(SIGTERM, 	handle_signal);
 
 	logmsg(LOGLEVEL_DEBUG, "Parsed command line");
 	logmsg(LOGLEVEL_DEBUG, "Size of a single flow sample is %u bytes", sizeof(SFFlowSample));
@@ -568,10 +613,7 @@ int main(int argc, char** argv){
 	allocateMemory();
 	pthread_mutex_lock(&locks[buffer_current_collect]);
 
-	samples_f = sfbuf[buffer_current_collect];
-	samples_c = scbuf[buffer_current_collect];
-
-	logmsg(LOGLEVEL_DEBUG, "Initialized buffer pointers to buffer 0");
+	logmsg(LOGLEVEL_DEBUG, "Initialized buffer pointers to buffer %u", buffer_current_collect);
 	
 	// If current working directory was not set from the command line we set it here
 	if(cwd==NULL){
@@ -598,9 +640,13 @@ int main(int argc, char** argv){
 	logmsg(LOGLEVEL_DEBUG, "Starting diskwriter");
 	pthread_create(&write_thread, NULL, writeBufferToDisk, NULL);
 
-	// Start collecting 
+	// Start collecting thread
 	logmsg(LOGLEVEL_DEBUG, "Starting collector");
-	collect();
+	pthread_create(&collect_thread, NULL, collect, NULL);
 
-	hook_exit(0);
+	// Wait for the collecting thread to finish before cleaning up
+	pthread_join(collect_thread, NULL);
+
+	// Perform the exit routine, this includes waiting for threads
+	handle_signal(0);
 }

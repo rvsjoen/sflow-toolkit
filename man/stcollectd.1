@@ -11,6 +11,9 @@ This daemon collects sFlow samples
 .B \-a <filename>
 Use another agent file (default is /etc/stcollectd.agents), use an absolute path
 .TP
+.B \-b <value>
+Set the number of buffers to initialize (default 10)
+.TP
 .B \-c <filename>
 Use another configuration file (default is /etc/stcollectd.conf), use an absolute path
 .TP
@@ -31,6 +34,9 @@ Define the directory to save data in, in this directory the collector will creat
 .TP
 .B \-p <port>
 Port to listen on, if no port is specified the default (6343) will be used
+.TP
+.B \-P <value>
+Print out a notice every <value> packets for monitoring
 .TP
 .B \-v
 Print info messages

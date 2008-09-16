@@ -4,11 +4,13 @@ extern char** validagents;
 
 extern int32_t log_level;
 extern int32_t cnt_total_f;
-extern int32_t cnt_current_f;
 extern int32_t cnt_total_c;
-extern int32_t cnt_current_c;
-extern SFFlowSample* samples_f;
-extern SFCntrSample* samples_c;
+extern SFFlowSample** sfbuf;
+extern SFCntrSample** scbuf;
+extern uint32_t* scnum;
+extern uint32_t* sfnum;
+extern uint32_t buffer_current_collect;
+
 bool print_parse = false;
 
 uint32_t peekData32(SFDatagram *sample) {
@@ -296,17 +298,19 @@ void printSampleHeader(SFLSample_hdr* hdr){
 }
 
 void parseSample(SFDatagram* datagram, SFSample* s_tmpl){
+
 	SFLSample_hdr hdr;
 	hdr.tag		= getData32(datagram);
 	hdr.length	= getData32(datagram);
 	if(print_parse) printSampleHeader(&hdr);
 	
 	if(hdr.tag == SFLFLOW_SAMPLE || hdr.tag == SFLFLOW_SAMPLE_EXPANDED){
-		
-		SFFlowSample* s = &samples_f[cnt_current_f];
+
+		SFFlowSample* current_buffer = sfbuf[buffer_current_collect];
+		SFFlowSample* s = &current_buffer[sfnum[buffer_current_collect]];
+		sfnum[buffer_current_collect]++;
 
 		cnt_total_f++;
-		cnt_current_f++;
 
 		s->timestamp		= s_tmpl->timestamp;
 		s->agent_address	= s_tmpl->agent_address;
@@ -319,9 +323,12 @@ void parseSample(SFDatagram* datagram, SFSample* s_tmpl){
 		
 	} else if (hdr.tag == SFLCOUNTERS_SAMPLE || hdr.tag == SFLCOUNTERS_SAMPLE_EXPANDED) {
 
-		SFCntrSample* s = &samples_c[cnt_current_c];
+		SFCntrSample* current_buffer = scbuf[buffer_current_collect];
+		SFCntrSample* s = &current_buffer[scnum[buffer_current_collect]];
+
+		scnum[buffer_current_collect]++;
+
 		cnt_total_c++; 
-		cnt_current_c++;
 			
 		s->timestamp		= s_tmpl->timestamp;
 		s->agent_address	= s_tmpl->agent_address;
@@ -331,6 +338,7 @@ void parseSample(SFDatagram* datagram, SFSample* s_tmpl){
 			parseCounterSample(datagram, s, true);
 		else
 			parseCounterSample(datagram, s, false);
+
 	} else {
 		// We dont know what it is, skip ahead to the next sample
 		skipBytes(datagram, hdr.length);
@@ -386,7 +394,8 @@ void parseDatagram(uint8_t* data, uint32_t n )
 	s_template.timestamp 		= datagram.timestamp;
 	s_template.agent_address 	= ntohl(hdr.agent_address.address.ip_v4.s_addr);
 	s_template.sub_agent_id		= hdr.sub_agent_id;
-
+	
+	
 	// Do some stats here (there might be a better way of doing this
 	char key[16];
 	sprintf(
@@ -397,12 +406,13 @@ void parseDatagram(uint8_t* data, uint32_t n )
 			((s_template.agent_address & 0x0000ff00) >> 8),
 			(s_template.agent_address & 0x000000ff)
 		   );
+
 	
 	// Search for this agent in the hash of agents
 	unsigned int id = cmph_search(h, key, strlen(key));
 
 	// If the agent address is valid process the datagram, if not just skip it
-	if(strcmp(key, validagents[id]) == 0)
+	if(key != NULL && strcmp(key, validagents[id]) == 0)
 	{
 		if(print_parse) printDatagramHeader(&hdr);
 		agent_stat* agent = &agent_stats[id];
