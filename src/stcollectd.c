@@ -25,6 +25,7 @@
 #include "logger.h"
 #include "sflowparser.h"
 #include "filesorter.h"
+#include "statistics.h"
 
 // Default configuration parameters
 #define DEFAULT_FLUSH_INTERVAL 	100
@@ -35,7 +36,6 @@
 #define DEFAULT_AGENTS_FILE		"/etc/stcollectd.agents"
 #define NUM_BUFFERS 			10
 #define PRINT_INTERVAL			1000
-
 
 uint32_t print_interval	= PRINT_INTERVAL;
 uint32_t num_buffers	= NUM_BUFFERS;
@@ -385,33 +385,39 @@ void* collect()
 {
 	sock_fd = createAndBindSocket();
 	logmsg(LOGLEVEL_DEBUG, "Waiting for packets...");
+	init_stats();
 	uint32_t i = 0;
 	time_t t = 0;
+
 	for(;i<num_packets && !exit_collector_thread;i++)
 	{
+		time_t time_current = time(NULL);
 		unsigned char buf[RECEIVE_BUFFER_SIZE];
 		uint32_t bytes_received = recv(sock_fd, &buf, RECEIVE_BUFFER_SIZE, 0);
 		cnt++;
-	
-		if(time_start == 0)time_start = time(NULL);
-		if(t==0) t = time(NULL);
+
+		if(time_start == 0)	time_start = time_current;
+		if(t == 0) t = time_current;
+
 		parseDatagram(buf, bytes_received);
 		if(print_hex) printInHex(buf, bytes_received);
 
-		time_t d_t = time(NULL) - t;
+		time_t d_t = time_current - t;
+
 		if(cnt%print_interval==0)
-		{
 			logmsg(LOGLEVEL_INFO, "Processed %u packets", cnt);
-		}
-		if(cnt%flush_interval==0 && flush_interval>0)
+
+		if(cnt%flush_interval==0 && flush_interval>0) //TODO Flush if buffers are full or timeout exceeded
 		{
-			logmsg(LOGLEVEL_INFO, "%u seconds since last update, effective sampling rate: %.1f samples/sec", d_t, 
-					((scnum[buffer_current_collect]+sfnum[buffer_current_collect])/(double)d_t));
-			t = time(NULL);
+			float srate = (scnum[buffer_current_collect]+sfnum[buffer_current_collect])/(double)d_t;
+			update_stats((int)srate, d_t);
+			logmsg(LOGLEVEL_INFO, "%u seconds since last update, effective sampling rate: %.1f samples/sec", d_t, srate);
+			t = time_current;
 			flushLists();
 		}
-		time_end = time(NULL);
+		time_end = time_current;
 	}
+
 	// Lock the next one (empty) to prevent over-running
 	pthread_mutex_lock(&locks[(buffer_current_collect+1)%num_buffers]);
 	logmsg(LOGLEVEL_DEBUG, "Collecting finished, unlocking the last buffer");
@@ -540,7 +546,6 @@ void initHash(){
 		memset(thiskey, 0, sizeof(char)*(strlen(tmp)));
 
 		strncpy(thiskey, tmp, strlen(tmp)-1);
-//		thiskey[strlen(tmp)] = '\0';
 
 		validagents[i] = thiskey;
 	}
@@ -621,6 +626,7 @@ int main(int argc, char** argv){
 		exit_on_error();
 	}
 
+	// Do this in a separate scope because it is cleaner with the tmp variables
 	{
 		// Check that the data folder exists
 		char* tmp;
