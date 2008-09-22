@@ -28,7 +28,8 @@
 #include "statistics.h"
 
 // Default configuration parameters
-#define DEFAULT_FLUSH_INTERVAL 	100
+#define DEFAULT_FLUSH_INTERVAL 	30
+#define DEFAULT_BUFFER_SIZE		1000
 #define DEFAULT_PORT 			6343
 #define RECEIVE_BUFFER_SIZE 	1500
 #define MAX_DATAGRAM_SAMPLES 	10
@@ -41,6 +42,7 @@ uint32_t print_interval	= PRINT_INTERVAL;
 uint32_t num_buffers	= NUM_BUFFERS;
 uint32_t port 			= DEFAULT_PORT;
 uint32_t flush_interval = DEFAULT_FLUSH_INTERVAL;
+uint32_t buffer_size	= DEFAULT_BUFFER_SIZE;
 
 char* interface 	= NULL;
 char* cwd			= NULL;
@@ -187,7 +189,7 @@ void help()
  */
 void parseCommandLine(int argc, char** argv){
 	int opt;
-	while((opt = getopt(argc, argv, "vhp:i:n:xXo:f:zc:a:db:P:"))  != -1)
+	while((opt = getopt(argc, argv, "vhp:i:n:xXo:f:zc:a:db:P:s:"))  != -1)
 	{
 		switch(opt)
 		{
@@ -196,6 +198,7 @@ void parseCommandLine(int argc, char** argv){
 			case 'v': log_level++; 							break;
 			case 'n': num_packets = atoi(optarg); 			break;
 			case 'f': flush_interval = atoi(optarg);		break;
+			case 's': buffer_size = atoi(optarg);			break;
 			case 'x': print_parse = true; 					break;
 			case 'X': print_hex = true; 					break;
 			case 'h': usage(); help(); exit_collector(0); 	break;
@@ -250,8 +253,8 @@ uint32_t createAndBindSocket(){
  * =====================================================================================
  */
 void zeroAll(SFFlowSample* sf, SFCntrSample* sc){
-	memset(sf, 0, sizeof(SFFlowSample)*flush_interval*MAX_DATAGRAM_SAMPLES);
-	memset(sc, 0, sizeof(SFCntrSample)*flush_interval*(MAX_DATAGRAM_SAMPLES/4));
+	memset(sf, 0, sizeof(SFFlowSample)*buffer_size*MAX_DATAGRAM_SAMPLES);
+	memset(sc, 0, sizeof(SFCntrSample)*buffer_size*(MAX_DATAGRAM_SAMPLES/4));
 }
 
 /* 
@@ -386,15 +389,20 @@ void* collect()
 	sock_fd = createAndBindSocket();
 	logmsg(LOGLEVEL_DEBUG, "Waiting for packets...");
 	init_stats();
-	uint32_t i = 0;
-	time_t t = 0;
+	uint32_t i 	= 0;
+	time_t t 	= 0; // This is when we start the collecting thread
+
+	bool flushed = false;
+	uint32_t flush_cnt = 0;
 
 	for(;i<num_packets && !exit_collector_thread;i++)
 	{
-		time_t time_current = time(NULL);
+		time_t time_current = time(NULL); // The time we entered the loop
+
 		unsigned char buf[RECEIVE_BUFFER_SIZE];
 		uint32_t bytes_received = recv(sock_fd, &buf, RECEIVE_BUFFER_SIZE, 0);
 		cnt++;
+		flush_cnt++;
 
 		if(time_start == 0)	time_start = time_current;
 		if(t == 0) t = time_current;
@@ -404,18 +412,25 @@ void* collect()
 
 		time_t d_t = time_current - t;
 
+		// Print a message every print_interval packets received
 		if(cnt%print_interval==0)
 			logmsg(LOGLEVEL_INFO, "Processed %u packets", cnt);
 
-		if(cnt%flush_interval==0 && flush_interval>0) //TODO Flush if buffers are full or timeout exceeded
-		{
+		// Prevent same-second flushing loops
+		if(d_t == 0 && flushed)
+			flushed = !flushed;
+
+		if(((unsigned int)d_t >= flush_interval && !flushed)||(flush_cnt%buffer_size==0 && buffer_size>0)){
 			float srate = (scnum[buffer_current_collect]+sfnum[buffer_current_collect])/(double)d_t;
-			update_stats((int)srate, d_t);
 			logmsg(LOGLEVEL_INFO, "%u seconds since last update, effective sampling rate: %.1f samples/sec", d_t, srate);
-			t = time_current;
+			flushed = true;
+			flush_cnt = 0;
+			update_stats((int)srate, d_t);
 			flushLists();
+			t = time_current;
 		}
-		time_end = time_current;
+
+		time_end = time_current; // We stopped collecting here, used to calculate the total average sampling rate
 	}
 
 	// Lock the next one (empty) to prevent over-running
@@ -486,8 +501,8 @@ void allocateMemory(){
 	for(;i<num_buffers;i++)
 	{
 		pthread_mutex_init(&locks[i], NULL);
-		SFFlowSample* s_f = (SFFlowSample*) malloc(sizeof(SFFlowSample)*flush_interval*MAX_DATAGRAM_SAMPLES);
-		SFCntrSample* s_c = (SFCntrSample*) malloc(sizeof(SFCntrSample)*flush_interval*(MAX_DATAGRAM_SAMPLES/4));
+		SFFlowSample* s_f = (SFFlowSample*) malloc(sizeof(SFFlowSample)*buffer_size*MAX_DATAGRAM_SAMPLES);
+		SFCntrSample* s_c = (SFCntrSample*) malloc(sizeof(SFCntrSample)*buffer_size*(MAX_DATAGRAM_SAMPLES/4));
 
 		if(s_f == NULL || s_c == NULL){
 			logmsg(LOGLEVEL_ERROR, "Error allocating memory");

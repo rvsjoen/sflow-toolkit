@@ -115,16 +115,18 @@ void update_stats(unsigned int samples, unsigned int seconds){
 	char filename[256];
 	sprintf(filename, "%s/statistics.rrd", cwd);
 
-	char tmp[1024];
-	sprintf(tmp, "%u:%u:%u:%u:%u:%u", (unsigned int)time(NULL), samples, ((stime+utime)*100)/(HZ*seconds), vmem, b_read, b_write);
-	char *updateparams[] = {
-		"rrdupdate",
-		filename,
-		tmp,
-		NULL
-	};
-	optind = opterr = 0;
-	printf("%s\n", tmp); //TODO Remove this 
-	rrd_clear_error();
-	rrd_update(3, updateparams);
+	if(seconds != 0){
+		char tmp[1024];
+		sprintf(tmp, "%u:%u:%u:%u:%u:%u", (unsigned int)time(NULL), samples, ((stime+utime)*100)/(HZ*seconds), vmem, b_read, b_write);
+		char *updateparams[] = {
+			"rrdupdate",
+			filename,
+			tmp,
+			NULL
+		};
+		optind = opterr = 0;
+		//printf("%s\n", tmp); //TODO Remove this 
+		rrd_clear_error();
+		rrd_update(3, updateparams);
+	}
 }

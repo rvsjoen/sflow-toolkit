@@ -21,7 +21,7 @@ Use another configuration file (default is /etc/stcollectd.conf), use an absolut
 Do not daemonize
 .TP
 .B \-f <value>
-Set the flushing interval in packets, the collector will flush data to disk when <value> packets are captured
+Set the flushing interval in seconds, the collector will flush data to disk when <value> seconds have elapsed or when the buffer is full
 .TP
 .B \-i <ip address>
 Address to listen on, if no address is specified the collector will choose the first it finds
@@ -37,6 +37,9 @@ Port to listen on, if no port is specified the default (6343) will be used
 .TP
 .B \-P <value>
 Print out a notice every <value> packets for monitoring
+.TP
+.B \-s <value>
+Set the buffer size, how many samples to fit in a single buffer, <value> samples for flow and <value>/4 samples for counter samples
 .TP
 .B \-v
 Print info messages
