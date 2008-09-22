@@ -1,18 +1,4 @@
-#include <stdio.h>
-#include "string.h"
-#include "rrd.h"
 #include "statistics.h"
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <asm/param.h> // The jiffies per second value HZ is defined in param.h
-#include <time.h>
-#include <stdlib.h>
-#include <getopt.h>
-
-// This is where we place the rrd file
-extern char* cwd;
 
 #define STAT_FILE 	"/proc/self/stat"
 #define IO_FILE 	"/proc/self/io"
@@ -21,6 +7,9 @@ extern char* cwd;
 #define STAT_VMEM 	22
 #define IO_READ 	10
 #define IO_WRITE 	12
+
+int utime_prev;
+int stime_prev;
 
 void init_stats(){
 	char filename[256];
@@ -52,8 +41,6 @@ void init_stats(){
 	}
 }
 
-int utime_prev;
-int stime_prev;
 
 void update_stats(unsigned int samples, unsigned int seconds){
 	unsigned int vmem 		= 0;
