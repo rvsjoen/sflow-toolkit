@@ -4,14 +4,24 @@
 #define IO_FILE 	"/proc/self/io"
 #define STAT_UTIME 	14
 #define STAT_STIME 	15
-#define STAT_VMEM 	22
+#define STAT_VMEM 	23
 #define IO_READ 	10
 #define IO_WRITE 	12
 
 int utime_prev;
 int stime_prev;
+int hz;
+
+void get_HZ()
+{
+	long ticks;
+	if ((ticks = sysconf(_SC_CLK_TCK)) == -1)
+		logmsg(LOGLEVEL_ERROR, "Error gettings ticks from sysconf");
+	hz = (unsigned int) ticks;
+}
 
 void init_stats(){
+	get_HZ();
 	char filename[256];
 	sprintf(filename, "%s/statistics.rrd", cwd);
 	int fd;
@@ -41,7 +51,6 @@ void init_stats(){
 	}
 }
 
-
 void update_stats(unsigned int samples, unsigned int seconds){
 	unsigned int vmem 		= 0;
 	unsigned int utime		= 0;
@@ -51,13 +60,13 @@ void update_stats(unsigned int samples, unsigned int seconds){
 
 	int fd;
 	if ((fd = open(STAT_FILE, O_RDONLY)) == -1){
-		printf(strerror(errno));
+		logmsg(LOGLEVEL_ERROR,strerror(errno));
 	}
 	char str[1024];
 	memset(str, 0, 1024);
 	read(fd, str, 1024);
 
-	char delims[] = " \n";
+	char delims[] = " ";
 	int i = 1;
 	char *result = NULL;
 	result = strtok( str, delims );
@@ -80,7 +89,7 @@ void update_stats(unsigned int samples, unsigned int seconds){
 	}
 	close(fd);
 	if ((fd = open(IO_FILE, O_RDONLY)) == -1){
-		printf(strerror(errno));
+		logmsg(LOGLEVEL_ERROR,strerror(errno));
 	}
 	read(fd, str, 1024);
 	i = 1;
@@ -101,10 +110,10 @@ void update_stats(unsigned int samples, unsigned int seconds){
 	close(fd);
 	char filename[256];
 	sprintf(filename, "%s/statistics.rrd", cwd);
-
+	vmem >>= 10; // Convert to kilobytes from pages
 	if(seconds != 0){
 		char tmp[1024];
-		sprintf(tmp, "%u:%u:%u:%u:%u:%u", (unsigned int)time(NULL), samples, ((stime+utime)*100)/(HZ*seconds), vmem, b_read, b_write);
+		sprintf(tmp, "%u:%u:%u:%u:%u:%u", (unsigned int)time(NULL), samples, ((stime+utime)*100)/(hz*seconds), vmem, b_read, b_write);
 		char *updateparams[] = {
 			"rrdupdate",
 			filename,
@@ -112,7 +121,7 @@ void update_stats(unsigned int samples, unsigned int seconds){
 			NULL
 		};
 		optind = opterr = 0;
-		//printf("%s\n", tmp); //TODO Remove this 
+		logmsg(LOGLEVEL_DEBUG, "Updating stats: Time %u, Samples %u, CPU %u, VMEM %u, IO read %u, IO write %u", (unsigned int)time(NULL), samples, ((stime+utime)*100)/(hz*seconds), vmem, b_read, b_write);
 		rrd_clear_error();
 		rrd_update(3, updateparams);
 	}

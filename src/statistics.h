@@ -11,7 +11,9 @@
 #include <errno.h>
 #include <time.h>
 #include <getopt.h>
-#include <asm/param.h> // The jiffies per second value HZ is defined in param.h
+#include <unistd.h>
+
+#include "logger.h"
 
 // This is where we place the rrd file
 extern char* cwd;
