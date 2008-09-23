@@ -1,12 +1,9 @@
 #include "statistics.h"
 
 #define STAT_FILE 	"/proc/self/stat"
-#define IO_FILE 	"/proc/self/io"
 #define STAT_UTIME 	14
 #define STAT_STIME 	15
 #define STAT_VMEM 	23
-#define IO_READ 	10
-#define IO_WRITE 	12
 
 int utime_prev;
 int stime_prev;
@@ -34,8 +31,7 @@ void init_stats(){
 		        "DS:samples:GAUGE:600:0:U",
 		        "DS:cpu:GAUGE:600:0:100",
 		        "DS:mem:GAUGE:600:0:U",
-		        "DS:disk_read:COUNTER:600:0:U",
-		        "DS:disk_write:COUNTER:600:0:U",
+		        "DS:write:GAUGE:600:0:U",
 		        "RRA:AVERAGE:0.5:1:720",
 		        "RRA:AVERAGE:0.5:6:720",
 		        "RRA:AVERAGE:0.5:120:720",
@@ -51,12 +47,10 @@ void init_stats(){
 	}
 }
 
-void update_stats(unsigned int samples, unsigned int seconds){
+void update_stats(unsigned int samples, unsigned int seconds, uint32_t bytes){
 	unsigned int vmem 		= 0;
 	unsigned int utime		= 0;
 	unsigned int stime		= 0;
-	unsigned int b_read		= 0;
-	unsigned int b_write	= 0;
 
 	int fd;
 	if ((fd = open(STAT_FILE, O_RDONLY)) == -1){
@@ -88,32 +82,13 @@ void update_stats(unsigned int samples, unsigned int seconds){
 		result = strtok( NULL, delims );
 	}
 	close(fd);
-	if ((fd = open(IO_FILE, O_RDONLY)) == -1){
-		logmsg(LOGLEVEL_ERROR,strerror(errno));
-	}
-	read(fd, str, 1024);
-	i = 1;
-	result = NULL;
-	result = strtok( str, delims );
-	while( result != NULL ) {
-		switch(i){
-			case IO_READ: 
-				b_read = atoi(result);
-				break;
-			case IO_WRITE: 
-				b_write = atoi(result);
-				break;
-		}
-		i++;
-		result = strtok( NULL, delims );
-	}
-	close(fd);
+
 	char filename[256];
 	sprintf(filename, "%s/statistics.rrd", cwd);
 	vmem >>= 10; // Convert to kilobytes from pages
 	if(seconds != 0){
 		char tmp[1024];
-		sprintf(tmp, "%u:%u:%u:%u:%u:%u", (unsigned int)time(NULL), samples, ((stime+utime)*100)/(hz*seconds), vmem, b_read, b_write);
+		sprintf(tmp, "%u:%u:%u:%u:%u", (unsigned int)time(NULL), samples, ((stime+utime)*100)/(hz*seconds), vmem, bytes);
 		char *updateparams[] = {
 			"rrdupdate",
 			filename,
@@ -121,7 +96,7 @@ void update_stats(unsigned int samples, unsigned int seconds){
 			NULL
 		};
 		optind = opterr = 0;
-		logmsg(LOGLEVEL_DEBUG, "Updating stats: Time %u, Samples %u, CPU %u, VMEM %u, IO read %u, IO write %u", (unsigned int)time(NULL), samples, ((stime+utime)*100)/(hz*seconds), vmem, b_read, b_write);
+		logmsg(LOGLEVEL_DEBUG, "Updating stats: Time %u, Samples %u, CPU %u, VMEM %u, Bytes written %u", (unsigned int)time(NULL), samples, ((stime+utime)*100)/(hz*seconds), vmem, bytes);
 		rrd_clear_error();
 		rrd_update(3, updateparams);
 	}

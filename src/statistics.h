@@ -18,7 +18,8 @@
 // This is where we place the rrd file
 extern char* cwd;
 
+void get_HZ();
 void init_stats();
-void update_stats();
+void update_stats(uint32_t samples, uint32_t seconds, uint32_t bytes_written);
 
 #endif

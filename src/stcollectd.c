@@ -425,7 +425,7 @@ void* collect()
 			logmsg(LOGLEVEL_INFO, "%u seconds since last update, effective sampling rate: %.1f samples/sec", d_t, srate);
 			flushed = true;
 			flush_cnt = 0;
-			update_stats((int)srate, d_t);
+			update_stats((int)srate, d_t, (scnum[buffer_current_collect]*sizeof(SFCntrSample)+sfnum[buffer_current_collect]*sizeof(SFFlowSample)));
 			flushLists();
 			t = time_current;
 		}
