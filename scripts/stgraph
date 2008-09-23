@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The directory where the output images should be put
-DIR=/storage/sflow/statistics
+DIR=/tmp/sflow/statistics
 
 # The full path to the rrdtool executable
 RRDTOOL=/usr/bin/rrdtool
@@ -54,7 +54,7 @@ $RRDTOOL graph $DIR/samples_1m.png 				\
 ### System information - CPU ###
 
 $RRDTOOL graph $DIR/cpu_1h.png 					\
-	-h 50 -w 350                                            \
+	-h 100 -w 775                                            \
 	--upper-limit 100					\
 	--lower-limit 0						\
 	--title "CPU (%)"                           		\
@@ -62,7 +62,7 @@ $RRDTOOL graph $DIR/cpu_1h.png 					\
         DEF:cpu=$DB:cpu:AVERAGE LINE1:cpu#0000FF
 
 $RRDTOOL graph $DIR/cpu_6h.png 					\
-	-h 50 -w 350                 				\
+	-h 100 -w 775                 				\
 	--upper-limit 100					\
 	--lower-limit 0						\
 	--title "CPU (%)"                        		\
@@ -105,16 +105,16 @@ $RRDTOOL graph $DIR/mem_24h.png 	 			\
 
 ### System information - Disk ###
 
-$RRDTOOL graph $DIR/disk_read_1h.png 	 			\
-	-h 50 -w 350                                            \
-	--title "Disk Read (bytes)"		                        \
-	--start end-1h                                         \
-        DEF:disk_read=$DB:disk_read:AVERAGE 				\
-	LINE1:disk_read#FF6600
-
-$RRDTOOL graph $DIR/disk_write_1h.png 	 			\
+$RRDTOOL graph $DIR/write_1h.png 	 			\
 	-h 50 -w 350                                            \
 	--title "Disk Write (bytes)"		                        \
 	--start end-1h                                         \
-        DEF:disk_write=$DB:disk_write:AVERAGE 				\
+        DEF:disk_read=$DB:write:AVERAGE 				\
+	LINE1:disk_read#FF6600
+
+$RRDTOOL graph $DIR/write_6h.png 	 			\
+	-h 50 -w 350                                            \
+	--title "Disk Write (bytes)"		                        \
+	--start end-6h                                         \
+        DEF:disk_write=$DB:write:AVERAGE 				\
 	LINE1:disk_write#FF0099
