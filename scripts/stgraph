@@ -1,0 +1,120 @@
+#!/bin/bash
+
+# The directory where the output images should be put
+DIR=/storage/sflow/statistics
+
+# The full path to the rrdtool executable
+RRDTOOL=/usr/bin/rrdtool
+
+# The full path to the database
+DB=$DIR/../statistics.rrd
+
+### CHANGES ABOVE THIS LINE ###
+
+TITLE="sFlow samples"
+LEGEND="samples/sec"
+
+$RRDTOOL graph $DIR/samples_1h.png 					\
+	-h 200 -w 775 						\
+	--vertical-label $LEGEND 				\
+	--title "$TITLE (last hour)" 				\
+	--start end-1h 						\
+	DEF:samples=$DB:samples:AVERAGE LINE1:samples#FF0000
+
+
+$RRDTOOL graph $DIR/samples_6h.png 					\
+	-h 200 							\
+	-w 775 							\
+	--vertical-label $LEGEND 				\
+	--title "$TITLE (last 6 hours)" 			\
+	--start end-6h 						\
+	DEF:samples=$DB:samples:AVERAGE LINE1:samples#FF0000
+
+$RRDTOOL graph $DIR/samples_24h.png 					\
+	-w 775 							\
+	--vertical-label $LEGEND 				\
+	--title "$TITLE (last 24h)" 				\
+	--start end-24h 					\
+	DEF:samples=$DB:samples:AVERAGE LINE1:samples#FF0000
+
+$RRDTOOL graph $DIR/samples_1w.png 					\
+	-w 337 							\
+	--vertical-label $LEGEND 				\
+	--title "$TITLE (last week)" 				\
+	--start end-1w 						\
+	DEF:samples=$DB:samples:AVERAGE LINE1:samples#FF0000
+
+$RRDTOOL graph $DIR/samples_1m.png 				\
+	-w 337 							\
+	--vertical-label $LEGEND 				\
+	--title "$TITLE (last month)"				\
+	--start end-1m 						\
+	DEF:samples=$DB:samples:AVERAGE LINE1:samples#FF0000
+
+### System information - CPU ###
+
+$RRDTOOL graph $DIR/cpu_1h.png 					\
+	-h 50 -w 350                                            \
+	--upper-limit 100					\
+	--lower-limit 0						\
+	--title "CPU (%)"                           		\
+	--start end-1h                                          \
+        DEF:cpu=$DB:cpu:AVERAGE LINE1:cpu#0000FF
+
+$RRDTOOL graph $DIR/cpu_6h.png 					\
+	-h 50 -w 350                 				\
+	--upper-limit 100					\
+	--lower-limit 0						\
+	--title "CPU (%)"                        		\
+	--start end-6h                                          \
+        DEF:cpu=$DB:cpu:AVERAGE LINE1:cpu#0000FF
+
+$RRDTOOL graph $DIR/cpu_24h.png 				\
+	-h 50 -w 350                                            \
+	--upper-limit 100					\
+	--lower-limit 0						\
+	--title "CPU (%)"                       		\
+	--start end-24h                                         \
+        DEF:cpu=$DB:cpu:AVERAGE LINE1:cpu#0000FF
+
+### System information - Memory ###
+
+$RRDTOOL graph $DIR/mem_1h.png 					\
+	-h 50 -w 350                                            \
+	--title "Memory"		                        \
+	--start end-1h                                          \
+        DEF:mem=$DB:mem:AVERAGE 				\
+	"CDEF:realmem=mem,1000,*"				\
+	LINE1:realmem#00FF00
+
+$RRDTOOL graph $DIR/mem_6h.png 					\
+	-h 50 -w 350                                            \
+	--title "Memory"		                        \
+	--start end-6h                                          \
+        DEF:mem=$DB:mem:AVERAGE 				\
+	"CDEF:realmem=mem,1000,*"				\
+	LINE1:realmem#00FF00
+
+$RRDTOOL graph $DIR/mem_24h.png 	 			\
+	-h 50 -w 350                                            \
+	--title "Memory"		                        \
+	--start end-24h                                         \
+        DEF:mem=$DB:mem:AVERAGE 				\
+	"CDEF:realmem=mem,1000,*"				\
+	LINE1:realmem#00FF00
+
+### System information - Disk ###
+
+$RRDTOOL graph $DIR/disk_read_1h.png 	 			\
+	-h 50 -w 350                                            \
+	--title "Disk Read (bytes)"		                        \
+	--start end-1h                                         \
+        DEF:disk_read=$DB:disk_read:AVERAGE 				\
+	LINE1:disk_read#FF6600
+
+$RRDTOOL graph $DIR/disk_write_1h.png 	 			\
+	-h 50 -w 350                                            \
+	--title "Disk Write (bytes)"		                        \
+	--start end-1h                                         \
+        DEF:disk_write=$DB:disk_write:AVERAGE 				\
+	LINE1:disk_write#FF0099
