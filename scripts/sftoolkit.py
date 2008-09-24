@@ -162,6 +162,7 @@ def process_file_pcap(f, index):
 		while tmp:
 			buf = struct.unpack(format, tmp)
 			tmp = fp.read(size)
+
 			if int(index) == int(buf[v["id_index"]]) or index == -1:
 				hdr = struct.pack("4I", buf[v["timestamp"]], 0, buf[v["raw_header_length"]], buf[v["raw_header_frame_length"]])				
 				sys.stdout.write(hdr)
