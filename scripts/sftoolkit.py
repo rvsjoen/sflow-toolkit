@@ -170,6 +170,9 @@ def process_file_pcap(f, index):
 	except IOError:
 		pass
 
+def sort_key(item):
+	return item[-1];
+
 def get_conversations(agent, start, end, datadir, index):
 	f = tempfile.NamedTemporaryFile()
 	stdout_bak = sys.stdout
@@ -197,7 +200,7 @@ def get_conversations(agent, start, end, datadir, index):
 	                pass
 	        result.append(v)
 	f.close()
-	return result
+	return sorted(result, key=sort_key)
 
 def get_flowdata_binary(agent, start, end, datadir, index):
 	files = get_filenames(agent, start, end, datadir, "flow")
