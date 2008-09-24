@@ -171,7 +171,7 @@ def process_file_pcap(f, index):
 		pass
 
 def sort_key(item):
-	return item[-1];
+	return -long(item[-1]);
 
 def get_conversations(agent, start, end, datadir, index):
 	f = tempfile.NamedTemporaryFile()
@@ -185,7 +185,7 @@ def get_conversations(agent, start, end, datadir, index):
 	lines = result.split("\n")
 	data = lines[6:-1]
 	result = []
-	result.append(header)
+	#result.append(header)
 	for d in data:
 	        v = [item for item in d.split(" ") if item]
 	        v.remove("<->")
@@ -200,7 +200,9 @@ def get_conversations(agent, start, end, datadir, index):
 	                pass
 	        result.append(v)
 	f.close()
-	return sorted(result, key=sort_key)
+	result = sorted(result[1:], key=sort_key)
+	result.insert(0, header)
+	return result
 
 def get_flowdata_binary(agent, start, end, datadir, index):
 	files = get_filenames(agent, start, end, datadir, "flow")
