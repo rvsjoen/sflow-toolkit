@@ -71,10 +71,17 @@ rhstatus() {
 #	status $DAEMONXML
 
 	# Handle this ourselves since something obviously doesnt like python daemons
+<<<<<<< HEAD:scripts/stcollectd.slc4
         if [ -f /var/run/$DAEMONXML.pid -a -f /var/lock/subsys/$DAEMONXML ] ; then
                 read pid < /var/run/$DAEMONXML.pid
 		echo "$DAEMONXML (pid $pid) is running..."
         else
+=======
+	if [ -f /var/run/$DAEMONXML.pid -a -f /var/lock/subsys/$DAEMONXML ] ; then
+		read pid < /var/run/$DAEMONXML.pid
+		echo "$DAEMONXML (pid $pid) is running..."
+	else
+>>>>>>> b0cc51c... Updated SLC4 init script to show status on stxmlrpcd correctly:scripts/stcollectd.slc4
 		echo "$DAEMONXML is stopped"
 	fi
 
