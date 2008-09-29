@@ -1,15 +1,18 @@
 #!/bin/sh
 #
-# chkconfig: - 91 35
+# chkconfig: 2345 56 01
 # description: Starts and stops the sFlow collector daemon
 #
 # pidfile: /var/run/$DAEMON.pid
 # config:  /etc/$DAEMON.conf
 
-ARGS=" -f 1000 -p 6343 -i 10.146.41.225 -o /tmp/sflow -v "
+ARGS=" -f 10 -p 6343 -i 10.146.45.25 -o /tmp/sflow -v -b 10 -s 2500"
 DAEMON=stcollectd
+DAEMONXML=stxmlrpcd
+ARGSXML=""
 DAEMON_HOME=/usr/local/bin
 SERVICE="sFlow collecting"
+SERVICEXML="sFlow XMLRPC"
 
 # Source function library.
 if [ -f /etc/init.d/functions ] ; then
@@ -26,15 +29,20 @@ unset TMPDIR
 [ -f /etc/$DAEMON.conf ] || exit 6
 
 RETVAL=0
+RETVALXML=0
 
 start() {
 	echo -n $"Starting $SERVICE services: "
 	daemon /usr/local/bin/$DAEMON $ARGS
 	RETVAL=$?
 	echo
-	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/$DAEMON || \
-	   RETVAL=1
-	return $RETVAL
+	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/$DAEMON || RETVAL=1
+	echo -n $"Starting $SERVICEXML services: "
+	daemon /usr/local/bin/$DAEMONXML $ARGSXML
+	RETVALXML=$?
+	echo
+	[ $RETVALXML -eq 0 ] && touch /var/lock/subsys/$DAEMONXML || RETVALXML=1
+	return  $RETVAL
 }	
 
 stop() {
@@ -43,7 +51,12 @@ stop() {
 	RETVAL=$?
 	echo
 	[ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/$DAEMON
-	echo ""
+
+	echo -n $"Shutting down $SERVICEXML services: "
+	killproc $DAEMONXML
+	RETVALXML=$?
+	echo
+	[ $RETVALXML -eq 0 ] && rm -f /var/lock/subsys/$DAEMONXML
 	return $RETVAL
 }	
 
@@ -55,8 +68,22 @@ restart() {
 rhstatus() {
 	status $DAEMON
 	RETVAL=$?
+#	status $DAEMONXML
+
+	# Handle this ourselves since something obviously doesnt like python daemons
+        if [ -f /var/run/$DAEMONXML.pid -a -f /var/lock/subsys/$DAEMONXML ] ; then
+                read pid < /var/run/$DAEMONXML.pid
+		echo "$DAEMONXML (pid $pid) is running..."
+        else
+		echo "$DAEMONXML is stopped"
+	fi
+
+	RETVALXML=$?
 	if [ $RETVAL -ne 0 ]; then
 		return $RETVAL
+	fi
+	if [ $RETVALXML -ne 0 ]; then
+		return $RETVALXML
 	fi
 }	
 
