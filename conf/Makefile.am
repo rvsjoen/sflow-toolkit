@@ -1,2 +1,2 @@
 configdir = /etc
-config_DATA = stcollectd.conf stcollectd.agents
+config_DATA = stcollectd.conf

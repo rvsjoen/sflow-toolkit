@@ -7,8 +7,9 @@ stcollectd_SOURCES = stcollectd.c 					\
 					 filesorter.c filesorter.h 		\
 					 sflowparser.c sflowparser.h 	\
 					 sflow.h 						\
-					 statistics.c statistics.h
-stcollectd_LDFLAGS = -lcmph -lpthread -lrrd
+					 statistics.c statistics.h		\
+					 configparser.c configparser.h
+stcollectd_LDFLAGS = -lcmph -lpthread -lrrd -lyaml
 stconvert_SOURCES = stconvert.c 					\
 					logger.c logger.h 				\
 					filesorter.c filesorter.h

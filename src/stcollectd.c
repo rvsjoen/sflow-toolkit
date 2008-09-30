@@ -26,6 +26,7 @@
 #include "sflowparser.h"
 #include "filesorter.h"
 #include "statistics.h"
+#include "configparser.h"
 
 // Default configuration parameters
 #define DEFAULT_FLUSH_INTERVAL 	30
@@ -34,23 +35,21 @@
 #define RECEIVE_BUFFER_SIZE 	1500
 #define MAX_DATAGRAM_SAMPLES 	10
 #define DEFAULT_CONFIG_FILE		"/etc/stcollectd.conf"
-#define DEFAULT_AGENTS_FILE		"/etc/stcollectd.agents"
 #define NUM_BUFFERS 			10
 #define PRINT_INTERVAL			1000
 
+// configurable options
 uint32_t print_interval	= PRINT_INTERVAL;
 uint32_t num_buffers	= NUM_BUFFERS;
 uint32_t port 			= DEFAULT_PORT;
 uint32_t flush_interval = DEFAULT_FLUSH_INTERVAL;
 uint32_t buffer_size	= DEFAULT_BUFFER_SIZE;
-
-char* interface 	= NULL;
-char* cwd			= NULL;
-char* file_agents	= DEFAULT_AGENTS_FILE;
-char* file_config 	= DEFAULT_CONFIG_FILE;
-
+char* interface 		= NULL;
+char* cwd				= NULL;
+char* file_config 		= DEFAULT_CONFIG_FILE;
 char** validagents		= NULL;
 int num_agents 			= 0;
+
 cmph_t *h 				= NULL;
 agent_stat* agent_stats = NULL;
 
@@ -175,7 +174,6 @@ void help()
 	printf("\t-X\tPrints the HEX dump of each recieved packet\n\n");
 	printf("\t-d\tDo not daemonize\n\n");
 	printf("\t-c <filename>\tUse another configuration file (default is /etc/stcollectd.conf)\n\n");
-	printf("\t-a <filename>\tUse another agent file (default is /etc/stcollectd.agents\n\n");
 	printf("\t-b <val>\tSet the number of buffers\n\n");
 	printf("\t-P <val>\tSet the interval for printing statistics (in packets)\n\n");
 }
@@ -189,25 +187,24 @@ void help()
  */
 void parseCommandLine(int argc, char** argv){
 	int opt;
-	while((opt = getopt(argc, argv, "vhp:i:n:xXo:f:zc:a:db:P:s:"))  != -1)
+	while((opt = getopt(argc, argv, "vhp:i:n:xXo:f:zdb:P:s:c:"))  != -1)
 	{
 		switch(opt)
 		{
-			case 'p': port = atoi(optarg); 					break;
-			case 'i': interface = optarg; 					break;
+			case 'p': port 				= atoi(optarg); 	break;
+			case 'b': num_buffers 		= atoi(optarg); 	break;
+			case 'P': print_interval 	= atoi(optarg); 	break;
+			case 'n': num_packets 		= atoi(optarg); 	break;
+			case 'f': flush_interval 	= atoi(optarg);		break;
+			case 's': buffer_size 		= atoi(optarg);		break;
+			case 'o': cwd 				= optarg; 			break;
+			case 'i': interface 		= optarg; 			break;
+			case 'c': file_config 		= optarg; 			break;
+			case 'x': print_parse 		= true; 			break;
+			case 'X': print_hex 		= true; 			break;
+			case 'd': daemonize 		= false;			break;
 			case 'v': log_level++; 							break;
-			case 'n': num_packets = atoi(optarg); 			break;
-			case 'f': flush_interval = atoi(optarg);		break;
-			case 's': buffer_size = atoi(optarg);			break;
-			case 'x': print_parse = true; 					break;
-			case 'X': print_hex = true; 					break;
 			case 'h': usage(); help(); exit_collector(0); 	break;
-			case 'o': cwd = optarg; 						break;
-			case 'a': file_agents = optarg;					break;
-			case 'c': file_config = optarg;					break;
-			case 'd': daemonize = false;					break;
-			case 'b': num_buffers = atoi(optarg); 			break;
-			case 'P': print_interval = atoi(optarg); 		break;
 			default : usage(); exit_collector(1);			break;
 		}
 	}
@@ -284,7 +281,7 @@ void destroyHash(){
 
 void printAgentStats(){
 	int i = 0;
-	logmsg(LOGLEVEL_DEBUG, "Agent Stats:");
+	logmsg(LOGLEVEL_DEBUG, "Agent Stats (%u agents):", num_agents);
 	for( ; i<num_agents; i++ )
 	{
 		agent_stat* as = &agent_stats[i];
@@ -525,50 +522,25 @@ void allocateMemory(){
 }
 
 void initHash(){
-	FILE * keys_fd = fopen(file_agents, "r");
-	logmsg(LOGLEVEL_DEBUG, "Reading agents from file %s", file_agents);
+	if(validagents != NULL){
+		cmph_io_adapter_t *source = cmph_io_vector_adapter(validagents, num_agents);
+		cmph_config_t *config = cmph_config_new(source);
+		cmph_config_set_algo(config, CMPH_CHM);
+		h = cmph_new(config);
+		cmph_config_destroy(config);
+	
+		//Destroy hash
+		cmph_io_vector_adapter_destroy(source);
 
-	if (keys_fd == NULL) {
-		logmsg(LOGLEVEL_ERROR, "File \"%s\" not found", file_agents);
-		exit_on_error();
+		// Allocate some space for the agent stats
+		agent_stats = calloc(num_agents, sizeof(agent_stat));
+		memset(agent_stats, 0, sizeof(agent_stat)*num_agents);
+
+		// Loop over and set the agent indexes correctly
+		int i;
+		for(i=0;i<num_agents;i++)
+			agent_stats[i].agent_index = i;
 	}
-	cmph_io_adapter_t *source = cmph_io_nlfile_adapter(keys_fd);
-
-	cmph_config_t *config = cmph_config_new(source);
-	cmph_config_set_algo(config, CMPH_CHM);
-	h = cmph_new(config);
-	cmph_config_destroy(config);
-
-	//Destroy hash
-	cmph_io_nlfile_adapter_destroy(source);
-
-	rewind(keys_fd);
-
-	num_agents = cmph_size(h);
-	validagents=malloc(sizeof(char*) * num_agents);
-	int maxkeylength = 15;
-	int i;
-	for( i=0; i<num_agents; i++ )
-	{
-		// Add 2 because of newline and null-terminator
-		char tmp[maxkeylength+2];
-		fgets(tmp, maxkeylength+2, keys_fd);
-
-		// Now we create the char array to hold the key
-		char*  thiskey;
-
-		thiskey=malloc(sizeof(char)*(strlen(tmp)));
-		memset(thiskey, 0, sizeof(char)*(strlen(tmp)));
-
-		strncpy(thiskey, tmp, strlen(tmp)-1);
-
-		validagents[i] = thiskey;
-	}
-	fclose(keys_fd);
-
-	// Allocate some space for the agent stats
-	agent_stats = calloc(num_agents, sizeof(agent_stat));
-	memset(agent_stats, 0, sizeof(agent_stat)*num_agents);
 }
 
 void daemonize_me() {	
@@ -603,6 +575,15 @@ void daemonize_me() {
 		freopen( "/dev/null", "w", stderr);
 }
 
+void printConfig(){
+	logmsg(LOGLEVEL_DEBUG, "Flush Interval: %u seconds", flush_interval);
+	logmsg(LOGLEVEL_DEBUG, "Print Interval: %u seconds", print_interval);
+	logmsg(LOGLEVEL_DEBUG, "Buffer size: %u samples", buffer_size);
+	logmsg(LOGLEVEL_DEBUG, "Buffer count: %u buffers", num_buffers);
+	logmsg(LOGLEVEL_DEBUG, "Interface: %s:%u", interface, port);
+	logmsg(LOGLEVEL_DEBUG, "Data directory: %s", cwd);
+}
+
 /* 
  * ===  FUNCTION  ======================================================================
  *         Name:  main
@@ -612,7 +593,11 @@ void daemonize_me() {
 int main(int argc, char** argv){
 
 	initLogger();
+	parseConfigFile(DEFAULT_CONFIG_FILE);
 	parseCommandLine(argc, argv);
+	if(strcmp(file_config, DEFAULT_CONFIG_FILE) != 0)
+		parseConfigFile(file_config);
+	printConfig();
 
 	if(daemonize){
 		daemonize_me();
