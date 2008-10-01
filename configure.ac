@@ -5,6 +5,7 @@ AC_INIT(sFlow toolkit, 0.2, rune.sjoen@cern.ch)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADER(config.h)
 AC_ARG_WITH(debugging, [  --with-debugging	  enable debugging symbols, disable optimization])
+AC_LANG(C)
 
 # Checks for programs.
 AC_PROG_CC
@@ -21,6 +22,10 @@ then
 fi
 
 # Checks for libraries.
+AC_CHECK_LIB(yaml,yaml_parser_initialize)
+AC_CHECK_LIB(pthread,pthread_create)
+AC_CHECK_LIB(rrd,rrd_create)
+AC_CHECK_LIB(cmph,cmph_config_new)
 
 # Checks for header files.
 AC_HEADER_DIRENT
