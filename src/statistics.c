@@ -9,6 +9,8 @@ int utime_prev;
 int stime_prev;
 int hz;
 
+//TODO Filename can be calculated once
+
 void get_HZ()
 {
 	long ticks;
@@ -102,15 +104,23 @@ void update_stats(unsigned int samples, unsigned int seconds, uint32_t bytes){
 	}
 }
 
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  update_realtime_stats
+ *  Description:  Write some realtime stats to /<storagedir>/rstats
+ * =====================================================================================
+ */
 void update_realtime_stats()
 {
 	char filename[256];
 	sprintf(filename, "%s/rstats", cwd);
 	FILE* fp = NULL;
 	fp = fopen(filename, "w+");
-	char buf[1024];
-	sprintf(buf,"%u,%u,%u,%u,%u", cnt, cnt_total_f, cnt_total_c, time_start, bytes_total);
-	fputs(buf, fp);
-	fflush(fp);
-	fclose(fp);
+	if(fp !=NULL){
+		char buf[1024];
+		sprintf(buf,"%u,%u,%u,%lu,%u", cnt, cnt_total_f, cnt_total_c, time(NULL) - time_start, bytes_total);
+		fputs(buf, fp);
+		fflush(fp);
+		fclose(fp);
+	}
 }
