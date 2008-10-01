@@ -540,6 +540,7 @@ void initHash(){
 		int i;
 		for(i=0;i<num_agents;i++)
 			agent_stats[i].agent_index = i;
+		
 	}
 }
 

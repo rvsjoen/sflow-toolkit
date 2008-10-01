@@ -24,19 +24,35 @@ void get_agents(){
 		num++;
 		start = start->next;
 	}
-	char** result = malloc(sizeof(char*));
+
+	// If we are re-reading the list free the old list first
+	if (validagents != NULL)
+	{
+		int j;
+		for(j=0;j<num_agents;j++)
+			free(validagents[j]);
+		free(validagents);
+		validagents = NULL;
+	}
+
+	char** result = NULL;
+	result = malloc(sizeof(char*)*num);
+	memset(result, 0, sizeof(char*)*num);
+	
 	// Now we allocate memory for each agent and free the memory allocated for the struct
 	start = agent_list;
 	int i = 0;
+
 	while(start != NULL){
-		result[i] = malloc(sizeof(char)*strlen(start->agent));
+		result[i] = malloc(sizeof(char)*strlen(start->agent)+1);
+		memset(result[i], 0, sizeof(char)*strlen(start->agent)+1);
 		strncpy(result[i], start->agent, strlen(start->agent));
-		result[i][strlen(start->agent)] = '\0';
 		agent_node* tmp = start;
 		start = start->next;
 		free(tmp);
 		i++;
 	}
+
 	num_agents = num;
 	validagents = result;
 }
@@ -72,15 +88,17 @@ void parse_event(const yaml_event_t ev)
 				} else if (strcmp(key, CONFIG_KEY_PRINT_INTERVAL) == 0) {
 					print_interval = atoi(val);
 				} else if (strcmp(key, CONFIG_KEY_INTERFACE) == 0){
-					interface = malloc(sizeof(char)*strlen(val));
+					if(interface != NULL)
+						free(interface);
+					interface = malloc(sizeof(char)*strlen(val)+1);
 					strncpy(interface, val, strlen(val));
-					interface[strlen(val)] = '\0';
 				} else if (strcmp(key, CONFIG_KEY_PORT) == 0) {
 					port = atoi(val);
 				} else if (strcmp(key, CONFIG_KEY_DATA_DIR) == 0) {
-					cwd = malloc(sizeof(char)*strlen(val));
+					if(cwd != NULL)
+						free(cwd);
+					cwd = malloc(sizeof(char)*strlen(val)+1);
 					strncpy(cwd, val, strlen(val));
-					cwd[strlen(val)] = '\0';
 				} else if (strcmp(key, CONFIG_KEY_BUFFER_SIZE) == 0) {
 					buffer_size = atoi(val);
 				} else if (strcmp(key, CONFIG_KEY_BUFFER_COUNT) == 0) {
