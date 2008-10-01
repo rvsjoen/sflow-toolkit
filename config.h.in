@@ -25,6 +25,18 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
+/* Define to 1 if you have the `cmph' library (-lcmph). */
+#undef HAVE_LIBCMPH
+
+/* Define to 1 if you have the `pthread' library (-lpthread). */
+#undef HAVE_LIBPTHREAD
+
+/* Define to 1 if you have the `rrd' library (-lrrd). */
+#undef HAVE_LIBRRD
+
+/* Define to 1 if you have the `yaml' library (-lyaml). */
+#undef HAVE_LIBYAML
+
 /* Define to 1 if your system has a GNU libc compatible `malloc' function, and
    to 0 otherwise. */
 #undef HAVE_MALLOC

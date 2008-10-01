@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT(sFlow toolkit, 0.2, rune.sjoen@cern.ch)
+AC_INIT(sFlow toolkit, 1.0, rune.sjoen@cern.ch)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADER(config.h)
 AC_ARG_WITH(debugging, [  --with-debugging	  enable debugging symbols, disable optimization])
