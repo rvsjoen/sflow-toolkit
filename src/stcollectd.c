@@ -56,6 +56,8 @@ agent_stat* agent_stats = NULL;
 uint32_t cnt 			= 0;
 uint32_t cnt_total_f  	= 0;
 uint32_t cnt_total_c 	= 0;
+uint32_t bytes_total	= 0;
+
 uint32_t sock_fd 		= 0;
 uint32_t time_start 	= 0;
 uint32_t time_end 		= 0;
@@ -422,11 +424,13 @@ void* collect()
 			logmsg(LOGLEVEL_INFO, "%u seconds since last update, effective sampling rate: %.1f samples/sec", d_t, srate);
 			flushed = true;
 			flush_cnt = 0;
-			update_stats((int)srate, d_t, (scnum[buffer_current_collect]*sizeof(SFCntrSample)+sfnum[buffer_current_collect]*sizeof(SFFlowSample)));
+			uint32_t bytes = (scnum[buffer_current_collect]*sizeof(SFCntrSample)+sfnum[buffer_current_collect]*sizeof(SFFlowSample));
+			bytes_total += bytes;
+			update_stats((int)srate, d_t, bytes);
 			flushLists();
+			update_realtime_stats();
 			t = time_current;
 		}
-
 		time_end = time_current; // We stopped collecting here, used to calculate the total average sampling rate
 	}
 
