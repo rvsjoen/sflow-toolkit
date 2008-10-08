@@ -176,7 +176,8 @@ def process_file_pcap(f, index):
 			buf = struct.unpack(format, tmp)
 			tmp = fp.read(size)
 
-			if int(index) == int(buf[v["id_index"]]) or index == -1:
+			x = int(index)
+			if int(buf[v["sample_input_if_value"]]) == x or int(buf[v["sample_output_if_value"]]) == x or index == -1 or int(buf[v["id_index"]]) == x:
 				hdr = struct.pack("4I", buf[v["timestamp"]], 0, buf[v["raw_header_length"]], buf[v["raw_header_frame_length"]])				
 				sys.stdout.write(hdr)
 				sys.stdout.write(buf[v["raw_header"]][:buf[v["raw_header_length"]]])
@@ -213,7 +214,7 @@ def get_conversations(agent, start, end, datadir, index):
 	                pass
 	        result.append(v)
 	f.close()
-	result = sorted(result[1:], key=sort_key)
+	result = sorted(result, key=sort_key)
 	result.insert(0, header)
 	return result
 
