@@ -129,6 +129,13 @@ def get_filenames(agent, start, end, datadir, type):
 					files.append(datadir+"/"+agent+"/%d%02d%02d/%02d/%02d/samples_"%m[:5]+type+".dat")
 	return files
 
+def check_index(index, buf, v):
+	index = int(index)
+	if int(buf[v["sample_input_if_value"]]) == index or int(buf[v["sample_output_if_value"]]) == index or index == -1 or int(buf[v["id_index"]]) == index:
+		return True
+	else:
+		return False
+
 def get_headers(fields, type):
 	headers = []
 	v = {}
@@ -139,12 +146,6 @@ def get_headers(fields, type):
 	for field in fields:
 		headers.append(reverse_lookup(v,v[field]))
 	return headers
-
-def check_index(index, buf, v):
-	if int(buf[v["sample_input_if_value"]]) == index or int(buf[v["sample_output_if_value"]]) == index or index == -1 or int(buf[v["id_index"]]) == index:
-		return true
-	else:
-		return false
 
 def get_counterdata(agent, start, end, fields, datadir, index):
 	files = get_filenames(agent, start, end, datadir, "cntr")
@@ -184,7 +185,7 @@ def process_file_binary(f, index, type):
 		while tmp:
 			buf = struct.unpack(format, tmp)
 			tmp = fp.read(size)
-			if int(index) == int(buf[v["id_index"]]) or index == -1:
+			if check_index(index, buf, v):
 				sys.stdout.write(tmp)
 		fp.close()
 	except IOError:
@@ -207,9 +208,6 @@ def process_file_pcap(f, index):
 		while tmp:
 			buf = struct.unpack(format, tmp)
 			tmp = fp.read(size)
-
-#			x = int(index)
-#			if int(buf[v["sample_input_if_value"]]) == x or int(buf[v["sample_output_if_value"]]) == x or index == -1 or int(buf[v["id_index"]]) == x:
 			if check_index(index, buf, v):
 				hdr = struct.pack("4I", buf[v["timestamp"]], 0, buf[v["raw_header_length"]], buf[v["raw_header_frame_length"]])				
 				sys.stdout.write(hdr)
@@ -289,7 +287,7 @@ def process_file(f, index, fields, type):
 			buf = struct.unpack(format, tmp)
 			tmp = fp.read(size)
 	
-			if int(index) == int(buf[v["id_index"]]) or index == -1:
+			if check_index(index, buf, v):
 				for field in fields:
 					if type is "flow" and field == "raw_header":
 						record.append(base64.encodestring(buf[v[field]]))
