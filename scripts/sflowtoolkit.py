@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+configfile = "/etc/stcollectd.conf"
+
 import sys
 import time
 import datetime
@@ -8,6 +10,7 @@ import base64
 import commands
 import tempfile
 import socket
+import yaml
 
 validfields_cntr = {
 	"timestamp":0, 
@@ -58,6 +61,16 @@ validfields_flow = {
 	"raw_header_length":16,
 	"raw_header":17
 	}
+
+sflowconfig = {}
+"""
+Read the configuration data from the specified configuration file and store it in the config dictionary
+"""
+def get_configuration(configfile):
+	global sflowconfig
+	fp = open(configfile, "r")
+	sflowconfig = yaml.load(fp.read())
+	fp.close()
 
 def date_range(start, end):
 	r = ( end + datetime.timedelta( days = 1 ) - start ).days
@@ -186,7 +199,6 @@ def get_conversations(agent, start, end, datadir, index):
 	lines = result.split("\n")
 	data = lines[6:-1]
 	result = []
-	#result.append(header)
 	for d in data:
 	        v = [item for item in d.split(" ") if item]
 	        v.remove("<->")
@@ -258,3 +270,5 @@ def process_file(f, index, fields, type):
 
 if __name__ == "__main__":
 	sys.exit(0)
+else:
+	get_configuration(configfile)

@@ -9,8 +9,7 @@ from sflowdaemon import Daemon
 # Create server
 server = SimpleXMLRPCServer((socket.getfqdn(), 8000))
 
-datadir = "/tmp/sflow"
-logfile = open(datadir+"/xmlrpcserver.log", "w");
+logfile = open(sflowtoolkit.sflowconfig['data directory']+"/stxmlrpcd.log", "a");
 
 class MyFuncs:
 	def __init__(self):
@@ -70,6 +69,9 @@ server.register_instance(MyFuncs())
 class MyDaemon(Daemon):
 	def run(self):
 		server.serve_forever()
+
+logfile.write(time.asctime()+" Starting XMLRPC service\n")
+logfile.flush()
 
 daemon = MyDaemon('/var/run/stxmlrpcd.pid')
 daemon.start()
