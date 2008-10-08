@@ -3326,7 +3326,7 @@ echo "$as_me: You enabled debugging. Good for you." >&6;}
 		CFLAGS="-ggdb"
 
 	else
-		CFLAGS="-g -O2"
+		CFLAGS="-O3"
 
 	fi
 fi

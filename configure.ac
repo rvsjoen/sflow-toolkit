@@ -17,7 +17,7 @@ then
 		AC_MSG_NOTICE([You enabled debugging. Good for you.])
 		AC_SUBST(CFLAGS, "-ggdb")
 	else
-		AC_SUBST(CFLAGS, "-g -O2")
+		AC_SUBST(CFLAGS, "-O3")
 	fi
 fi
 
