@@ -5,71 +5,63 @@ import getopt
 import time
 import sflowtoolkit
 
-# Arguments from the command line
-ifindex	= ""
+# Arguments from the command line (with defaults)
+index	= "-1"
 agent	= ""
 start	= ""
-end		= ""
-format	= ""
-type	= ""
+end	= ""
+format	= "flow"
+type	= "binary"
 
 def usage():
-	print "Usage information"
-
-def help():
-	print "Help"
+	print "Usage information: stexport -a <agent ip> -s <start> -e <end> [-i <if index>] [-f <format>] [-t <type>]"
 
 def do_work():
-	datadir = sflowtoolkit.sflowconfig["data directory"])
-	sflowtoolkit.get_flowdata_pcap(agent, start, end, datadir, index)
+	global format, type
+	datadir = sflowtoolkit.sflowconfig["data directory"]
+	output_function = getattr(sflowtoolkit, "get_%sdata_%s" % (type, format))
+	output_function(agent, start, end, datadir, index)
 
-	# Look at the type, ifindex, start, end and agent to get the filenames
-	# Process each file
-	# Write the processed data to stdout in the specified format (binary, pcap, csv)
-	# Redirection ?
-	# Call the correct function based on whatever we want to output, default binary
-	#format = binary
-	#output_function = getattr(sflowtoolkit, "write_%s" % format)
-	#output_function()
+def check_parameters():
+	result = True
+	if not agent:
+		result = False
+	if not start:
+		result = False
+	if not end:
+		result = False
+	return result
 
 def main():
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hi:a:s:e:f:t:", ["help", "ifindex=", "agent=", "start=", "end=", "format=", "type="])
+		opts, args = getopt.getopt(sys.argv[1:], "hi:a:s:e:f:t:", ["help", "index=", "agent=", "start=", "end=", "format=", "type="])
 	except getopt.GetoptError, err:
 		print str(err)
 		usage()
 		sys.exit(2)
-
+	global agent, index, start, end, format, type
 	for o,a in opts:
 		if o == "-h":
 			help()
 			sys.exit(0)
-		elif o in ["-i", "--ifindex"]:
-			ifindex = int(a)
-			print "ifindex\t:",ifindex
+		elif o in ["-i", "--index"]:
+			index = a
 		elif o in ["-a", "--agent"]:
 			agent = a
-			print "agent\t:",agent
 		elif o in ["-s", "--start"]:
-			print "start\t:",a
-			start = time.strptime(a, "%Y.%m.%d %H:%M")
-			print "start\t:", start
+			start = a
 		elif o in ["-e", "--end"]:
-			print "end\t:",end
-		elif o in ["-f", "--fields"]:
-			fields = a.split(",")
-			print "fields\t:",fields
-			print "printing fields with index ",
-			for item in fields:
-				print str(validfields[item]),
-			print
+			end = a
+		elif o in ["-f", "--format"]:
+			format = a
 		elif o in ["-t", "--type"]:
 			type = a
-			print "type\t:",type
 		else:
 			assert False, "unhandled option"
-
 	# We are done parsing options, time to do some work
+	if not check_parameters():
+		usage()
+		sys.exit(2)
 	do_work()
 	
 if __name__ == "__main__":

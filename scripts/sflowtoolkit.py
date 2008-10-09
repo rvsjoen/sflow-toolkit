@@ -170,7 +170,7 @@ def get_flowdata(agent, start, end, fields, datadir, index):
 def process_file_binary(f, index, type):
 	size = 0
 	format = ""
-
+	v = {}
 	if type is "cntr":
 		v = validfields_cntr
 		size = 164
@@ -249,15 +249,16 @@ def get_conversations(agent, start, end, datadir, index):
 	result.insert(0, header)
 	return result
 
-def get_flowdata_binary(agent, start, end, datadir, index):
-	files = get_filenames(agent, start, end, datadir, "flow")
-	for f in files:
-		process_file_binary(f, index, "flow")
 
 def get_counterdata_binary(agent, start, end, datadir, index):
 	files = get_filenames(agent, start, end, datadir, "cntr")
 	for f in files:
 		process_file_binary(f, index, "cntr")
+
+def get_flowdata_binary(agent, start, end, datadir, index):
+	files = get_filenames(agent, start, end, datadir, "flow")
+	for f in files:
+		process_file_binary(f, index, "flow")
 
 def get_flowdata_pcap(agent, start, end, datadir, index):
 	files = get_filenames(agent, start, end, datadir, "flow")
