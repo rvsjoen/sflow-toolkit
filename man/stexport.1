@@ -3,7 +3,7 @@
 stexport \- extract and convert collected sFlow data to various file formats
 .SH SYNOPSIS
 .B stexport
--a <agent ip> -s <start> -e <end> [-i <if index>] [-f <format>] [-t <type>]
+-a <agent ip> -s <start> -e <end> [-i <if index>] [-f <format>] [-t <type>] [--fields=field1,field2]
 .SH DESCRIPTION
 extract and convert collected sFlow data to various file formats
 .SH OPTIONS
@@ -19,13 +19,67 @@ Which type of samples to export, valid values are : flow
 .TP
 .B \-f <format>
 Which format to export to, valid values are: binary, pcap
-.SH "SEE ALSO"
 .TP
 .B \-s <time>
 Interval start format "YYYY:MM:dd HH:mm"
 .TP
 .B \-e <time>
 Interval end, format "YYYY:MM:dd HH:mm"
+.TP
+.B \--fields=field1,field2
+Depending on the type, see below for valid fields. If the request format is not based on fields this value is ignored
+
+.IP "Valid counter sample fields"
+
+        timestamp
+        agent
+        subagent
+        sequence
+        id_type
+        id_index
+        if_index
+        if_type
+        if_speed
+        if_direction
+        if_status
+        if_in_octets
+        if_in_ucast
+        if_in_mcast
+        if_in_bcast
+        if_in_discards
+        if_in_errors
+        if_in_unknown_proto
+        if_out_octets
+        if_out_ucast
+        if_out_mcast
+        if_out_bcast
+        if_out_discards
+        if_out_errors
+        if_out_promisc
+
+.IP "Valid flow sample fields"
+
+        timestamp
+        agent
+        subagent
+        sequence
+        id_type
+        id_index
+        sample_rate
+        sample_pool
+        sample_drops
+        sample_input_if_format
+        sample_input_if_value
+        sample_output_if_format
+        sample_output_if_value
+        raw_header_protocol
+        raw_header_frame_length
+        raw_header_stripped
+        raw_header_length
+        raw_header
+
+.SH "SEE ALSO"
 stcollectd(1)
+
 .SH BUGS
 None

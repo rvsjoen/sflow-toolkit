@@ -5,41 +5,67 @@ import getopt
 import time
 import sflowtoolkit
 
+valid_formats = [
+	("csv","counter"),
+	("csv","flow"),
+	("pcap","flow"),
+	("binary","flow"),
+	("binary","counter")
+]
+
 # Arguments from the command line (with defaults)
 index	= "-1"
 agent	= ""
 start	= ""
 end	= ""
-format	= "flow"
-type	= "binary"
+format	= "binary"
+type	= "flow"
+fields  = "timestamp,agent"
 
 def usage():
-	print "Usage information: stexport -a <agent ip> -s <start> -e <end> [-i <if index>] [-f <format>] [-t <type>]"
+	sys.stderr.write("Usage information: stexport -a <agent ip> -s <start> -e <end> [-i <if index>] [-f <format>] [-t <type>] [--fields field1,field2]\n")
 
 def do_work():
 	global format, type
 	datadir = sflowtoolkit.sflowconfig["data directory"]
 	output_function = getattr(sflowtoolkit, "get_%sdata_%s" % (type, format))
-	output_function(agent, start, end, datadir, index)
+	if format == "csv":
+		output_function(agent, start, end, fields, datadir, index)
+	else:
+		output_function(agent, start, end, datadir, index)
 
 def check_parameters():
 	result = True
 	if not agent:
 		result = False
+		sys.stderr.write("No agent address specified\n")
 	if not start:
 		result = False
+		sys.stderr.write("No start time specified\n")
 	if not end:
+		result = False
+		sys.stderr.write("No end time specified\n")
+	# Check that we requested a vaild type/format pair
+	if not (format, type) in valid_formats:
+		result = False
+		sys.stderr.write("Invalid type/format combination: %s,%s\n" % (type, format))
+	# Check that the start and end times are valid
+	try:
+		time.strptime(start, sflowtoolkit.date_string)
+		time.strptime(end, sflowtoolkit.date_string)
+	except ValueError:
+		sys.stderr.write("Invalid start or end time\n")
 		result = False
 	return result
 
 def main():
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hi:a:s:e:f:t:", ["help", "index=", "agent=", "start=", "end=", "format=", "type="])
+		opts, args = getopt.getopt(sys.argv[1:], "hi:a:s:e:f:t:", ["help", "index=", "agent=", "start=", "end=", "format=", "type=", "fields="])
 	except getopt.GetoptError, err:
 		print str(err)
 		usage()
 		sys.exit(2)
-	global agent, index, start, end, format, type
+	global agent, index, start, end, format, type, fields
 	for o,a in opts:
 		if o == "-h":
 			help()
@@ -56,6 +82,9 @@ def main():
 			format = a
 		elif o in ["-t", "--type"]:
 			type = a
+		elif o in ["--fields"]:
+			fields = a
+			print a
 		else:
 			assert False, "unhandled option"
 	# We are done parsing options, time to do some work
