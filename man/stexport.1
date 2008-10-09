@@ -1,0 +1,31 @@
+.TH "stexport" 1
+.SH NAME
+stexport \- extract and convert collected sFlow data to various file formats
+.SH SYNOPSIS
+.B stexport
+-a <agent ip> -s <start> -e <end> [-i <if index>] [-f <format>] [-t <type>]
+.SH DESCRIPTION
+extract and convert collected sFlow data to various file formats
+.SH OPTIONS
+.TP
+.B \-a <agent ip>
+The agent ip address
+.TP
+.B \-i <interface index> (optional)
+The SNMP interface index
+.TP
+.B \-t <type>
+Which type of samples to export, valid values are : flow
+.TP
+.B \-f <format>
+Which format to export to, valid values are: binary, pcap
+.SH "SEE ALSO"
+.TP
+.B \-s <time>
+Interval start format "YYYY:MM:dd HH:mm"
+.TP
+.B \-e <time>
+Interval end, format "YYYY:MM:dd HH:mm"
+stcollectd(1)
+.SH BUGS
+None
