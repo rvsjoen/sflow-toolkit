@@ -65,11 +65,20 @@ class MyFuncs:
 		return res
 
 	def get_collector_status(self):
-		res = "some general information in a string, uptime, sample rate, byten written etc etc"
+		res = "Uptime: foo, Effective sampling rate: bar, Bytes written: foo, Number of agents: bar, Samples (flow/cntr/total): foo/foo/bar"
 		return res
 
 	def get_collector_agents(self):
-		res = ["a table with each agent, number of samples, last seen, etc, etc","row2","row3","row4"]
+		res = []
+		header = ["agent", "flow samples", "counter samples", "last seen", "average sampling rate"]
+		res.append(header)
+		row = ["0.0.0.0", "0", "0", time.asctime(), "0 samples/sec"]
+		res.append(row)
+		res.append(row)
+		res.append(row)
+		res.append(row)
+		res.append(row)
+		res.append(row)
 		return res
 
 server.register_instance(MyFuncs())
