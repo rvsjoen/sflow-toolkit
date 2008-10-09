@@ -64,6 +64,14 @@ class MyFuncs:
 		i += 1
 		return res
 
+	def get_collector_status(self):
+		res = "some general information in a string, uptime, sample rate, byten written etc etc"
+		return res
+
+	def get_collector_agents(self):
+		res = ["a table with each agent, number of samples, last seen, etc, etc","row2","row3","row4"]
+		return res
+
 server.register_instance(MyFuncs())
 
 class MyDaemon(Daemon):
