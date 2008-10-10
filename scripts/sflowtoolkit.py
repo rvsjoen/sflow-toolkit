@@ -11,6 +11,7 @@ import commands
 import tempfile
 import socket
 import yaml
+import md5
 
 date_string = "%Y.%m.%d %H:%M"
 flow_pattern = "17L128s"
@@ -243,7 +244,12 @@ def sort_key(item):
 	return -long(item[-1]);
 
 def get_conversations(agent, start, end, datadir, index):
-	f = tempfile.NamedTemporaryFile()
+	#f = tempfile.NamedTemporaryFile()
+	
+	m = md5.md5(agent+index+start+end)
+	fname = "/tmp/sflow/%s.pcap" % m.hexdigest()
+	f = open(fname, "w")
+
 	stdout_bak = sys.stdout
 	sys.stdout = f
 	get_flowdata_pcap(agent, start, end, datadir, index)
@@ -271,7 +277,6 @@ def get_conversations(agent, start, end, datadir, index):
 	result = sorted(result, key=sort_key)
 	result.insert(0, header)
 	return result
-
 
 def get_counterdata_binary(agent, start, end, datadir, index):
 	files = get_filenames(agent, start, end, datadir, "cntr")

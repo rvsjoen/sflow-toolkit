@@ -63,6 +63,10 @@ class MyFuncs:
 		logfile.flush()
 		i += 1
 		return res
+	
+	def get_pcap_link(self, agent, start, end, index):
+		m = md5.md5(agent+index+start+end)
+		return "http://foo/%s" % m.hexdigest()
 
 	def get_collector_status(self):
 		res = "Uptime: foo, Effective sampling rate: bar, Bytes written: foo, Number of agents: bar, Samples (flow/cntr/total): foo/foo/bar"
