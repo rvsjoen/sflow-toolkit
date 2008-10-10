@@ -22,6 +22,7 @@ extern uint32_t cnt_total_f;
 extern uint32_t cnt_total_c;
 extern uint32_t time_start;
 extern uint32_t bytes_total;
+extern uint32_t num_agents;
 
 void get_HZ();
 void init_stats();
