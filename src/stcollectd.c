@@ -48,7 +48,7 @@ char* interface 		= NULL;
 char* cwd				= NULL;
 char* file_config 		= DEFAULT_CONFIG_FILE;
 char** validagents		= NULL;
-int num_agents 			= 0;
+uint32_t num_agents 			= 0;
 
 cmph_t *h 				= NULL;
 agent_stat* agent_stats = NULL;
@@ -390,6 +390,8 @@ void* collect()
 	init_stats();
 	uint32_t i 	= 0;
 	time_t t 	= 0; // This is when we start the collecting thread
+	time_start = time(NULL);
+	update_realtime_stats();
 
 	bool flushed = false;
 	uint32_t flush_cnt = 0;
@@ -403,7 +405,6 @@ void* collect()
 		cnt++;
 		flush_cnt++;
 
-		if(time_start == 0)	time_start = time_current;
 		if(t == 0) t = time_current;
 
 		parseDatagram(buf, bytes_received);

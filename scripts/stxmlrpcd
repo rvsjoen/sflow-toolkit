@@ -15,9 +15,11 @@ datadir = sflowtoolkit.sflowconfig['data directory']
 htmlurl = sflowtoolkit.sflowconfig['htmlurl']
 
 class MyFuncs:
+
 	def __init__(self):
 		global i 
 		i = 0
+
 	def get_cntr_index(self, agent, start, end, fields, index): 
 		global i 
 		logfile.write(time.asctime()+" REQUEST [%u] get_cntr_index(%s, %s, %s, %s, %s) \n"%(i, agent, start, end, fields, index))
@@ -75,9 +77,9 @@ class MyFuncs:
 		f = open("%s/rstats"%datadir, "r")
 		buf = f.read()
 		values = buf.split(",")
-		cnt,cnt_f,cnt_c,time,bytes,agents = values
+		cnt,cnt_f,cnt_c,starttime,bytes,agents = values
 		f.close()
-		res = "Started: %s, Bytes written: %s, Number of agents: %s, Samples: %s flow, %s cntr, Datagrams: %s)" % (time.ctime(int(time)),bytes,agents,cnt_f,cnt_c,cnt)
+		res = "Started: %s, Bytes written: %s, Number of agents: %s, Samples: %s flow, %s cntr, Datagrams: %s)" % (time.ctime(int(starttime)),bytes,agents,cnt_f,cnt_c,cnt)
 		return res
 
 	def get_collector_agents(self):
