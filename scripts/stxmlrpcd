@@ -4,12 +4,15 @@ import socket
 import time
 import sys
 import sflowtoolkit
+import md5
 from sflowdaemon import Daemon
 
 # Create server
 server = SimpleXMLRPCServer((socket.getfqdn(), 8000))
 
 logfile = open(sflowtoolkit.sflowconfig['data directory']+"/stxmlrpcd.log", "a");
+datadir = sflowtoolkit.sflowconfig['data directory']
+htmlurl = sflowtoolkit.sflowconfig['htmlurl']
 
 class MyFuncs:
 	def __init__(self):
@@ -65,8 +68,8 @@ class MyFuncs:
 		return res
 	
 	def get_pcap_link(self, agent, start, end, index):
-		m = md5.md5(agent+index+start+end)
-		return "http://foo/%s" % m.hexdigest()
+		m = md5.md5(agent+start+end+index)
+		return "%s/sflow_%s.pcap" % (htmlurl, m.hexdigest())
 
 	def get_collector_status(self):
 		res = "Uptime: foo, Effective sampling rate: bar, Bytes written: foo, Number of agents: bar, Samples (flow/cntr/total): foo/foo/bar"

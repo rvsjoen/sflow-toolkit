@@ -244,12 +244,10 @@ def sort_key(item):
 	return -long(item[-1]);
 
 def get_conversations(agent, start, end, datadir, index):
-	#f = tempfile.NamedTemporaryFile()
-	
-	m = md5.md5(agent+index+start+end)
-	fname = "/tmp/sflow/%s.pcap" % m.hexdigest()
+	m = md5.md5(agent+start+end+index)
+	tmpdir = sflowconfig["tmpdir"]
+	fname = "%s/sflow_%s.pcap" % (tmpdir, m.hexdigest())
 	f = open(fname, "w")
-
 	stdout_bak = sys.stdout
 	sys.stdout = f
 	get_flowdata_pcap(agent, start, end, datadir, index)
