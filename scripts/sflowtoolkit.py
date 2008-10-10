@@ -258,7 +258,7 @@ def get_conversations(agent, start, end, datadir, index):
 		f.flush()
 		f.close()
 
-	result = commands.getoutput("tshark -r "+f.name+" -q -z conv,ip")
+	result = commands.getoutput("tshark -r "+fname+" -q -z conv,ip")
 	header = ["Host 1","Host 2","Frames <-","Bytes <-","Frames ->","Bytes ->","Frames <->","Bytes <->"]
 	lines = result.split("\n")
 	data = lines[6:-1]
