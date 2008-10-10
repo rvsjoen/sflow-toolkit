@@ -72,8 +72,13 @@ class MyFuncs:
 		return "%s/sflow_%s.pcap" % (htmlurl, m.hexdigest())
 
 	def get_collector_status(self):
-		res = "Uptime: foo, Effective sampling rate: bar, Bytes written: foo, Number of agents: bar, Samples (flow/cntr/total): foo/foo/bar"
-		return res
+	f = open("%s/rstats"%datadir, "r")
+	buf = f.read()
+	values = buf.split(",")
+	cnt,cnt_f,cnt_c,time,bytes,agents = values
+	f.close()
+	res = "Started: %s, Bytes written: %s, Number of agents: %s, Samples: %s flow, %s cntr, Datagrams: %s)" % (time.ctime(int(time)),bytes,agents,cnt_f,cnt_c,cnt)
+	return res
 
 	def get_collector_agents(self):
 		res = []
