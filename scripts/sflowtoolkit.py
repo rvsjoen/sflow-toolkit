@@ -12,6 +12,7 @@ import tempfile
 import socket
 import yaml
 import md5
+import os
 
 date_string = "%Y.%m.%d %H:%M"
 flow_pattern = "17L128s"
@@ -247,12 +248,16 @@ def get_conversations(agent, start, end, datadir, index):
 	m = md5.md5(agent+start+end+index)
 	tmpdir = sflowconfig["tmpdir"]
 	fname = "%s/sflow_%s.pcap" % (tmpdir, m.hexdigest())
-	f = open(fname, "w")
-	stdout_bak = sys.stdout
-	sys.stdout = f
-	get_flowdata_pcap(agent, start, end, datadir, index)
-	sys.stdout = stdout_bak
-	f.flush()
+	
+	if not os.path.exists(fname):
+		f = open(fname, "w")
+		stdout_bak = sys.stdout
+		sys.stdout = f
+		get_flowdata_pcap(agent, start, end, datadir, index)
+		sys.stdout = stdout_bak
+		f.flush()
+		f.close()
+
 	result = commands.getoutput("tshark -r "+f.name+" -q -z conv,ip")
 	header = ["Host 1","Host 2","Frames <-","Bytes <-","Frames ->","Bytes ->","Frames <->","Bytes <->"]
 	lines = result.split("\n")
@@ -271,7 +276,6 @@ def get_conversations(agent, start, end, datadir, index):
 	        except socket.herror:
 	                pass
 	        result.append(v)
-	f.close()
 	result = sorted(result, key=sort_key)
 	result.insert(0, header)
 	return result
