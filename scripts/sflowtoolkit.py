@@ -244,7 +244,38 @@ def process_file_pcap(f, index):
 def sort_key(item):
 	return -long(item[-1]);
 
-def get_conversations(agent, start, end, datadir, index):
+def resolve_ip(ip):
+	#TODO Implement caching of addresses
+	try:
+		return socket.gethostbyaddr(ip)[0]
+	except socket.herror:
+		return ""
+
+def resolve_port(port):
+	#TODO Implement lookup of port from services file
+	pass
+
+def resolve_host_ip(hoststr):
+	return "%s (%s)" % (resolve_ip(hoststr), hoststr)
+def resolve_host_tcp(hoststr):
+	(ip,port) = hoststr.split(":")
+	return "%s:%s (%s)" % (resolve_ip(ip),port,ip)
+def resolve_host_udp(hoststr):
+	(ip,port) = hoststr.split(":")
+	return "%s:%s (%s)" % (resolve_ip(ip),port,ip)
+def resolve_host_ethernet(hoststr):
+	return hoststr
+
+def resolve_table(table,type):
+	result = []
+	resolve_function = globals()["resolve_host_%s" % type]
+	for row in table:
+		result.append(row)
+		row[0] = resolve_function(row[0])	
+		row[1] = resolve_function(row[1])	
+	return result
+
+def get_conversations(agent, start, end, datadir, index, type):
 	m = md5.md5(agent+start+end+index)
 	tmpdir = sflowconfig["tmpdir"]
 	fname = "%s/sflow_%s.pcap" % (tmpdir, m.hexdigest())
@@ -258,25 +289,21 @@ def get_conversations(agent, start, end, datadir, index):
 		f.flush()
 		f.close()
 
-	result = commands.getoutput("tshark -r "+fname+" -q -z conv,ip")
-	header = ["Host 1","Host 2","Frames <-","Bytes <-","Frames ->","Bytes ->","Frames <->","Bytes <->"]
+	result = commands.getoutput("tshark -n -r "+fname+" -q -z conv,"+type)
+	header = ["Host 1","Host 2","Frames <","Bytes <","Frames >","Bytes >","Frames < >","Bytes < >"]
 	lines = result.split("\n")
 	data = lines[6:-1]
 	result = []
+
+	# Do different things for different tables
 	for d in data:
 	        v = [item for item in d.split(" ") if item]
 	        v.remove("<->")
 	
-	        try:
-	                v[0] = socket.gethostbyaddr(v[0])[0]+" ("+v[0]+")"
-	        except socket.herror:
-	                pass
-	        try:
-	                v[1] = socket.gethostbyaddr(v[1])[0]+" ("+v[1]+")"
-	        except socket.herror:
-	                pass
+
 	        result.append(v)
 	result = sorted(result, key=sort_key)
+	result = resolve_table(result, type)
 	result.insert(0, header)
 	return result
 

@@ -47,28 +47,15 @@ class MyFuncs:
 		i += 1
 		return res
 
-	def get_conv_switch(self, agent, start, end, records=0):
+	def get_conversations(self, agent, start, end, index, type):
 		global i
-		logfile.write(time.asctime()+" REQUEST [%u] get_conv_switch(%s, %s, %s)\n"%(i, agent, start, end));
-		res = sflowtoolkit.get_conversations(agent, start, end, datadir, -1)
-		if records is not 0:
-			res = res[:(1+records)]
+		logfile.write(time.asctime()+" REQUEST [%u] get_conv(%s, %s, %s, %s, %s)\n"%(i, agent, start, end, index, type));
+		res = sflowtoolkit.get_conversations(agent, start, end, datadir, index, type)
 		logfile.write(time.asctime()+" REPLY [%u]\n"%i);
 		logfile.flush()
 		i += 1
 		return res
 
-	def get_conv_index(self, agent, start, end, index, records=0):
-		global i
-		logfile.write(time.asctime()+" REQUEST [%u] get_conv_index(%s, %s, %s, %s)\n"%(i, agent, start, end, index));
-		res = sflowtoolkit.get_conversations(agent, start, end, datadir, index)
-		if records is not 0:
-			res = res[:(1+records)]
-		logfile.write(time.asctime()+" REPLY [%u]\n"%i);
-		logfile.flush()
-		i += 1
-		return res
-	
 	def get_pcap_link(self, agent, start, end, index):
 		m = md5.md5(agent+start+end+index)
 		return "%s/sflow_%s.pcap" % (htmlurl, m.hexdigest())
