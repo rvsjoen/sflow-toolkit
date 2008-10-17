@@ -20,9 +20,9 @@ class MyFuncs:
 		global i 
 		i = 0
 
-	def get_cntr_index(self, agent, start, end, fields, index): 
+	def get_counter_samples(self, agent, start, end, fields, index): 
 		global i 
-		logfile.write(time.asctime()+" REQUEST [%u] get_cntr_index(%s, %s, %s, %s, %s) \n"%(i, agent, start, end, fields, index))
+		logfile.write(time.asctime()+" REQUEST [%u] get_counter_samples(%s, %s, %s, %s, %s) \n"%(i, agent, start, end, fields, index))
 		res = sflowtoolkit.get_counterdata(agent, start, end, fields, datadir, index)
 		logfile.write(time.asctime()+" REPLY [%u]\n"%i);
 		logfile.flush()
@@ -49,7 +49,7 @@ class MyFuncs:
 
 	def get_conversations(self, agent, start, end, index, type):
 		global i
-		logfile.write(time.asctime()+" REQUEST [%u] get_conv(%s, %s, %s, %s, %s)\n"%(i, agent, start, end, index, type));
+		logfile.write(time.asctime()+" REQUEST [%u] get_conversations(%s, %s, %s, %s, %s)\n"%(i, agent, start, end, index, type));
 		res = sflowtoolkit.get_conversations(agent, start, end, datadir, index, type)
 		logfile.write(time.asctime()+" REPLY [%u]\n"%i);
 		logfile.flush()

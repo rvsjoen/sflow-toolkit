@@ -257,12 +257,15 @@ def resolve_port(port):
 
 def resolve_host_ip(hoststr):
 	return "%s (%s)" % (resolve_ip(hoststr), hoststr)
+
 def resolve_host_tcp(hoststr):
 	(ip,port) = hoststr.split(":")
 	return "%s:%s (%s)" % (resolve_ip(ip),port,ip)
+
 def resolve_host_udp(hoststr):
 	(ip,port) = hoststr.split(":")
 	return "%s:%s (%s)" % (resolve_ip(ip),port,ip)
+
 def resolve_host_ethernet(hoststr):
 	return hoststr
 
