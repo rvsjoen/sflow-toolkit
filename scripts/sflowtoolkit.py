@@ -326,7 +326,7 @@ def get_flowdata_pcap(agent, start, end, datadir, index):
 	for f in files:
 		process_file_pcap(f, index)
 
-def process_file(f, index, fields, type):
+def process_file(f, index, fields, type)
 	size = 0
 	format = ""
 
@@ -355,7 +355,7 @@ def process_file(f, index, fields, type):
 					if type is "flow" and field == "raw_header":
 						record.append(base64.encodestring(buf[v[field]]))
 					else:
-						record.append(buf[v[field]])
+						record.append(str(buf[v[field]]))
 				result.append(record)
 		fp.close()
 		return result
