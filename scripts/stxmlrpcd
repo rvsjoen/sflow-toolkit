@@ -29,18 +29,9 @@ class MyFuncs:
 		i += 1
 		return res
 
-	def get_flow_switch(self, agent, start, end, fields):
+	def get_flow_samples(self, agent, start, end, fields, index):
 		global i
-		logfile.write(time.asctime()+" REQUEST [%u] get_flow_switch(%s, %s, %s, %s)\n"%(i, agent, start, end, fields));
-		res = sflowtoolkit.get_flowdata(agent, start, end, fields, datadir, -1)
-		logfile.write(time.asctime()+" REPLY [%u]\n"%i);
-		logfile.flush()
-		i += 1
-		return res
-
-	def get_flow_index(self, agent, start, end, fields, index):
-		global i
-		logfile.write(time.asctime()+" REQUEST [%u] get_flow_index(%s, %s, %s, %s, %s)\n"%(i, agent, start, end, fields, index));
+		logfile.write(time.asctime()+" REQUEST [%u] get_flow_samples(%s, %s, %s, %s, %s)\n"%(i, agent, start, end, fields, index));
 		res = sflowtoolkit.get_flowdata(agent, start, end, fields, datadir, index)
 		logfile.write(time.asctime()+" REPLY [%u]\n"%i);
 		logfile.flush()
