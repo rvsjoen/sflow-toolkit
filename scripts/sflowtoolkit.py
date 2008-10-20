@@ -239,25 +239,7 @@ def process_file_pcap(f, index):
 				sys.stdout.write(buf[v["raw_header"]][:buf[v["raw_header_length"]]])
 		fp.close()
 	except IOError:
-
-	def process_file_pcap_tmp(f, index, output):
-	format = flow_pattern
-	size = 196
-	v = validfields_flow
-	try: 
-		fp = open(f, "r")
-		tmp = fp.read(size)
-		while tmp:
-			buf = struct.unpack(format, tmp)
-			tmp = fp.read(size)
-			if check_index_flow(index, buf, v):
-				hdr = struct.pack("4I", buf[v["timestamp"]], 0, buf[v["raw_header_length"]], buf[v["raw_header_frame_length"]])				
-				output.write(hdr)
-				output.write(buf[v["raw_header"]][:buf[v["raw_header_length"]]])
-		fp.close()
-	except IOError:
 		pass
-	pass
 
 def sort_key(item):
 	return -long(item[-1]);
@@ -295,52 +277,6 @@ def resolve_table(table,type):
 		row[0] = resolve_function(row[0])	
 		row[1] = resolve_function(row[1])	
 	return result
-
-
-def get_conversations_tshark(agent, start, end, datadir, index, type):
-	m = md5.md5(agent+start+end+index)
-	tmpdir = sflowconfig["tmpdir"]
-	f_name_rx = "%s/sflow_%s_rx.pcap" % (tmpdir, m.hexdigest())
-	f_name_tx = "%s/sflow_%s_tx.pcap" % (tmpdir, m.hexdigest())
-
-	if not os.path.exists(f_name_rx):
-		f_rx = open(f_name_rx, "w")
-		get_flowdata_pcap_tmp(agent, start, end, datadir, index, f_rx)
-		f_rx.flush()
-		f_rx.close()
-
-	if not os.path.exists(f_name_tx):
-		f_tx = open(f_name_tx, "w")
-		get_flowdata_pcap_tmp(agent, start, end, datadir, index, f_tx)
-		f_tx.flush()
-		f_tx.close()
-
-	result_rx = commands.getoutput("tshark -n -r "+f_name_rx+" -q -z conv,"+type)
-	result_tx = commands.getoutput("tshark -n -r "+f_name_tx+" -q -z conv,"+type)
-	header = ["Host 1","Host 2","Frames <","Bytes <","Frames >","Bytes >","Frames < >","Bytes < >"]
-
-	lines_rx = result_rx.split("\n")
-	lines_tx = result_tx.split("\n")
-	data_rx = lines_rx[6:-1]
-	data_tx = lines_tx[6:-1]
-	result_rx = []
-	result_tx = []
-
-	# Do different things for different tables
-	for d in data:
-	        v = [item for item in d.split(" ") if item]
-	        v.remove("<->")
-	        result.append(v)
-
-	result_rx = sorted(result, key=sort_key)
-	result_rx = resolve_table(result_rx, type)
-	result_rx.insert(0, header)
-
-	result_tx = sorted(result, key=sort_key)
-	result_tx = resolve_table(result_rx, type)
-	result_tx.insert(0, header)
-
-	return (result_rx,result_tx)
 
 def get_conversations(agent, start, end, datadir, index, type):
 	m = md5.md5(agent+start+end+index)
@@ -390,13 +326,7 @@ def get_flowdata_pcap(agent, start, end, datadir, index):
 	for f in files:
 		process_file_pcap(f, index)
 
-def get_flowdata_pcap_tmp(agent, start, end, datadir, index, out):
-	files = get_filenames(agent, start, end, datadir, "flow")
-	write_pcap_header()
-	for f in files:
-		process_file_pcap(f, index, out)
-
-def process_file(f, index, fields, type):
+def process_file(f, index, fields, type)
 	size = 0
 	format = ""
 
