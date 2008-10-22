@@ -47,9 +47,22 @@ class MyFuncs:
 		i += 1
 		return res
 
+	def get_conversations_tmp(self, agent, start, end, index, type):
+		global i
+		logfile.write(time.asctime()+" REQUEST [%u] get_conversations(%s, %s, %s, %s, %s)\n"%(i, agent, start, end, index, type));
+		res_rx,res_tx = sflowtoolkit.get_conversations_tmp(agent, start, end, datadir, index, type)
+		logfile.write(time.asctime()+" REPLY [%u]\n"%i);
+		logfile.flush()
+		i += 1
+		return (res_rx,res_tx)
+
 	def get_pcap_link(self, agent, start, end, index):
 		m = md5.md5(agent+start+end+index)
 		return "%s/sflow_%s.pcap" % (htmlurl, m.hexdigest())
+
+	def get_pcap_link_rxtx(self, agent, start, end, index):
+		m = md5.md5(agent+start+end+index)
+		return ("%s/sflow_%s_rx.pcap" % (htmlurl, m.hexdigest()),"%s/sflow_%s_tx.pcap" % (htmlurl, m.hexdigest()))
 
 	def get_collector_status(self):
 		f = open("%s/rstats"%datadir, "r")

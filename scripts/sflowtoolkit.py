@@ -149,6 +149,19 @@ def check_index_flow(index, buf, v):
 	else:
 		return False
 
+RX = 0
+TX = 1
+def check_index_flow_tmp(index, buf, v):
+        index = int(index)
+        direction = None
+	#print str(index),buf[v["sample_input_if_value"]],buf[v["sample_output_if_value"]],buf[v["id_index"]]
+	if index == -1 or int(buf[v["sample_input_if_value"]]) == index or int(buf[v["sample_output_if_value"]]) == index or int(buf[v["id_index"]]) == index:
+	        if int(buf[v["sample_input_if_value"]]) == index:
+	                direction = RX
+	        elif int(buf[v["sample_output_if_value"]]) == index:
+	                direction = TX
+        return direction
+
 def get_headers(fields, type):
 	headers = []
 	v = {}
@@ -223,6 +236,13 @@ def write_pcap_header():
 	hdr = struct.pack("Ihhi3I", PCAP_MAGIC, PCAP_MAJOR, PCAP_MINOR, 0, 0, 65535, 1)
 	sys.stdout.write(hdr)
 
+def write_pcap_header_tmp(f):
+	PCAP_MAGIC = 0xa1b2c3d4
+	PCAP_MAJOR = 2
+	PCAP_MINOR = 4
+	hdr = struct.pack("Ihhi3I", PCAP_MAGIC, PCAP_MAJOR, PCAP_MINOR, 0, 0, 65535, 1)
+	f.write(hdr)
+
 def process_file_pcap(f, index):
 	format = flow_pattern
 	size = 196
@@ -237,6 +257,30 @@ def process_file_pcap(f, index):
 				hdr = struct.pack("4I", buf[v["timestamp"]], 0, buf[v["raw_header_length"]], buf[v["raw_header_frame_length"]])				
 				sys.stdout.write(hdr)
 				sys.stdout.write(buf[v["raw_header"]][:buf[v["raw_header_length"]]])
+		fp.close()
+	except IOError:
+		pass
+
+def process_file_pcap_tmp(f, index, f_rx, f_tx):
+	format = flow_pattern
+	size = 196
+	v = validfields_flow
+	try: 
+		fp = open(f, "r")
+		tmp = fp.read(size)
+		while tmp:
+			buf = struct.unpack(format, tmp)
+			tmp = fp.read(size)
+			direction = check_index_flow_tmp(index, buf, v)
+			if direction != None:
+				if direction == RX:
+					hdr = struct.pack("4I", buf[v["timestamp"]], 0, buf[v["raw_header_length"]], buf[v["raw_header_frame_length"]])				
+					f_rx.write(hdr)
+					f_rx.write(buf[v["raw_header"]][:buf[v["raw_header_length"]]])
+				elif direction == TX:
+					hdr = struct.pack("4I", buf[v["timestamp"]], 0, buf[v["raw_header_length"]], buf[v["raw_header_frame_length"]])				
+					f_tx.write(hdr)
+					f_tx.write(buf[v["raw_header"]][:buf[v["raw_header_length"]]])
 		fp.close()
 	except IOError:
 		pass
@@ -302,13 +346,61 @@ def get_conversations(agent, start, end, datadir, index, type):
 	for d in data:
 	        v = [item for item in d.split(" ") if item]
 	        v.remove("<->")
-	
-
 	        result.append(v)
+
 	result = sorted(result, key=sort_key)
 	result = resolve_table(result, type)
 	result.insert(0, header)
 	return result
+
+def get_conversations_tmp(agent, start, end, datadir, index, type):
+	m = md5.md5(agent+start+end+index)
+	tmpdir = sflowconfig["tmpdir"]
+
+	# Separate ingress and egress traffic
+	f_name_rx = "%s/sflow_%s_tx.pcap" % (tmpdir, m.hexdigest())
+	f_name_tx = "%s/sflow_%s_rx.pcap" % (tmpdir, m.hexdigest())
+	
+	if not os.path.exists(f_name_rx) or not os.path.exists(f_name_tx):
+		f_rx = open(f_name_rx, "w")
+		f_tx = open(f_name_tx, "w")
+		get_flowdata_pcap_tmp(agent, start, end, datadir, index, f_rx, f_tx)
+		f_rx.flush()
+		f_tx.flush()
+		f_rx.close()
+		f_tx.close()
+
+	result_rx = commands.getoutput("tshark -n -r " + f_name_rx + " -q -z conv," + type)
+	result_tx = commands.getoutput("tshark -n -r " + f_name_tx + " -q -z conv," + type)
+
+	header = ["Host 1","Host 2","Frames <","Bytes <","Frames >","Bytes >","Frames < >","Bytes < >"]
+
+	lines_rx = result_rx.split("\n")
+	lines_tx = result_tx.split("\n")
+	data_rx = lines_rx[6:-1]
+	data_tx = lines_tx[6:-1]
+	result_rx = []
+	result_tx = []
+
+	# Do different things for different tables
+	for d in data_rx:
+	        v = [item for item in d.split(" ") if item]
+	        v.remove("<->")
+	        result_rx.append(v)
+	for d in data_tx:
+	        v = [item for item in d.split(" ") if item]
+	        v.remove("<->")
+	        result_tx.append(v)
+
+	result_rx = sorted(result_rx, key=sort_key)
+	result_rx = resolve_table(result_rx, type)
+	result_rx.insert(0, header)
+
+	result_tx = sorted(result_tx, key=sort_key)
+	result_tx = resolve_table(result_tx, type)
+	result_tx.insert(0, header)
+
+	return (result_rx,result_tx)
 
 def get_counterdata_binary(agent, start, end, datadir, index):
 	files = get_filenames(agent, start, end, datadir, "cntr")
@@ -326,7 +418,14 @@ def get_flowdata_pcap(agent, start, end, datadir, index):
 	for f in files:
 		process_file_pcap(f, index)
 
-def process_file(f, index, fields, type)
+def get_flowdata_pcap_tmp(agent, start, end, datadir, index, f_rx, f_tx):
+	files = get_filenames(agent, start, end, datadir, "flow")
+	write_pcap_header_tmp(f_rx)
+	write_pcap_header_tmp(f_tx)
+	for f in files:
+		process_file_pcap_tmp(f, index, f_rx, f_tx)
+
+def process_file(f, index, fields, type):
 	size = 0
 	format = ""
 
@@ -349,7 +448,7 @@ def process_file(f, index, fields, type)
 
 			buf = struct.unpack(format, tmp)
 			tmp = fp.read(size)
-	
+			
 			if check_index(index, buf, v):
 				for field in fields:
 					if type is "flow" and field == "raw_header":
