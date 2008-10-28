@@ -118,7 +118,7 @@ void update_realtime_stats()
 	fp = fopen(filename, "w+");
 	if(fp !=NULL){
 		char buf[1024];
-		sprintf(buf,"%u,%u,%u,%lu,%u,%u", cnt, cnt_total_f, cnt_total_c, time_start, bytes_total, num_agents);
+		sprintf(buf,"%u,%u,%u,%u,%u,%u", cnt, cnt_total_f, cnt_total_c, time_start, bytes_total, num_agents);
 		fputs(buf, fp);
 		fflush(fp);
 		fclose(fp);

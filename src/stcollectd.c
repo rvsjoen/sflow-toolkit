@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <pthread.h>
+#include <mqueue.h>
 
 #include <netinet/in.h>
 
@@ -37,6 +38,7 @@
 #define DEFAULT_CONFIG_FILE		"/etc/stcollectd.conf"
 #define NUM_BUFFERS 			10
 #define PRINT_INTERVAL			1000
+#define MSG_QUEUE_NAME 			"/sflow"
 
 // configurable options
 uint32_t print_interval	= PRINT_INTERVAL;
@@ -62,13 +64,14 @@ uint32_t sock_fd 		= 0;
 uint32_t time_start 	= 0;
 uint32_t time_end 		= 0;
 
+extern bool daemonize;
 bool exit_writer_thread			= false;
 bool exit_collector_thread		= false;
-bool daemonize					= true;
 
 pthread_mutex_t* locks;
 pthread_t write_thread;
 pthread_t collect_thread;
+mqd_t queue;
 
 /*-----------------------------------------------------------------------------
  *  How many packets to capture before we close and go home
@@ -150,8 +153,7 @@ void printSingleLineHex(unsigned char* pkt, uint32_t len){
  *  Description:  Print usage information
  * =====================================================================================
  */
-void usage()
-{
+void usage(){
 	printf("Usage : stcollectd [options]\n");	
 }
 
@@ -161,8 +163,7 @@ void usage()
  *  Description:  Print help information
  * =====================================================================================
  */
-void help()
-{
+void help(){
 	printf("\n");
 	printf("\t-f<val>\tSet the flushing interval in packets, the collector will flush data to disk when <val> packets are captured\n\n");
 	printf("\t-h\tShow this help\n\n");
@@ -282,7 +283,7 @@ void destroyHash(){
 }
 
 void printAgentStats(){
-	int i = 0;
+	uint32_t i = 0;
 	logmsg(LOGLEVEL_DEBUG, "Agent Stats (%u agents):", num_agents);
 	for( ; i<num_agents; i++ )
 	{
@@ -291,21 +292,13 @@ void printAgentStats(){
 	}
 }
 
-void exit_on_error() {
-	if(!daemonize)
-		disable_echo(false);
-	logmsg(LOGLEVEL_DEBUG, "Exiting on error");
-	exit(1);
-}
-
 /* 
  * ===  FUNCTION  ======================================================================
  *         Name:  flushLists
  *  Description:  Flushes the contents of the lists to disk
  * =====================================================================================
  */
-void flushLists()
-{
+void flushLists(){
 	logmsg(LOGLEVEL_DEBUG, "Collected %u flow samples and %u counter samples to buffer %u, requesting flush", 
 			sfnum[buffer_current_collect], scnum[buffer_current_collect], buffer_current_collect);
 
@@ -378,13 +371,15 @@ void* writeBufferToDisk(){
 		if (pthread_mutex_unlock(&locks[buffer_current_flush]) == 0)
 			logmsg(LOGLEVEL_DEBUG, "Flushing finished, buffer %u unlocked",buffer_current_flush);
 		buffer_current_flush = (buffer_current_flush + 1 )%num_buffers;
+
+		//TODO Make a relevant message
+		msgQueue();
 	}
 	logmsg(LOGLEVEL_DEBUG, "Writing thread exiting");
 	void* p; p=NULL; return p;
 }
 
-void* collect()
-{
+void* collect(){
 	sock_fd = createAndBindSocket();
 	logmsg(LOGLEVEL_DEBUG, "Waiting for packets...");
 	init_stats();
@@ -472,6 +467,7 @@ void hook_exit(int signal){
 	logmsg(LOGLEVEL_DEBUG, "Exiting with signal %u", signal);
 	
 	destroyHash();
+	destroyQueue();
 	destroyLogger();
 	if(!daemonize)
 		disable_echo(false);
@@ -542,43 +538,11 @@ void initHash(){
 		memset(agent_stats, 0, sizeof(agent_stat)*num_agents);
 
 		// Loop over and set the agent indexes correctly
-		int i;
+		uint32_t i;
 		for(i=0;i<num_agents;i++)
 			agent_stats[i].agent_index = i;
 		
 	}
-}
-
-void daemonize_me() {	
-		pid_t pid, sid;
-
-		if ( getppid() == 1 ) return;
-
-		// Fork off the parent process
-		pid = fork();
-		if (pid < 0) 
-			exit(EXIT_FAILURE);
-	
-		// If we got a good PID, then we can exit the parent process
-		if (pid > 0) 
-			exit(EXIT_SUCCESS);
-	
-		// Change the file mode mask
-		//umask(0);
-	
-		// Create a new SID for the child process
-		sid = setsid();
-		if (sid < 0)
-			exit(EXIT_FAILURE);
-	
-		// Change the current working directory
-		if ((chdir("/")) < 0) 
-			exit(EXIT_FAILURE);
-	
-		// Close out the standard file descriptors
-		freopen( "/dev/null", "r", stdin);
-		freopen( "/dev/null", "w", stdout);
-		freopen( "/dev/null", "w", stderr);
 }
 
 void printConfig(){
@@ -588,6 +552,24 @@ void printConfig(){
 	logmsg(LOGLEVEL_DEBUG, "Buffer count: %u buffers", num_buffers);
 	logmsg(LOGLEVEL_DEBUG, "Interface: %s:%u", interface, port);
 	logmsg(LOGLEVEL_DEBUG, "Data directory: %s", cwd);
+}
+
+void initQueue(){
+	queue = mq_open(MSG_QUEUE_NAME, O_CREAT|O_WRONLY, DEFFILEMODE, NULL);
+	if(queue == -1){
+		logmsg(LOGLEVEL_ERROR, "initQueue: %s", strerror(errno));
+		exit_on_error();
+	}
+}
+
+void msgQueue(){
+	char buf[] = "This is a message!";
+	mq_send(queue, buf, strlen(buf), 0);
+}
+
+void destroyQueue(){
+	mq_close(queue);
+//	mq_unlink(MSG_QUEUE_NAME);
 }
 
 /* 
@@ -603,6 +585,7 @@ int main(int argc, char** argv){
 	parseCommandLine(argc, argv);
 	if(strcmp(file_config, DEFAULT_CONFIG_FILE) != 0)
 		parseConfigFile(file_config);
+
 	printConfig();
 
 	if(daemonize){
@@ -645,8 +628,12 @@ int main(int argc, char** argv){
 	}
 
 	logmsg(LOGLEVEL_DEBUG, "Data directory : %s", cwd);
+
 	logmsg(LOGLEVEL_DEBUG, "Initializing agents hash");
 	initHash();
+
+	logmsg(LOGLEVEL_DEBUG, "Initializing message queue");
+	initQueue();
 
 	// Start the thread which is going to help us write when the buffers are marked for flushing
 	logmsg(LOGLEVEL_DEBUG, "Starting diskwriter");

@@ -27,4 +27,21 @@ void disable_echo(bool b);
  */
 void exit_collector(int r);
 
+
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  exit_on_error
+ *  Description:  Exits with an error status code
+ * =====================================================================================
+ */
+void exit_on_error();
+
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  daemonize
+ *  Description:  Makes the calling thread fork into background 
+ * =====================================================================================
+ */
+void daemonize_me();
+
 #endif
