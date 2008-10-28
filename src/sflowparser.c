@@ -2,6 +2,8 @@
 
 extern char** validagents;
 
+extern agentlist_t* agents;
+
 extern int32_t log_level;
 extern int32_t cnt_total_f;
 extern int32_t cnt_total_c;
@@ -395,7 +397,6 @@ void parseDatagram(uint8_t* data, uint32_t n )
 	s_template.agent_address 	= ntohl(hdr.agent_address.address.ip_v4.s_addr);
 	s_template.sub_agent_id		= hdr.sub_agent_id;
 	
-	
 	// Do some stats here (there might be a better way of doing this
 	char key[16];
 	sprintf(
@@ -407,7 +408,6 @@ void parseDatagram(uint8_t* data, uint32_t n )
 			(s_template.agent_address & 0x000000ff)
 		   );
 
-	
 	// Search for this agent in the hash of agents
 	unsigned int id = cmph_search(h, key, strlen(key));
 
@@ -415,8 +415,9 @@ void parseDatagram(uint8_t* data, uint32_t n )
 	if(key != NULL && strcmp(key, validagents[id]) == 0)
 	{
 		if(print_parse) printDatagramHeader(&hdr);
-		agent_stat* agent = &agent_stats[id];
-		agent->tot_datagrams_received++;
+		agent_t* agent = agent_get(agents, id);
+		agent->datagrams++;
+		agent->last_seen = datagram.timestamp;
 		uint32_t i;
 		for( i=0; i < hdr.num_records; i++ ){
 			parseSample(&datagram, &s_template); 				// Populate the sample using the datagram

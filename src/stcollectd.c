@@ -22,6 +22,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+
+#include "agentlist.h"
+
 #include "util.h"
 #include "logger.h"
 #include "sflowparser.h"
@@ -49,11 +52,16 @@ uint32_t buffer_size	= DEFAULT_BUFFER_SIZE;
 char* interface 		= NULL;
 char* cwd				= NULL;
 char* file_config 		= DEFAULT_CONFIG_FILE;
+
 char** validagents		= NULL;
+
 uint32_t num_agents 			= 0;
 
 cmph_t *h 				= NULL;
 agent_stat* agent_stats = NULL;
+
+
+agentlist_t* agents		= NULL;
 
 uint32_t cnt 			= 0;
 uint32_t cnt_total_f  	= 0;
@@ -280,16 +288,7 @@ void freeAll(){
 
 void destroyHash(){
 	cmph_destroy(h);
-}
-
-void printAgentStats(){
-	uint32_t i = 0;
-	logmsg(LOGLEVEL_DEBUG, "Agent Stats (%u agents):", num_agents);
-	for( ; i<num_agents; i++ )
-	{
-		agent_stat* as = &agent_stats[i];
-		logmsg(LOGLEVEL_DEBUG, "agent %s received %u ", validagents[as->agent_index], as->tot_datagrams_received);
-	}
+	agentlist_destroy(agents);
 }
 
 /* 
@@ -461,7 +460,8 @@ void hook_exit(int signal){
 	logmsg(LOGLEVEL_INFO, "Total: %u packet(s), %u flow samples, %u counter samples, average sampling rate %.1f samples/sec", 
 			cnt, cnt_total_f, cnt_total_c, (cnt_total_f+cnt_total_c)/(double)(d_t));
 
-	printAgentStats();
+	agentlist_print_stats(agents);
+
 	logmsg(LOGLEVEL_DEBUG, "Releasing all resources");
 	freeAll();
 	logmsg(LOGLEVEL_DEBUG, "Exiting with signal %u", signal);
@@ -533,14 +533,20 @@ void initHash(){
 		//Destroy hash
 		cmph_io_vector_adapter_destroy(source);
 
-		// Allocate some space for the agent stats
-		agent_stats = calloc(num_agents, sizeof(agent_stat));
-		memset(agent_stats, 0, sizeof(agent_stat)*num_agents);
-
-		// Loop over and set the agent indexes correctly
+		agents = agentlist_init(num_agents);
 		uint32_t i;
-		for(i=0;i<num_agents;i++)
-			agent_stats[i].agent_index = i;
+		for(i=0;i<num_agents;i++){
+			agent_t* a = agent_get(agents, i);
+			a->index = i;
+			strncpy(a->address, validagents[i], strlen(validagents[i]));
+		}
+
+		// Allocate some space for the agent stats
+		//agent_stats = calloc(num_agents, sizeof(agent_stat));
+		//memset(agent_stats, 0, sizeof(agent_stat)*num_agents);
+		// Loop over and set the agent indexes correctly
+		//for(i=0;i<num_agents;i++)
+		//	agent_stats[i].agent_index = i;
 		
 	}
 }
