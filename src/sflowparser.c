@@ -1,8 +1,11 @@
 #include "sflowparser.h"
+#include "bufferlist.h"
 
 extern char** validagents;
-
 extern agentlist_t* agents;
+extern buffer_t* buffer_cc_flow;
+extern buffer_t* buffer_cc_cntr;
+
 
 extern int32_t log_level;
 extern int32_t cnt_total_f;
@@ -12,6 +15,8 @@ extern SFCntrSample** scbuf;
 extern uint32_t* scnum;
 extern uint32_t* sfnum;
 extern uint32_t buffer_current_collect;
+
+
 
 bool print_parse = false;
 
@@ -308,16 +313,19 @@ void parseSample(SFDatagram* datagram, SFSample* s_tmpl){
 	
 	if(hdr.tag == SFLFLOW_SAMPLE || hdr.tag == SFLFLOW_SAMPLE_EXPANDED){
 
-		SFFlowSample* current_buffer = sfbuf[buffer_current_collect];
-		SFFlowSample* s = &current_buffer[sfnum[buffer_current_collect]];
-		sfnum[buffer_current_collect]++;
+
+//		SFFlowSample* current_buffer = sfbuf[buffer_current_collect];
+//		SFFlowSample* s = &current_buffer[sfnum[buffer_current_collect]];
+//		sfnum[buffer_current_collect]++;
+
+		SFFlowSample* current_buffer = (SFFlowSample*) buffer_cc_flow->data;
+		SFFlowSample* s = &current_buffer[buffer_cc_flow->count];
+		buffer_cc_flow->count++;
 
 		cnt_total_f++;
-
 		s->timestamp		= s_tmpl->timestamp;
 		s->agent_address	= s_tmpl->agent_address;
 		s->sub_agent_id		= s_tmpl->sub_agent_id;
-
 		if(hdr.tag == SFLFLOW_SAMPLE_EXPANDED)
 			parseFlowSample(datagram, s, true);
 		else
@@ -325,13 +333,15 @@ void parseSample(SFDatagram* datagram, SFSample* s_tmpl){
 		
 	} else if (hdr.tag == SFLCOUNTERS_SAMPLE || hdr.tag == SFLCOUNTERS_SAMPLE_EXPANDED) {
 
-		SFCntrSample* current_buffer = scbuf[buffer_current_collect];
-		SFCntrSample* s = &current_buffer[scnum[buffer_current_collect]];
+//		SFCntrSample* current_buffer = scbuf[buffer_current_collect];
+//		SFCntrSample* s = &current_buffer[scnum[buffer_current_collect]];
+//		scnum[buffer_current_collect]++;
 
-		scnum[buffer_current_collect]++;
+		SFCntrSample* current_buffer = (SFCntrSample*) buffer_cc_cntr->data;
+		SFCntrSample* s = &current_buffer[buffer_cc_cntr->count];
+		buffer_cc_cntr->count++;
 
 		cnt_total_c++; 
-			
 		s->timestamp		= s_tmpl->timestamp;
 		s->agent_address	= s_tmpl->agent_address;
 		s->sub_agent_id		= s_tmpl->sub_agent_id;

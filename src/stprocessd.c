@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 	while(true)
 	{
 		mq_getattr(queue, &attr);
-		printf ("%d messages are currently on the queue.\n", attr.mq_curmsgs);
+		printf ("%u messages are currently on the queue.\n", attr.mq_curmsgs);
 
 		int res = mq_receive(queue, buf, 8192, NULL);
 		if(res == -1){
