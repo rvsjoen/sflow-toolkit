@@ -10,7 +10,7 @@ stcollectd_SOURCES = stcollectd.c 					\
 					 statistics.c statistics.h		\
 					 configparser.c configparser.h	\
 					 agentlist.c agentlist.h		\
-					 bufferlist.c bufferlist.h
+					 bufferqueue.c bufferqueue.h
 stcollectd_LDFLAGS = -lcmph -lpthread -lrrd -lyaml -lrt
 
 stprocessd_SOURCES = stprocessd.c

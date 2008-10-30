@@ -1,5 +1,5 @@
 #include "sflowparser.h"
-#include "bufferlist.h"
+#include "bufferqueue.h"
 
 extern char** validagents;
 extern agentlist_t* agents;
