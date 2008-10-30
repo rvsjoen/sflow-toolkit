@@ -53,8 +53,6 @@ char* interface 		= NULL;
 char* cwd				= NULL;
 char* file_config 		= DEFAULT_CONFIG_FILE;
 
-//bufferlist_t* buffers_flow 	= NULL;
-//bufferlist_t* buffers_cntr 	= NULL;
 buffer_t* buffer_cw_flow 	= NULL;	// Current write flow
 buffer_t* buffer_cw_cntr 	= NULL; // Current write counter
 buffer_t* buffer_cc_flow 	= NULL; // Current collect flow
@@ -88,12 +86,6 @@ pthread_t collect_thread;
 mqd_t queue;
 
 /*-----------------------------------------------------------------------------
- *  How many packets to capture before we close and go home
- *  This is a command line option
- *-----------------------------------------------------------------------------*/
-uint32_t num_packets = -1;
-
-/*-----------------------------------------------------------------------------
  * This is declared in the logger but we need to change it according to the
  * command line options
  *-----------------------------------------------------------------------------*/
@@ -110,19 +102,6 @@ extern bool print_parse;
  *  This is a command line option
  *-----------------------------------------------------------------------------*/
 bool print_hex;
-
-/*-----------------------------------------------------------------------------
- *  Our collection to hold pointers to the parsed samples from the parser
- *-----------------------------------------------------------------------------*/
-
-SFFlowSample** sfbuf;
-SFCntrSample** scbuf;
-
-uint32_t* scnum;
-uint32_t* sfnum;
-
-uint32_t buffer_current_collect = 0;
-uint32_t buffer_current_flush 	= 0;
 
 /* 
  * ===  FUNCTION  ======================================================================
@@ -169,30 +148,7 @@ void printSingleLineHex(unsigned char* pkt, uint32_t len){
  */
 void usage(){
 	printf("Usage : stcollectd [options]\n");	
-}
-
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  help
- *  Description:  Print help information
- * =====================================================================================
- */
-void help(){
-	printf("\n");
-	printf("\t-f<val>\tSet the flushing interval in packets, the collector will flush data to disk when <val> packets are captured\n\n");
-	printf("\t-h\tShow this help\n\n");
-	printf("\t-i<val>\tAddress to listen on, if no address is specified the collector will choose the first it finds\n\n");
-	printf("\t-n<val>\tDefine the number of packets to capture before exiting, if this is not specified it will capture until told otherwise\n\n");
-	printf("\t-o<val>\tDefine the directory to save data in, in this directory the collector will create a data folder, NO TRAILING SLASH!\n\n");
-	printf("\t-p<val>\tPort to listen on, if no port is specified the default (6343) will be used\n\n");
-	printf("\t-v\tPrint out more information\n\n");
-	printf("\t-vv\tEven more information\n\n");
-	printf("\t-x\tPrints the parsed information\n\n");
-	printf("\t-X\tPrints the HEX dump of each recieved packet\n\n");
-	printf("\t-d\tDo not daemonize\n\n");
-	printf("\t-c <filename>\tUse another configuration file (default is /etc/stcollectd.conf)\n\n");
-	printf("\t-b <val>\tSet the number of buffers\n\n");
-	printf("\t-P <val>\tSet the interval for printing statistics (in packets)\n\n");
+	printf("See manual page for details about available options\n");	
 }
 
 /* 
@@ -208,20 +164,12 @@ void parseCommandLine(int argc, char** argv){
 	{
 		switch(opt)
 		{
-			case 'p': port 				= atoi(optarg); 	break;
-			case 'b': num_buffers 		= atoi(optarg); 	break;
-			case 'P': print_interval 	= atoi(optarg); 	break;
-			case 'n': num_packets 		= atoi(optarg); 	break;
-			case 'f': flush_interval 	= atoi(optarg);		break;
-			case 's': buffer_size 		= atoi(optarg);		break;
-			case 'o': cwd 				= optarg; 			break;
-			case 'i': interface 		= optarg; 			break;
-			case 'c': file_config 		= optarg; 			break;
 			case 'x': print_parse 		= true; 			break;
 			case 'X': print_hex 		= true; 			break;
+			case 'c': file_config 		= optarg; 			break;
 			case 'd': daemonize 		= false;			break;
 			case 'v': log_level++; 							break;
-			case 'h': usage(); help(); exit_collector(0); 	break;
+			case 'h': usage(); exit_collector(0); 			break;
 			default : usage(); exit_collector(1);			break;
 		}
 	}
@@ -260,15 +208,42 @@ uint32_t createAndBindSocket(){
 	return sock_fd;
 }
 
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  destroyHash
+ *  Description:  Free the memory allocated to the hash and the agent list
+ * =====================================================================================
+ */
 void destroyHash(){
 	cmph_destroy(h);
 	agentlist_destroy(agents);
 }
 
+
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  freeMemory
+ *  Description:  Release the memory held by the buffer queues
+ * =====================================================================================
+ */
+void freeMemory(){
+
+	logmsg(LOGLEVEL_DEBUG, "Waiting for remaining buffers to empty");
+	while(buffers_flush_flow->num>0 || buffers_flush_cntr->num>0 ){
+		sleep(1);
+	}
+
+	// When we get here, the writing thread is dead
+	// We dont need any more new buffers
+	bqueue_destroy(buffers_free_flow);
+	bqueue_destroy(buffers_free_cntr);
+}
+
 /* 
  * ===  FUNCTION  ======================================================================
  *         Name:  flushLists
- *  Description:  Flushes the contents of the lists to disk
+ *  Description:  Flushes the contents of the current buffers by passing
+ *  			  them to the flush queue
  * =====================================================================================
  */
 void flushLists(){
@@ -287,6 +262,12 @@ void flushLists(){
 	buffer_cc_cntr = bqueue_pop(buffers_free_cntr);
 }
 
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  writeBufferToDisk
+ *  Description:  Main function for the writing thread
+ * =====================================================================================
+ */
 void* writeBufferToDisk(){
 
 	bool time_to_shutdown = false;
@@ -299,7 +280,7 @@ void* writeBufferToDisk(){
 		}
 		
 		if(exit_writer_thread && time_to_shutdown){
-			logmsg(LOGLEVEL_DEBUG, "Final flush of buffer %u", buffer_current_flush);
+//			logmsg(LOGLEVEL_DEBUG, "Final flush of buffer %u", buffer_current_flush);
 	//		if(pthread_mutex_trylock(&locks[buffer_current_flush])==0)
 	//			break;
 		} else {
@@ -358,19 +339,23 @@ void* writeBufferToDisk(){
 	void* p; p=NULL; return p;
 }
 
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  collect
+ *  Description:  Main function for the collecting thread
+ * =====================================================================================
+ */
 void* collect(){
 	sock_fd = createAndBindSocket();
 	logmsg(LOGLEVEL_DEBUG, "Waiting for packets...");
 	init_stats();
-	uint32_t i 	= 0;
 	time_t t 	= 0; // This is when we start the collecting thread
 	time_start = time(NULL);
 	update_realtime_stats();
 
-	bool flushed = false;
 	uint32_t flush_cnt = 0;
 
-	for(;i<num_packets && !exit_collector_thread;i++)
+	while(!exit_collector_thread)
 	{
 
 		time_t time_current = time(NULL); // The time we entered the loop
@@ -391,9 +376,8 @@ void* collect(){
 		if(cnt%print_interval==0)
 			logmsg(LOGLEVEL_INFO, "Processed %u packets", cnt);
 
-//		printf("buffer_cc_flow: %u, buffer_cc_cntr: %u, buffer_size: %u\n", buffer_cc_flow->count,buffer_cc_cntr->count,buffer_size);
+		// We flush if the interval has expired or if one of the buffers are full
 		if(((unsigned int)d_t >= flush_interval) || buffer_cc_flow->count >= (buffer_size-MAX_DATAGRAM_SAMPLES) || buffer_cc_cntr->count >= (buffer_size - MAX_DATAGRAM_SAMPLES)){
-
 			float srate = 0;
 			if(d_t != 0)
 				srate = (buffer_cc_flow->count+buffer_cc_cntr->count)/(double)d_t;
@@ -414,6 +398,12 @@ void* collect(){
 	void* p; p=NULL; return p;
 }
 
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  destroyQueue
+ *  Description:  Close the message queue handle, do not unlink !
+ * =====================================================================================
+ */
 void destroyQueue(){
 	mq_close(queue);
 //	mq_unlink(MSG_QUEUE_NAME);
@@ -445,9 +435,11 @@ void hook_exit(int signal){
 
 	logmsg(LOGLEVEL_DEBUG, "Exiting with signal %u", signal);
 	
+	freeMemory();
 	destroyHash();
 	destroyQueue();
 	destroyLogger();
+
 	if(!daemonize)
 		disable_echo(false);
 	exit_collector(0);
@@ -456,7 +448,7 @@ void hook_exit(int signal){
 /* 
  * ===  FUNCTION  ======================================================================
  *         Name:  handle_signal
- *  Description:  Signal handler for SIGINT (CTRL+C)
+ *  Description:  Signal handler for signals that do shutdown
  * =====================================================================================
  */
 void handle_signal(int sig){
@@ -466,6 +458,12 @@ void handle_signal(int sig){
 	hook_exit(sig);
 }
 
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  allocateMemory
+ *  Description:  Do the initial allocation of memory and buffer queues
+ * =====================================================================================
+ */
 void allocateMemory(){
 	// Initialize the buffer queues
 	buffers_free_flow 	= bqueue_init(num_buffers, buffer_size, sizeof(SFFlowSample));
@@ -478,6 +476,12 @@ void allocateMemory(){
 	buffer_cc_cntr = bqueue_pop(buffers_free_cntr);
 }
 
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  initHash
+ *  Description:  Initialize the agent hash and agent list
+ * =====================================================================================
+ */
 void initHash(){
 	if(validagents != NULL){
 		cmph_io_adapter_t *source = cmph_io_vector_adapter(validagents, num_agents);
@@ -499,15 +503,27 @@ void initHash(){
 	}
 }
 
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  printConfig
+ *  Description:  Print out some information about the current configuration
+ * =====================================================================================
+ */
 void printConfig(){
 	logmsg(LOGLEVEL_DEBUG, "Flush Interval: %u seconds", flush_interval);
 	logmsg(LOGLEVEL_DEBUG, "Print Interval: %u seconds", print_interval);
 	logmsg(LOGLEVEL_DEBUG, "Buffer size: %u samples", buffer_size);
-	logmsg(LOGLEVEL_DEBUG, "Buffer count: %u buffers", num_buffers);
+	logmsg(LOGLEVEL_DEBUG, "Initial buffers: %u", num_buffers);
 	logmsg(LOGLEVEL_DEBUG, "Interface: %s:%u", interface, port);
 	logmsg(LOGLEVEL_DEBUG, "Data directory: %s", cwd);
 }
 
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  initQueue
+ *  Description:  Initialize the messaging queue
+ * =====================================================================================
+ */
 void initQueue(){
 	queue = mq_open(MSG_QUEUE_NAME, O_CREAT|O_WRONLY, DEFFILEMODE, NULL);
 	if(queue == -1){
@@ -516,6 +532,12 @@ void initQueue(){
 	}
 }
 
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  msgQueue
+ *  Description:  Send a message
+ * =====================================================================================
+ */
 void msgQueue(){
 	char buf[] = "This is a message!";
 	mq_send(queue, buf, strlen(buf), 0);

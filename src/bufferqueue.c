@@ -1,5 +1,4 @@
 #include "bufferqueue.h"
-#include <errno.h>
 
 bqueue_t* bqueue_init(uint32_t num, uint32_t buffersize, uint32_t itemsize){
 	logmsg(LOGLEVEL_DEBUG, "Initializing buffer queue");
