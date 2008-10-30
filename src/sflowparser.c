@@ -313,11 +313,6 @@ void parseSample(SFDatagram* datagram, SFSample* s_tmpl){
 	
 	if(hdr.tag == SFLFLOW_SAMPLE || hdr.tag == SFLFLOW_SAMPLE_EXPANDED){
 
-
-//		SFFlowSample* current_buffer = sfbuf[buffer_current_collect];
-//		SFFlowSample* s = &current_buffer[sfnum[buffer_current_collect]];
-//		sfnum[buffer_current_collect]++;
-
 		SFFlowSample* current_buffer = (SFFlowSample*) buffer_cc_flow->data;
 		SFFlowSample* s = &current_buffer[buffer_cc_flow->count];
 		buffer_cc_flow->count++;
@@ -332,10 +327,6 @@ void parseSample(SFDatagram* datagram, SFSample* s_tmpl){
 			parseFlowSample(datagram, s, false); 
 		
 	} else if (hdr.tag == SFLCOUNTERS_SAMPLE || hdr.tag == SFLCOUNTERS_SAMPLE_EXPANDED) {
-
-//		SFCntrSample* current_buffer = scbuf[buffer_current_collect];
-//		SFCntrSample* s = &current_buffer[scnum[buffer_current_collect]];
-//		scnum[buffer_current_collect]++;
 
 		SFCntrSample* current_buffer = (SFCntrSample*) buffer_cc_cntr->data;
 		SFCntrSample* s = &current_buffer[buffer_cc_cntr->count];
@@ -419,8 +410,11 @@ void parseDatagram(uint8_t* data, uint32_t n )
 		   );
 
 	// Search for this agent in the hash of agents
+	//
+	
 	unsigned int id = cmph_search(h, key, strlen(key));
 
+	
 	// If the agent address is valid process the datagram, if not just skip it
 	if(key != NULL && strcmp(key, validagents[id]) == 0)
 	{

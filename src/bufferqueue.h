@@ -2,6 +2,8 @@
 #define __bufferqueue_h__
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include <pthread.h>
 #include "logger.h"
 
@@ -13,7 +15,6 @@ typedef struct _bufferqueue {
 	struct _buffer* end;
 	pthread_mutex_t lock;
 	pthread_cond_t condition;
-	pthread_mutex_t condition_mutex;
 } bqueue_t;
 
 typedef struct _buffer {

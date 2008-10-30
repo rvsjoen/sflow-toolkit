@@ -293,7 +293,6 @@ void* writeBufferToDisk(){
 
 	
 	while(true){
-
 		if(exit_writer_thread && !time_to_shutdown){
 			logmsg(LOGLEVEL_DEBUG, "Starting to shut down writing thread");
 			time_to_shutdown = true;
@@ -322,10 +321,7 @@ void* writeBufferToDisk(){
 		buffer_cw_flow = bqueue_pop_wait(buffers_flush_flow);
 		buffer_cw_cntr = bqueue_pop_wait(buffers_flush_cntr);
 
-		logmsg(LOGLEVEL_DEBUG, "GOT BUFFERS TO FLUSH !!! YAHOOOOO!!!\n");
-
 		// We got something, write it to disk
-		/*
 		logmsg(LOGLEVEL_DEBUG, "Writing to disk (%u flow samples, %u counter samples) from buffer",
 			buffer_cw_flow->count, buffer_cw_cntr->count);
 		if( buffer_cw_flow->count >0 ){
@@ -346,7 +342,8 @@ void* writeBufferToDisk(){
 				cs++;
 			}
 			buffer_cw_cntr->count = 0;
-		}*/
+		}
+		logmsg(LOGLEVEL_DEBUG, "Done writing to disk");
 
 		// Push these buffers back on the free queue and NULL'ify the flush buffer pointers
 		bqueue_push(buffers_free_flow, buffer_cw_flow);
@@ -354,7 +351,7 @@ void* writeBufferToDisk(){
 		buffer_cw_flow = NULL;
 		buffer_cw_cntr = NULL;
 
-		//We flushed a buffer, telll someone (like stprocessd)
+		//We flushed a buffer, tell someone (like stprocessd)
 		//msgQueue();
 	}
 	logmsg(LOGLEVEL_DEBUG, "Writing thread exiting");
@@ -394,9 +391,15 @@ void* collect(){
 		if(cnt%print_interval==0)
 			logmsg(LOGLEVEL_INFO, "Processed %u packets", cnt);
 
-		if(((unsigned int)d_t >= flush_interval) || buffer_cc_flow->count == buffer_size || buffer_cc_cntr->count == buffer_size){
-			float srate = (buffer_cc_flow->count+buffer_cc_cntr->count)/(double)d_t;
+//		printf("buffer_cc_flow: %u, buffer_cc_cntr: %u, buffer_size: %u\n", buffer_cc_flow->count,buffer_cc_cntr->count,buffer_size);
+		if(((unsigned int)d_t >= flush_interval) || buffer_cc_flow->count >= (buffer_size-MAX_DATAGRAM_SAMPLES) || buffer_cc_cntr->count >= (buffer_size - MAX_DATAGRAM_SAMPLES)){
+
+			float srate = 0;
+			if(d_t != 0)
+				srate = (buffer_cc_flow->count+buffer_cc_cntr->count)/(double)d_t;
+
 			logmsg(LOGLEVEL_INFO, "%u seconds since last update, effective sampling rate: %.1f samples/sec", d_t, srate);
+
 			uint32_t bytes = (buffer_cc_cntr->count*sizeof(SFCntrSample)+buffer_cc_flow->count*sizeof(SFFlowSample));
 			bytes_total += bytes;
 			update_stats((int)srate, d_t, bytes);
