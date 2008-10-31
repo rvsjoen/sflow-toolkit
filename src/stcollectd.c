@@ -109,7 +109,7 @@ bool print_hex;
  *  Description:  Print an unsigned char array using hex
  * =====================================================================================
  */
-void MrintInHex(unsigned char* pkt, uint32_t len){
+void printInHex(unsigned char* pkt, uint32_t len){
         printf("\n\tHEX dump\n\t");
 	uint32_t j=0;
         uint32_t i;

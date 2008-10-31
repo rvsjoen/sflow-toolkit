@@ -1,5 +1,8 @@
 #include "filesorter.h"
 
+#include "agentlist.h"
+extern agentlist_t* agents;
+
 void createFolder(char* s)
 {
 
@@ -113,20 +116,72 @@ void getFilePath(uint32_t agent_address, time_t timestamp, char* filename){
 
 void addSampleToFile(const void* sample, char* root, SFSample_t type)
 {
-	char filename[256];
-	memset(filename, 0, 256);
-	sprintf(filename, "%s/", root);
 	if(type == SFTYPE_FLOW){
 		SFFlowSample* s = (SFFlowSample*) sample;
-		getFilePath(s->agent_address, s->timestamp, filename);
-		createFolder(filename);
-		sprintf(filename+strlen(filename), "samples_flow.dat");
-	}
-	else if (type == SFTYPE_CNTR) {
+		
+		char key[16];
+		sprintf(key, "%i.%i.%i.%i",
+				((s->agent_address & 0xff000000) >> 24),
+				((s->agent_address & 0x00ff0000) >> 16),
+				((s->agent_address & 0x0000ff00) >> 8),
+				(s->agent_address & 0x000000ff)
+			   );
+		uint32_t id = cmph_search(h, key, strlen(key));
+		agent_t* a = agent_get(agents, id); 
+
+		if(s->timestamp/60 != a->fd_min_flow){
+			logmsg(LOGLEVEL_DEBUG, "Updating flow file descriptor for %s", key);
+			a->fd_min_flow = s->timestamp/60;
+
+			char filename[256];
+			memset(filename, 0, 256);
+			sprintf(filename, "%s/", root);
+			getFilePath(s->agent_address, s->timestamp, filename);
+			createFolder(filename);
+			sprintf(filename+strlen(filename), "samples_flow.dat");
+
+			if(a->fd_flow != NULL)
+				fclose(a->fd_flow);
+			FILE* f = NULL;
+			if((f=fopen(filename, "a")) == NULL){
+				logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
+			}
+			a->fd_flow = f;
+		}
+		fwrite(sample, sizeof(SFFlowSample), 1, a->fd_flow);
+
+	} else if(type == SFTYPE_CNTR){
 		SFCntrSample* s = (SFCntrSample*) sample;
-		getFilePath(s->agent_address, s->timestamp, filename);
-		createFolder(filename);
-		sprintf(filename+strlen(filename), "samples_cntr.dat");
+
+		char key[16];
+		sprintf(key, "%i.%i.%i.%i",
+				((s->agent_address & 0xff000000) >> 24),
+				((s->agent_address & 0x00ff0000) >> 16),
+				((s->agent_address & 0x0000ff00) >> 8),
+				(s->agent_address & 0x000000ff)
+			   );
+		uint32_t id = cmph_search(h, key, strlen(key));
+		agent_t* a = agent_get(agents, id); 
+
+		if(s->timestamp/60 != a->fd_min_cntr){
+			logmsg(LOGLEVEL_DEBUG, "Updating counter file descriptor for %s", key);
+			a->fd_min_cntr = s->timestamp/60;
+
+			char filename[256];
+			memset(filename, 0, 256);
+			sprintf(filename, "%s/", root);
+			getFilePath(s->agent_address, s->timestamp, filename);
+			createFolder(filename);
+			sprintf(filename+strlen(filename), "samples_cntr.dat");
+
+			if(a->fd_cntr != NULL)
+				fclose(a->fd_cntr);
+			FILE* f = NULL;
+			if((f=fopen(filename, "a")) == NULL){
+				logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
+			}
+			a->fd_cntr = f;
+		}
+		fwrite(sample, sizeof(SFCntrSample), 1, a->fd_cntr);
 	}
-	writeToBinary(filename, sample, type);
 }
