@@ -247,8 +247,8 @@ void freeMemory(){
  */
 void flushLists(){
 
-	logmsg(LOGLEVEL_DEBUG, "Collected %u flow samples and %u counter samples,  requesting flush of [%u]", 
-			buffer_cc_flow->count, buffer_cc_cntr->count, buffer_cc_flow->index);
+	logmsg(LOGLEVEL_DEBUG, "Collected %u flow samples and %u counter samples,  requesting flush", 
+			buffer_cc_flow->count, buffer_cc_cntr->count);
 
 	// Push the current buffers to the flush queue
 	logmsg(LOGLEVEL_DEBUG, "Pushing buffers to write queue");
