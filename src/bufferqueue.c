@@ -1,5 +1,7 @@
 #include "bufferqueue.h"
 
+extern uint32_t num_buffers;
+
 bqueue_t* bqueue_init(uint32_t num, uint32_t buffersize, uint32_t itemsize){
 	logmsg(LOGLEVEL_DEBUG, "Initializing buffer queue");
 	bqueue_t* b = (bqueue_t*) malloc(sizeof(bqueue_t));
@@ -62,7 +64,6 @@ void bqueue_push(bqueue_t* queue, buffer_t* b){
 	pthread_cond_signal(&(queue->condition));
 }
 
-
 buffer_t* bqueue_pop(bqueue_t* queue){
 	buffer_t* b = NULL;
 	pthread_mutex_t* lock = &(queue->lock);
@@ -93,10 +94,7 @@ buffer_t* bqueue_pop(bqueue_t* queue){
 				}
 			}
 		}
-	}
-
-	// If we have a large number of free buffers, deallocate one
-	if(queue->num > 2){
+	} else if(queue->num > num_buffers){
 		logmsg(LOGLEVEL_DEBUG, "Too many free buffers, freeing one");
 		bqueue_free(queue);
 	}
