@@ -1,5 +1,7 @@
 #include "bufferqueue.h"
 
+extern uint32_t num_buffers;
+
 bqueue_t* bqueue_init(uint32_t num, uint32_t buffersize, uint32_t itemsize){
 	logmsg(LOGLEVEL_DEBUG, "Initializing buffer queue");
 	bqueue_t* b = (bqueue_t*) malloc(sizeof(bqueue_t));
@@ -28,11 +30,22 @@ void bqueue_destroy(bqueue_t* b){
 	free(b);
 }
 
+void bqueue_free(bqueue_t* queue){
+	if(queue->num > 0){
+		buffer_t* b = queue->start;
+		queue->start = b->next;
+		queue->start->prev = NULL;
+		free(b->data);
+		free(b);
+		queue->num--;
+	}
+}
+
 void bqueue_push(bqueue_t* queue, buffer_t* b){
 	pthread_mutex_t* lock = &(queue->lock);
 	if(pthread_mutex_lock(lock) == -1){
-		printf(strerror(errno));
-		exit(1);
+		logmsg(LOGLEVEL_ERROR, strerror(errno));
+		exit_on_error();
 	}
 	if(queue->num == 0){
 		queue->start = b;
@@ -45,8 +58,8 @@ void bqueue_push(bqueue_t* queue, buffer_t* b){
 	}
 	queue->num++;
 	if(pthread_mutex_unlock(lock) == -1){
-		printf(strerror(errno));
-		exit(1);
+		logmsg(LOGLEVEL_ERROR, strerror(errno));
+		exit_on_error();
 	}
 	pthread_cond_signal(&(queue->condition));
 }
@@ -56,12 +69,35 @@ buffer_t* bqueue_pop(bqueue_t* queue){
 	pthread_mutex_t* lock = &(queue->lock);
 
 	if(pthread_mutex_lock(lock) == -1){
-		printf(strerror(errno));
-		exit(1);
+		logmsg(LOGLEVEL_ERROR, strerror(errno));
+		exit_on_error();
 	}
 
-	if(queue->num == 0)
-		bqueue_push_new(queue);
+	int res = 0;
+	while(queue->num == 0){
+		struct timespec t;
+		t.tv_sec = 1;
+		t.tv_nsec = 0;
+		res = pthread_cond_timedwait(&(queue->condition), lock, &t);
+
+	}
+
+	// Nothing is happening, try to allocate a new buffer
+	if(res == ETIMEDOUT){
+		logmsg(LOGLEVEL_DEBUG, "Timed out waiting for new buffer, allocating a new one");
+		// Try to allocate a buffer, if not possible we wait until something frees up
+		if(bqueue_push_new(queue) == ENOMEM){
+			while (queue->num == 0) {
+				if(pthread_cond_wait(&(queue->condition), lock) == -1){
+					logmsg(LOGLEVEL_ERROR, strerror(errno));
+					exit_on_error();
+				}
+			}
+		}
+	} else if(queue->num > num_buffers){
+		logmsg(LOGLEVEL_DEBUG, "Too many free buffers, freeing one");
+		bqueue_free(queue);
+	}
 
 	if(queue->num == 1){
 		b = queue->start;
@@ -87,15 +123,15 @@ buffer_t* bqueue_pop_wait(bqueue_t* queue){
 
 	// Lock queue
 	if(pthread_mutex_lock(lock) == -1){
-		printf(strerror(errno));
-		exit(1);
+		logmsg(LOGLEVEL_ERROR, strerror(errno));
+		exit_on_error();
 	}
 	if(queue->num == 0)
 		logmsg(LOGLEVEL_DEBUG, "No buffers, unlocking and waiting for signal");
 	while (queue->num == 0) {
 		if(pthread_cond_wait(&(queue->condition), lock) == -1){
-			printf(strerror(errno));
-			exit(1);
+			logmsg(LOGLEVEL_ERROR, strerror(errno));
+			exit_on_error();
 		}
 	}
 	if(queue->num == 1){
@@ -111,18 +147,26 @@ buffer_t* bqueue_pop_wait(bqueue_t* queue){
 		queue->num--;
 	}
 	if(pthread_mutex_unlock(lock) == -1){
-		printf(strerror(errno));
-		exit(1);
+		logmsg(LOGLEVEL_ERROR, strerror(errno));
+		exit_on_error();
 	}
 	return b;
 }
 
-void bqueue_push_new(bqueue_t* queue){
+int bqueue_push_new(bqueue_t* queue){
 	logmsg(LOGLEVEL_DEBUG, "\t Allocating new buffer");
 	buffer_t* buf = (buffer_t*) malloc(sizeof(buffer_t));
+
+	if(buf ==NULL)
+		return ENOMEM;
+
 	memset(buf, 0, sizeof(buffer_t));
 	buf->data = malloc(queue->itemsize*queue->buffersize);
 	buf->index = 0;
+
+	if(buf->data == NULL)
+		return ENOMEM;
+
 	if(queue->num == 0){
 		queue->end = buf;
 		queue->start = buf;
@@ -133,4 +177,5 @@ void bqueue_push_new(bqueue_t* queue){
 		queue->start = buf;
 	}
 	queue->num++;
+	return 0;
 }

@@ -129,7 +129,7 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 		uint32_t id = cmph_search(h, key, strlen(key));
 		agent_t* a = agent_get(agents, id); 
 
-		if(s->timestamp/60 != a->fd_min_flow){
+		if((uint32_t)s->timestamp/60 != a->fd_min_flow){
 			logmsg(LOGLEVEL_DEBUG, "Updating flow file descriptor for %s", key);
 			a->fd_min_flow = s->timestamp/60;
 
@@ -163,7 +163,7 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 		uint32_t id = cmph_search(h, key, strlen(key));
 		agent_t* a = agent_get(agents, id); 
 
-		if(s->timestamp/60 != a->fd_min_cntr){
+		if((uint32_t)s->timestamp/60 != a->fd_min_cntr){
 			logmsg(LOGLEVEL_DEBUG, "Updating counter file descriptor for %s", key);
 			a->fd_min_cntr = s->timestamp/60;
 
