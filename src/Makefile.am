@@ -1,5 +1,5 @@
 # what flags you want to pass to the C compiler & linker
-AM_CFLAGS = -pedantic -std=c99 -Wextra -Wall -fno-common -ffloat-store
+AM_CFLAGS = -pedantic -std=c99 -Wextra -Wall -fno-common -ffloat-store -D_FILE_OFFSET_BITS=64
 bin_PROGRAMS = stcollectd stprocessd
 stcollectd_SOURCES = stcollectd.c 					\
 					 logger.c logger.h 				\
