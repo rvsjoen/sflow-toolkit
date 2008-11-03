@@ -44,4 +44,21 @@ void exit_on_error();
  */
 void daemonize_me();
 
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  printInHex
+ *  Description:  Print an unsigned char array using hex
+ * =====================================================================================
+ */
+void printInHex(unsigned char* pkt, uint32_t len);
+
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  printSingleLineHex
+ *  Description:  Used to print the array of unsigned chars on a single line in hex
+ * =====================================================================================
+ */
+void printSingleLineHex(unsigned char* pkt, uint32_t len);
+
+void num_to_ip(uint32_t num, char* buf);
 #endif

@@ -99,7 +99,6 @@ typedef struct _SFFlowSample {
         uint8_t raw_header[RAW_HEADER_SIZE];
 } SFFlowSample;
 
-
 typedef struct _SFCntrSample {
         // Datagram
         time_t timestamp;

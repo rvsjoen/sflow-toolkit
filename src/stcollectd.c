@@ -1,5 +1,3 @@
-#define _GNU_SOURCE
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -30,6 +28,7 @@
 #include "filesorter.h"
 #include "statistics.h"
 #include "configparser.h"
+#include "messaging.h"
 
 // Default configuration parameters
 #define DEFAULT_FLUSH_INTERVAL 	30
@@ -102,43 +101,6 @@ extern bool print_parse;
  *  This is a command line option
  *-----------------------------------------------------------------------------*/
 bool print_hex;
-
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  printInHex
- *  Description:  Print an unsigned char array using hex
- * =====================================================================================
- */
-void printInHex(unsigned char* pkt, uint32_t len){
-        printf("\n\tHEX dump\n\t");
-	uint32_t j=0;
-        uint32_t i;
-        for(i=0; i<len; i++){
-		if(j++%2 == 0)
-			printf(" ");
-
-                printf("%.2X", *pkt);
-                pkt++;
-		j++;
-		if((i+1)%30 == 0)
-			printf("\n\t");
-        }
-        printf("\n\n");
-}
-
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  printSingleLineHex
- *  Description:  Used to print the array of unsigned chars on a single line in hex
- * =====================================================================================
- */
-void printSingleLineHex(unsigned char* pkt, uint32_t len){
-	uint32_t i;
-	for(i=0; i<len; i++){
-		printf("%.2X", *pkt);
-		pkt++;
-	}
-}
 
 /* 
  * ===  FUNCTION  ======================================================================
@@ -399,17 +361,6 @@ void* collect(){
 
 /* 
  * ===  FUNCTION  ======================================================================
- *         Name:  destroyQueue
- *  Description:  Close the message queue handle, do not unlink !
- * =====================================================================================
- */
-void destroyQueue(){
-	mq_close(queue);
-//	mq_unlink(MSG_QUEUE_NAME);
-}
-
-/* 
- * ===  FUNCTION  ======================================================================
  *         Name:  hook_exit
  *  Description:  This function will cause the application to exit cleanly
  * =====================================================================================
@@ -436,8 +387,8 @@ void hook_exit(int signal){
 	
 	freeMemory();
 	destroyHash();
-	destroyQueue();
 	destroyLogger();
+	close_msg_queue(queue);
 
 	if(!daemonize)
 		disable_echo(false);
@@ -519,31 +470,6 @@ void printConfig(){
 
 /* 
  * ===  FUNCTION  ======================================================================
- *         Name:  initQueue
- *  Description:  Initialize the messaging queue
- * =====================================================================================
- */
-void initQueue(){
-	queue = mq_open(MSG_QUEUE_NAME, O_CREAT|O_WRONLY, DEFFILEMODE, NULL);
-	if(queue == -1){
-		logmsg(LOGLEVEL_ERROR, "initQueue: %s", strerror(errno));
-		exit_on_error();
-	}
-}
-
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  msgQueue
- *  Description:  Send a message
- * =====================================================================================
- */
-void msgQueue(){
-	char buf[] = "This is a message!";
-	mq_send(queue, buf, strlen(buf), 0);
-}
-
-/* 
- * ===  FUNCTION  ======================================================================
  *         Name:  main
  *  Description:  The main entry point for the application
  * =====================================================================================
@@ -601,7 +527,7 @@ int main(int argc, char** argv){
 	initHash();
 
 	logmsg(LOGLEVEL_DEBUG, "Initializing message queue");
-	initQueue();
+	queue = create_msg_queue(MSG_QUEUE_NAME);
 
 	// Start collecting thread
 	logmsg(LOGLEVEL_DEBUG, "Starting collector");

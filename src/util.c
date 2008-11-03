@@ -1,5 +1,3 @@
-#define  _GNU_SOURCE
-
 #include "logger.h"
 #include "util.h"
 
@@ -71,3 +69,36 @@ void daemonize_me() {
 	freopen( "/dev/null", "w", stderr);
 }
 
+void printSingleLineHex(unsigned char* pkt, uint32_t len){
+	uint32_t i;
+	for(i=0; i<len; i++){
+		printf("%.2X", *pkt);
+		pkt++;
+	}
+}
+
+void printInHex(unsigned char* pkt, uint32_t len){
+        printf("\n\tHEX dump\n\t");
+	uint32_t j=0;
+        uint32_t i;
+        for(i=0; i<len; i++){
+		if(j++%2 == 0)
+			printf(" ");
+
+                printf("%.2X", *pkt);
+                pkt++;
+		j++;
+		if((i+1)%30 == 0)
+			printf("\n\t");
+        }
+        printf("\n\n");
+}
+
+void num_to_ip(uint32_t num, char* buf){
+	sprintf(buf, "%i.%i.%i.%i",
+		((num & 0xff000000) >> 24),
+		((num & 0x00ff0000) >> 16),
+		((num & 0x0000ff00) >> 8),
+		(num & 0x000000ff)
+	);
+}

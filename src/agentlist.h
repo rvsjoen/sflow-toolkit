@@ -14,11 +14,14 @@ typedef struct _agentlist_t {
 
 typedef struct _agent_t {
 	char address[16];
+	uint32_t agent;
 	uint32_t index;
 	uint32_t last_seen;
 	uint64_t datagrams;	
 	uint64_t samples_flow;
 	uint64_t samples_counter;
+	char fn_flow[256];
+	char fn_cntr[256];
 	FILE* fd_flow;
 	FILE* fd_cntr;
 	uint32_t fd_min_flow;

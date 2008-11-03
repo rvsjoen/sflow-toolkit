@@ -1,5 +1,3 @@
-#define _GNU_SOURCE
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -11,37 +9,35 @@
 #include <errno.h>
 #include <string.h>
 
+#include "messaging.h"
 #include "logger.h"
 #include "util.h"
+#include "dataparser.h"
 
-#define MSG_QUEUE_NAME "/sflow"
+extern uint32_t log_level;
+
+void process_file(const msg_t* m){
+	if(m->type == SFTYPE_FLOW){
+		logmsg(LOGLEVEL_DEBUG, "Processing flow file (%s)", m->filename);
+		process_file_flow(m->filename, m->agent);
+	} else if (m->type == SFTYPE_CNTR) {
+		logmsg(LOGLEVEL_DEBUG, "Processing counter file (%s)", m->filename);
+	}
+
+}
 
 int main(int argc, char** argv)
 {
-	struct mq_attr attr;
-	memset(&attr, 0, sizeof(struct mq_attr));
-
+	log_level = LOGLEVEL_DEBUG;
 	mqd_t queue;
-	queue = mq_open (MSG_QUEUE_NAME, O_RDONLY);
-	if(queue == -1)
-	{
-		printf("%s\n", strerror(errno));
-		exit(1);
-	}
+	queue = open_msg_queue(MSG_QUEUE_NAME);
 
-	char buf[1024];
-	while(true)
-	{
-		mq_getattr(queue, &attr);
-		printf ("%u messages are currently on the queue.\n", attr.mq_curmsgs);
+	// This needs to loop indefinately
+	msg_t m;
+	memset(&m, 0, sizeof(msg_t));
+	recv_msg(queue, &m);
+	process_file(&m);
 
-		int res = mq_receive(queue, buf, 8192, NULL);
-		if(res == -1){
-			printf("%s\n", strerror(errno));
-			exit(1);
-		}
-		printf("Got message: %s\n", buf);
-	}
-	mq_close (queue);
+	close_msg_queue(queue);
 	return EXIT_SUCCESS;
 }

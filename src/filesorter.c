@@ -2,6 +2,7 @@
 
 #include "agentlist.h"
 extern agentlist_t* agents;
+extern mqd_t queue;
 
 void createFolder(char* s)
 {
@@ -85,21 +86,6 @@ void writeToPcap(const char* filename, SFFlowSample* sample){
 	 writePcapRecord(filename, sample);
 }
 
-void writeToBinary(const char* filename, const void* data, SFSample_t type){
-	FILE* f;
-	if((f=fopen(filename, "a")) == NULL)
-	{
-		logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
-		//exit_collector(1);
-	} else {
-		if(type == SFTYPE_FLOW)
-			fwrite(data, sizeof(SFFlowSample), 1, f);
-		else if(type == SFTYPE_CNTR)
-			fwrite(data, sizeof(SFCntrSample), 1, f);
-		fclose(f);
-	}
-}
-
 void getFilePath(uint32_t agent_address, time_t timestamp, char* filename){
 	sprintf(
 			filename+strlen(filename),
@@ -140,13 +126,23 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 			createFolder(filename);
 			sprintf(filename+strlen(filename), "samples_flow.dat");
 
-			if(a->fd_flow != NULL)
+			if(a->fd_flow != NULL){
 				fclose(a->fd_flow);
+
+				msg_t m;
+				m.agent = a->agent;
+				m.type = SFTYPE_FLOW;
+				strncpy(m.filename, a->fn_flow, 256);
+				send_msg(queue, &m);
+			}
+
 			FILE* f = NULL;
 			if((f=fopen(filename, "a")) == NULL){
 				logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
 			}
 			a->fd_flow = f;
+			strncpy(a->fn_flow, filename, 256);
+			a->agent = s->agent_address;
 		}
 		fwrite(sample, sizeof(SFFlowSample), 1, a->fd_flow);
 
@@ -176,11 +172,20 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 
 			if(a->fd_cntr != NULL)
 				fclose(a->fd_cntr);
+
+				msg_t m;	
+				m.agent = a->agent;
+				m.type = SFTYPE_CNTR;
+				strncpy(m.filename, a->fn_cntr, 256);
+				send_msg(queue, &m);
+
 			FILE* f = NULL;
 			if((f=fopen(filename, "a")) == NULL){
 				logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
 			}
 			a->fd_cntr = f;
+			strncpy(a->fn_cntr, filename, 256);
+			a->agent = s->agent_address;
 		}
 		fwrite(sample, sizeof(SFCntrSample), 1, a->fd_cntr);
 	}

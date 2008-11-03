@@ -17,6 +17,7 @@
 #include "sflowparser.h"
 #include "logger.h"
 #include "util.h"
+#include "messaging.h"
 
 /*-----------------------------------------------------------------------------
  *  These are values written in the pcap header structure
