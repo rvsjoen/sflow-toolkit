@@ -12,16 +12,12 @@
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
 #include <netinet/in.h>
+#include <netinet/ether.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
 #include "sflowparser.h"
 #include "util.h"
-
-#define CONV_ETHERNET 	0x00
-#define CONV_IP 		0x01
-#define CONV_UDP 		0x02
-#define CONV_TCP 		0x03
 
 typedef struct _conv_key_ethernet {
 	uint8_t src[6];  // struct ether_addr
@@ -110,15 +106,15 @@ typedef struct _conv_list {
 	conv_list_node_t* data;
 } conv_list_t;
 
-bool is_ip(const char* pkt);
-bool is_tcp(const char* pkt);
-bool is_udp(const char* pkt);
+bool is_ip(const uint8_t* pkt);
+bool is_tcp(const uint8_t* pkt);
+bool is_udp(const uint8_t* pkt);
 
 // Each function assumes the passed pointer is at the start of its respective header
-void get_key_ethernet(const char* pkt, conv_key_ethernet_t* k);
-void get_key_ip(const char* pkt, conv_key_ip_t* k);
-void get_key_udp(const char* pkt, conv_key_udp_t* k);
-void get_key_tcp(const char* pkt, conv_key_tcp_t* k);
+void get_key_ethernet(const uint8_t* pkt, conv_key_ethernet_t* k);
+void get_key_ip(const uint8_t* pkt, conv_key_ip_t* k);
+void get_key_udp(const uint8_t* pkt, conv_key_udp_t* k);
+void get_key_tcp(const uint8_t* pkt, conv_key_tcp_t* k);
 
 // Process a single sample
 void process_sample_flow(SFFlowSample* s, conv_list_t* c_ethernet, conv_list_t* c_ip, conv_list_t* c_tcp, conv_list_t* c_udp);

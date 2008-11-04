@@ -2,6 +2,8 @@
 
 void process_file_flow(const char* filename, uint32_t agent){
 
+	UNUSED_ARGUMENT(agent);
+
 	// Allocate some lists and zero them
 	conv_list_t c_ethernet, c_ip, c_tcp, c_udp;
 	memset(&c_ethernet, 0, sizeof(conv_list_t));
@@ -26,6 +28,11 @@ void process_file_flow(const char* filename, uint32_t agent){
 
 void process_sample_flow(SFFlowSample* s, conv_list_t* c_ethernet, conv_list_t* c_ip, conv_list_t* c_tcp, conv_list_t* c_udp){
 	
+	UNUSED_ARGUMENT(c_ethernet);
+	UNUSED_ARGUMENT(c_ip);
+	UNUSED_ARGUMENT(c_tcp);
+	UNUSED_ARGUMENT(c_udp);
+
 	// Declare some keys
 	conv_key_ethernet_t key_ethernet;
 	conv_key_ip_t 		key_ip;
@@ -39,8 +46,8 @@ void process_sample_flow(SFFlowSample* s, conv_list_t* c_ethernet, conv_list_t* 
 
 	char msrc[32];
 	char mdst[32];
-	strncpy(msrc, ether_ntoa(key_ethernet.src), 32);
-	strncpy(mdst, ether_ntoa(key_ethernet.dst), 32);
+	strncpy(msrc, ether_ntoa((struct ether_addr*)key_ethernet.src), 32);
+	strncpy(mdst, ether_ntoa((struct ether_addr*)key_ethernet.dst), 32);
 
 	printf(" (%s  %s) ", msrc, mdst);
 
@@ -68,42 +75,42 @@ void process_sample_flow(SFFlowSample* s, conv_list_t* c_ethernet, conv_list_t* 
 	printf("\n");
 }
 
-void get_key_ethernet(const char* pkt, conv_key_ethernet_t* k){
+void get_key_ethernet(const uint8_t* pkt, conv_key_ethernet_t* k){
 	struct ether_header* hdr = (struct ether_header*) pkt;
 	memcpy(k->src, hdr->ether_shost, ETH_ALEN);
 	memcpy(k->dst, hdr->ether_dhost, ETH_ALEN);
 	printf("ETHERNET");
 }
 
-char* strip_vlan(const char* pkt){
-	return pkt + (4*sizeof(uint8_t));
+uint8_t* strip_vlan(const uint8_t* pkt){
+	return (uint8_t*) pkt + (4*sizeof(uint8_t));
 }
 
-char* strip_ethernet(const char* pkt){
+uint8_t* strip_ethernet(const uint8_t* pkt){
 	struct ether_header* hdr = (struct ether_header*) pkt;
-	char* p = pkt + sizeof(struct ether_header);
+	uint8_t* p = (uint8_t*) pkt + sizeof(struct ether_header);
 	if(ntohs(hdr->ether_type) == ETHERTYPE_VLAN){
 		p = strip_vlan(p); 
 	}
 	return p;
 }
 
-void get_key_ip(const char* pkt, conv_key_ip_t* k){
+void get_key_ip(const uint8_t* pkt, conv_key_ip_t* k){
 	printf(" IP");
-	char* p = strip_ethernet(pkt);
+	uint8_t* p = strip_ethernet(pkt);
 	struct iphdr* hdr = (struct iphdr*) p;
 	k->src = ntohl(hdr->saddr);
 	k->dst = ntohl(hdr->daddr);
 }
 
-char* strip_ip(const uint8_t* pkt){
-	uint8_t* p = pkt;
+uint8_t* strip_ip(const uint8_t* pkt){
+	uint8_t* p = (uint8_t*) pkt;
 	struct iphdr* hdr = (struct iphdr*) p;
 	p += hdr->ihl*4*sizeof(uint8_t);
 	return p;
 }
 
-void get_key_udp(const char* pkt, conv_key_udp_t* k){
+void get_key_udp(const uint8_t* pkt, conv_key_udp_t* k){
 	uint8_t* p = strip_ethernet(pkt);
 	struct iphdr* ip_hdr = (struct iphdr*) p;
 	k->src = ntohl(ip_hdr->saddr);
@@ -116,7 +123,7 @@ void get_key_udp(const char* pkt, conv_key_udp_t* k){
 	printf("  UDP");
 }
 
-void get_key_tcp(const char* pkt, conv_key_tcp_t* k){
+void get_key_tcp(const uint8_t* pkt, conv_key_tcp_t* k){
 	uint8_t* p = strip_ethernet(pkt);
 
 	struct iphdr* ip_hdr = (struct iphdr*) p;
@@ -131,19 +138,19 @@ void get_key_tcp(const char* pkt, conv_key_tcp_t* k){
 	printf("  TCP");
 }
 
-bool is_ip(const char* pkt){
+bool is_ip(const uint8_t* pkt){
 	struct ether_header* hdr = (struct ether_header*) pkt;
 	if(ntohs(hdr->ether_type) == ETHERTYPE_IP)
 		return true;
 	else if(ntohs(hdr->ether_type) == ETHERTYPE_VLAN){
-		hdr = strip_vlan(pkt);
+		hdr = (struct ether_header*) strip_vlan(pkt);
 		if(ntohs(hdr->ether_type) == ETHERTYPE_IP)
 			return true;
 	}
 	return false;
 }
 
-bool is_udp(const char* pkt){
+bool is_udp(const uint8_t* pkt){
 	struct iphdr* hdr = (struct iphdr*) strip_ethernet(pkt);
 	if(is_ip(pkt)){
 		if(hdr->protocol == 0x17) // 0x17 UDP
@@ -152,7 +159,7 @@ bool is_udp(const char* pkt){
 	return false;
 }
 
-bool is_tcp(const char* pkt){
+bool is_tcp(const uint8_t* pkt){
 	struct iphdr* hdr = (struct iphdr*) strip_ethernet(pkt);
 	if(is_ip(pkt)){
 		if(hdr->protocol == 0x06) // 0x06 TCP

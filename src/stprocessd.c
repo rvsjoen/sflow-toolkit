@@ -28,6 +28,9 @@ void process_file(const msg_t* m){
 
 int main(int argc, char** argv)
 {
+	UNUSED_ARGUMENT(argc);
+	UNUSED_ARGUMENT(argv);
+
 	log_level = LOGLEVEL_DEBUG;
 	mqd_t queue;
 	queue = open_msg_queue(MSG_QUEUE_NAME);
