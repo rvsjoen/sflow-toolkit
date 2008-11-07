@@ -19,17 +19,28 @@
 #include "sflowparser.h"
 #include "util.h"
 
+#define CONV_ETHERNET	0x0
+#define CONV_IP			0x1
+#define CONV_TCP		0x2
+#define CONV_UDP		0x3
+
 typedef struct _conv_key_ethernet {
+	uint32_t sflow_input_if;
+	uint32_t sflow_output_if;
 	uint8_t src[6];  // struct ether_addr
 	uint8_t dst[6];
 } conv_key_ethernet_t;
 
 typedef struct _conv_key_ip {
+	uint32_t sflow_input_if;
+	uint32_t sflow_output_if;
 	uint32_t src;
 	uint32_t dst;
 } conv_key_ip_t;
 
 typedef struct _conv_key_udp {
+	uint32_t sflow_input_if;
+	uint32_t sflow_output_if;
 	uint32_t src;
 	uint32_t dst;
 	uint16_t src_port;
@@ -37,6 +48,8 @@ typedef struct _conv_key_udp {
 } conv_key_udp_t;
 
 typedef struct _conv_key_tcp {
+	uint32_t sflow_input_if;
+	uint32_t sflow_output_if;
 	uint32_t src;
 	uint32_t dst;
 	uint16_t src_port;
@@ -51,7 +64,6 @@ typedef union _conv_key_t {
 } conv_key_t;
 
 typedef struct _conv_ethernet {
-	conv_key_ethernet_t key;
 	uint32_t f_rx;
 	uint32_t f_tx;
 	uint32_t b_rx;
@@ -63,7 +75,6 @@ typedef struct _conv_ethernet {
 } conv_ethernet_t;
 
 typedef struct _conv_ip {
-	conv_key_ip_t key;
 	uint32_t f_rx;
 	uint32_t f_tx;
 	uint32_t b_rx;
@@ -72,7 +83,6 @@ typedef struct _conv_ip {
 } conv_ip_t;
 
 typedef struct _conv_tcp {
-	conv_key_tcp_t key;
 	uint32_t f_rx;
 	uint32_t f_tx;
 	uint32_t b_rx;
@@ -81,7 +91,6 @@ typedef struct _conv_tcp {
 } conv_tcp_t;
 
 typedef struct _conv_udp {
-	conv_key_udp_t key;
 	uint32_t f_rx;
 	uint32_t f_tx;
 	uint32_t b_rx;
@@ -97,7 +106,8 @@ typedef union _conv {
 } conv_t;
 
 typedef struct _conv_list_node {
-	conv_t conv;
+	conv_key_t* key;
+	conv_t* conv;
 	struct _conv_list_node* next;
 } conv_list_node_t;
 
@@ -110,11 +120,23 @@ bool is_ip(const uint8_t* pkt);
 bool is_tcp(const uint8_t* pkt);
 bool is_udp(const uint8_t* pkt);
 
-// Each function assumes the passed pointer is at the start of its respective header
-void get_key_ethernet(const uint8_t* pkt, conv_key_ethernet_t* k);
-void get_key_ip(const uint8_t* pkt, conv_key_ip_t* k);
-void get_key_udp(const uint8_t* pkt, conv_key_udp_t* k);
-void get_key_tcp(const uint8_t* pkt, conv_key_tcp_t* k);
+void get_key_ethernet(SFFlowSample* spl, conv_key_ethernet_t* k);
+void get_key_ip(SFFlowSample* spl, conv_key_ip_t* k);
+void get_key_udp(SFFlowSample* spl, conv_key_udp_t* k);
+void get_key_tcp(SFFlowSample* spl, conv_key_tcp_t* k);
+
+void conv_update_ethernet(conv_ethernet_t* c, const uint8_t* pkt, SFFlowSample* s);
+void conv_update_ip(conv_ip_t* c, const uint8_t* pkt, SFFlowSample* s);
+void conv_update_tcp(conv_tcp_t* c, const uint8_t* pkt, SFFlowSample* s);
+void conv_update_udp(conv_udp_t* c, const uint8_t* pkt, SFFlowSample* s);
+
+void conv_print_ethernet(conv_list_t* list);
+void conv_print_ip(conv_list_t* list);
+void conv_print_tcp(conv_list_t* list);
+void conv_print_udp(conv_list_t* list);
+
+conv_t* conv_list_search(conv_list_t* list, conv_key_t* key);
+void conv_list_add(conv_list_t* list, const uint8_t* pkt, conv_key_t* key, uint32_t ctype, SFFlowSample* s);
 
 // Process a single sample
 void process_sample_flow(SFFlowSample* s, conv_list_t* c_ethernet, conv_list_t* c_ip, conv_list_t* c_tcp, conv_list_t* c_udp);
