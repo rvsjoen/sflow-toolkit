@@ -34,6 +34,15 @@ void logmsg(uint32_t severity, const char* format, ...)
 			vsyslog(LOG_ERR, format, args);
 		} 
 
+		if (severity == LOGLEVEL_WARNING && log_level >= LOGLEVEL_WARNING){
+			fprintf(stdout, "[%s] (WRN) ", c);
+			vfprintf(stdout, format, args);
+			fprintf(stdout, "\n");
+			fflush(stdout);
+
+			vsyslog(LOG_WARNING, format, args);
+		} 
+
 		if (severity == LOGLEVEL_INFO && log_level >= LOGLEVEL_INFO){
 			fprintf(stdout, "[%s] (INF) ", c);
 			vfprintf(stdout, format, args);

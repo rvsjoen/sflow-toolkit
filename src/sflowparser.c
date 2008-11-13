@@ -426,5 +426,7 @@ void parseDatagram(uint8_t* data, uint32_t n )
 		for( i=0; i < hdr.num_records; i++ ){
 			parseSample(&datagram, &s_template); 				// Populate the sample using the datagram
 		}
+	} else {
+		logmsg(LOGLEVEL_WARNING, "Datagram from unknown agent (%s)", key);
 	}
 }

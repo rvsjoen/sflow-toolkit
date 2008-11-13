@@ -7,8 +7,9 @@
 #include <time.h>
 
 static const uint32_t LOGLEVEL_ERROR 	= 0;
-static const uint32_t LOGLEVEL_INFO		= 1;
-static const uint32_t LOGLEVEL_DEBUG	= 2;
+static const uint32_t LOGLEVEL_WARNING	= 1;
+static const uint32_t LOGLEVEL_INFO		= 2;
+static const uint32_t LOGLEVEL_DEBUG	= 3;
 
 // Declare this prototype to avoid an implicit declaration warning
 void vsyslog(int priority, const char *format, va_list ap);
