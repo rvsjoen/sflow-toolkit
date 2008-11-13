@@ -31,6 +31,8 @@ int main(int argc, char** argv)
 	UNUSED_ARGUMENT(argc);
 	UNUSED_ARGUMENT(argv);
 
+	daemonize_me();
+
 	log_level = LOGLEVEL_DEBUG;
 	mqd_t queue;
 

@@ -3,7 +3,7 @@
 
 #define MSG_QUEUE_NAME "/sflow"
 #define MSG_SIZE		512
-#define MSG_MAXMSGS		1000
+#define MSG_MAXMSGS		8192
 
 #include <stdlib.h>
 #include <stdint.h>

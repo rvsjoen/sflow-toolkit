@@ -32,7 +32,7 @@ fi
 # Avoid using root's TMPDIR
 unset TMPDIR
 
-[ -f /etc/$DAEMON.conf ] || exit 6
+[ -f /etc/$DAEMONCOLLECT.conf ] || exit 6
 
 RETVALCOLLECT=0
 RETVALPROCESS=0
