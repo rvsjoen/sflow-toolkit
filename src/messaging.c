@@ -33,18 +33,18 @@ void send_msg(mqd_t q, msg_t* m){
 }
 
 void recv_msg(mqd_t q, msg_t* m){
-//	char msg[8192];
-//	if(mq_receive(q, msg, 8192, 0) == -1){
-//		logmsg(LOGLEVEL_ERROR, "msgqueue: %s", strerror(errno));
-//	} else {
- 		char msg[] = "2307580894 /home/sjoen/work/git/sftoolkit/src/samples_flow.dat 0";
+	char msg[8192];
+	if(mq_receive(q, msg, 8192, 0) == -1){
+		logmsg(LOGLEVEL_ERROR, "msgqueue: %s", strerror(errno));
+	} else {
+ //		char msg[] = "2307580894 /home/sjoen/work/git/sftoolkit/src/samples_flow.dat 0";
 		char filename[256];
 		uint32_t agent = -1;
 		SFSample_t type = -1;
 		sscanf(msg, "%u %s %u", &agent, filename, &type);
-//		printf("MSG: %s Agent: %u Filename: %s Type: %u\n", msg, agent, filename, type);
+		printf("MSG: %s Agent: %u Filename: %s Type: %u\n", msg, agent, filename, type);
 		m->agent = agent;
 		m->type = type;
 		strncpy(m->filename, filename, 256);
-//	}
+	}
 }

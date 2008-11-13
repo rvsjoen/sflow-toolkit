@@ -13,6 +13,7 @@
 #include "logger.h"
 #include "util.h"
 #include "dataparser.h"
+#include "dbstorage.h"
 
 extern uint32_t log_level;
 
@@ -33,13 +34,17 @@ int main(int argc, char** argv)
 
 	log_level = LOGLEVEL_DEBUG;
 	mqd_t queue;
+
 	queue = open_msg_queue(MSG_QUEUE_NAME);
 
-	// This needs to loop indefinately
-	msg_t m;
-	memset(&m, 0, sizeof(msg_t));
-	recv_msg(queue, &m);
-	process_file(&m);
+	// This needs to loop indefinetely
+	while(true){
+		msg_t m;
+		memset(&m, 0, sizeof(msg_t));
+		recv_msg(queue, &m);
+		process_file(&m);
+		logmsg(LOGLEVEL_DEBUG, "Message received, processing %s", m.filename);
+	}
 
 	close_msg_queue(queue);
 	return EXIT_SUCCESS;
