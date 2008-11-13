@@ -133,7 +133,7 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 				m.agent = a->agent;
 				m.type = SFTYPE_FLOW;
 				strncpy(m.filename, a->fn_flow, 256);
-				send_msg(queue, &m);
+//				send_msg(queue, &m);
 			}
 
 			FILE* f = NULL;
@@ -177,7 +177,7 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 				m.agent = a->agent;
 				m.type = SFTYPE_CNTR;
 				strncpy(m.filename, a->fn_cntr, 256);
-				send_msg(queue, &m);
+//				send_msg(queue, &m);
 
 			FILE* f = NULL;
 			if((f=fopen(filename, "a")) == NULL){
