@@ -1,7 +1,11 @@
 #include "messaging.h"
 
 mqd_t create_msg_queue(char* queue){
-	mqd_t q = mq_open(queue, O_CREAT|O_WRONLY, 0700, NULL);
+	struct mq_attr attr;
+	memset(&attr, 0, sizeof(struct mq_attr));
+	attr.mq_maxmsg = MSG_MAXMSGS;
+	attr.mq_msgsize = MSG_SIZE;
+	mqd_t q = mq_open(queue, O_CREAT|O_WRONLY, 0700, &attr);
 	if(q == -1)
 		logmsg(LOGLEVEL_ERROR, "msgqueue: %s", strerror(errno));
 	return q;
@@ -41,7 +45,7 @@ void recv_msg(mqd_t q, msg_t* m){
 		uint32_t agent;
 		SFSample_t type;
 		sscanf(msg, "%u %s %u", &agent, filename, &type);
-		printf("MSG: %s Agent: %u Filename: %s Type: %u\n", msg, agent, filename, type);
+//		printf("MSG: %s Agent: %u Filename: %s Type: %u\n", msg, agent, filename, type);
 		m->agent = agent;
 		m->type = type;
 		strncpy(m->filename, filename, 256);

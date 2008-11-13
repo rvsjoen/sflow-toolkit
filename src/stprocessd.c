@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 		msg_t m;
 		memset(&m, 0, sizeof(msg_t));
 		recv_msg(queue, &m);
-		process_file(&m);
+//		process_file(&m);
 		logmsg(LOGLEVEL_DEBUG, "Message received, processing %s", m.filename);
 	}
 
