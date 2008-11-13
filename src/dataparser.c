@@ -22,10 +22,10 @@ void process_file_flow(const char* filename, uint32_t agent){
 		logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
 	}
 
-	conv_print_ethernet(&c_ethernet);
-	conv_print_ip(&c_ip);
-	conv_print_tcp(&c_tcp);
-	conv_print_udp(&c_udp);
+//	conv_print_ethernet(&c_ethernet);
+//	conv_print_ip(&c_ip);
+//	conv_print_tcp(&c_tcp);
+//	conv_print_udp(&c_udp);
 }
 
 void process_sample_flow(SFFlowSample* s, conv_list_t* c_ethernet, conv_list_t* c_ip, conv_list_t* c_tcp, conv_list_t* c_udp){
@@ -154,9 +154,6 @@ bool is_tcp(const uint8_t* pkt){
 	}
 	return false;
 }
-
-
-
 
 void conv_update_ethernet(conv_ethernet_t* c, const uint8_t* pkt, SFFlowSample* s){
 	c->f_rx++;

@@ -7,7 +7,6 @@ mqd_t create_msg_queue(char* queue){
 
 	lim.rlim_cur = MSG_MAXMSGS * sizeof(struct msg_t*) + sizeof(msg_t) * MSG_MAXMSGS;
 	lim.rlim_max = MSG_MAXMSGS * sizeof(struct msg_t*) + sizeof(msg_t) * MSG_MAXMSGS;
-
 	setrlimit(RLIMIT_MSGQUEUE, &lim);
 
 	getrlimit(RLIMIT_MSGQUEUE, &lim);
