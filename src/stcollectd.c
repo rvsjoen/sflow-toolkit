@@ -315,6 +315,8 @@ void* collect(){
 	update_realtime_stats();
 
 	uint32_t flush_cnt = 0;
+	struct sockaddr addr;
+	socklen_t addr_len;
 
 	while(!exit_collector_thread)
 	{
@@ -322,13 +324,15 @@ void* collect(){
 		time_t time_current = time(NULL); // The time we entered the loop
 
 		unsigned char buf[RECEIVE_BUFFER_SIZE];
-		uint32_t bytes_received = recv(sock_fd, &buf, RECEIVE_BUFFER_SIZE, 0);
+
+		addr_len = sizeof(struct sockaddr);
+		uint32_t bytes_received = recvfrom(sock_fd, &buf, RECEIVE_BUFFER_SIZE, 0, (struct sockaddr*)&addr, &addr_len);
 		cnt++;
 		flush_cnt++;
 
 		if(t == 0) t = time_current;
 
-		parseDatagram(buf, bytes_received);
+		parseDatagram(buf, bytes_received, (struct sockaddr_in*)&addr);
 		if(print_hex) printInHex(buf, bytes_received);
 
 		time_t d_t = time_current - t;
@@ -338,7 +342,7 @@ void* collect(){
 			logmsg(LOGLEVEL_INFO, "Processed %u packets", cnt);
 
 		// We flush if the interval has expired or if one of the buffers are full
-		if(((unsigned int)d_t >= flush_interval) || buffer_cc_flow->count >= (buffer_size-MAX_DATAGRAM_SAMPLES) || buffer_cc_cntr->count >= (buffer_size - MAX_DATAGRAM_SAMPLES)){
+		if(((unsigned int)d_t >= flush_interval) || buffer_cc_flow->count >= (buffer_size - MAX_DATAGRAM_SAMPLES) || buffer_cc_cntr->count >= (buffer_size - MAX_DATAGRAM_SAMPLES)){
 			float srate = 0;
 			if(d_t != 0)
 				srate = (buffer_cc_flow->count+buffer_cc_cntr->count)/(double)d_t;

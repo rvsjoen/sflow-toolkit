@@ -361,7 +361,7 @@ void printDatagramHeader(const SFLSample_datagram_hdr* hdr){
 		  );
 }
 
-void parseDatagram(uint8_t* data, uint32_t n )
+void parseDatagram(uint8_t* data, uint32_t n, struct sockaddr_in* addr)
 {
 	// Initialize the pointers in the SFDatagram structure
 	// Also set the timestamp this packet was received
@@ -397,6 +397,9 @@ void parseDatagram(uint8_t* data, uint32_t n )
 	s_template.timestamp 		= datagram.timestamp;
 	s_template.agent_address 	= ntohl(hdr.agent_address.address.ip_v4.s_addr);
 	s_template.sub_agent_id		= hdr.sub_agent_id;
+
+	if(s_template.agent_address == 0x7f000001) // If agent address equals 127.0.0.1
+		s_template.agent_address = ntohl(addr->sin_addr.s_addr);
 	
 	// Do some stats here (there might be a better way of doing this
 	char key[16];

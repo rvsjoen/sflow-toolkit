@@ -331,6 +331,6 @@ void printDatagramHeader(const SFLSample_datagram_hdr* hdr);
  *  Then we parse each sample and store it
  * =====================================================================================
  */
-void parseDatagram(uint8_t* data, uint32_t n);
+void parseDatagram(uint8_t* data, uint32_t n, struct sockaddr_in* addr);
 
 #endif
