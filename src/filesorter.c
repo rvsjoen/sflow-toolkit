@@ -121,13 +121,19 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 			logmsg(LOGLEVEL_DEBUG, "Updating flow file descriptor for %s", key);
 			a->fd_min_flow = s->timestamp/60;
 
+			// Generate the path to the next file
 			char filename[256];
 			memset(filename, 0, 256);
 			sprintf(filename, "%s/", root);
 			getFilePath(s->agent_address, s->timestamp, filename);
+
+			// Make sure the path exists
 			createFolder(filename);
+
+			// filename is the absolute path to the next datafile
 			sprintf(filename+strlen(filename), "samples_flow.dat");
 
+			// If we had a previous file, close it and pass it on to the processing daemon
 			if(a->fd_flow != NULL){
 				fclose(a->fd_flow);
 

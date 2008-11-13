@@ -2,12 +2,14 @@
 #define __messaging_h__
 
 #define MSG_QUEUE_NAME "/sflow"
-#define MSG_SIZE		8192
+#define MSG_SIZE		512
 #define MSG_MAXMSGS		1000
 
 #include <stdlib.h>
 #include <stdint.h>
 #include <mqueue.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #include <errno.h>
 #include <string.h>
 #include "logger.h"

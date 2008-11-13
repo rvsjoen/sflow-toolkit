@@ -1,10 +1,17 @@
 #include "messaging.h"
 
 mqd_t create_msg_queue(char* queue){
+
+	struct rlimit lim;
+	memset(&lim, 0, sizeof(struct rlimit));
+	lim.rlim_cur = sizeof(msg_t)*MSG_MAXMSGS;
+	lim.rlim_max = sizeof(msg_t)*MSG_MAXMSGS;
+	setrlimit(RLIMIT_MSGQUEUE, &lim);
+
 	struct mq_attr attr;
 	memset(&attr, 0, sizeof(struct mq_attr));
 	attr.mq_maxmsg = MSG_MAXMSGS;
-	attr.mq_msgsize = MSG_SIZE;
+	attr.mq_msgsize = sizeof(msg_t);
 	mqd_t q = mq_open(queue, O_CREAT|O_WRONLY, 0700, &attr);
 	if(q == -1)
 		logmsg(LOGLEVEL_ERROR, "msgqueue: %s", strerror(errno));
