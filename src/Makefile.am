@@ -18,5 +18,5 @@ stprocessd_SOURCES = stprocessd.c					\
 					 logger.c logger.h              \
 					 util.c util.h                  \
 					 messaging.c messaging.h		\
-					 dataparser.c dataparser.h		
+					 dataparser.c dataparser.h
 stprocessd_LDFLAGS = -lrt

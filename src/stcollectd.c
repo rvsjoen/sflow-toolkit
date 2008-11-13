@@ -243,7 +243,7 @@ void* writeBufferToDisk(){
 		if(exit_writer_thread && time_to_shutdown){
 //			logmsg(LOGLEVEL_DEBUG, "Final flush of buffer %u", buffer_current_flush);
 	//		if(pthread_mutex_trylock(&locks[buffer_current_flush])==0)
-	//			break;
+				break;
 		} else {
 //			logmsg(LOGLEVEL_DEBUG, "Waiting for buffer %u to be ready to flush", buffer_current_flush);
 //			if (pthread_mutex_lock(&locks[buffer_current_flush])==0)
@@ -293,8 +293,6 @@ void* writeBufferToDisk(){
 		buffer_cw_flow = NULL;
 		buffer_cw_cntr = NULL;
 
-		//We flushed a buffer, tell someone (like stprocessd)
-		//msgQueue();
 	}
 	logmsg(LOGLEVEL_DEBUG, "Writing thread exiting");
 	void* p; p=NULL; return p;
