@@ -6,12 +6,18 @@
 # pidfile: /var/run/$DAEMON.pid
 # config:  /etc/$DAEMON.conf
 
-ARGS=" -f 10 -p 6343 -i 10.146.45.25 -o /tmp/sflow -v -b 10 -s 2500"
-DAEMON=stcollectd
+DAEMON_HOME=/usr/local/bin
+
+DAEMONCOLLECT=stcollectd
+ARGSCOLLECT="-vvv"
+SERVICECOLLECT="sFlow collecting"
+
+DAEMONPROCESS=stprocessd
+ARGSPROCESS="-vvv"
+SERVICEPROCESS="sFlow processing"
+
 DAEMONXML=stxmlrpcd
 ARGSXML=""
-DAEMON_HOME=/usr/local/bin
-SERVICE="sFlow collecting"
 SERVICEXML="sFlow XMLRPC"
 
 # Source function library.
@@ -28,36 +34,62 @@ unset TMPDIR
 
 [ -f /etc/$DAEMON.conf ] || exit 6
 
-RETVAL=0
+RETVALCOLLECT=0
+RETVALPROCESS=0
 RETVALXML=0
 
 start() {
-	echo -n $"Starting $SERVICE services: "
-	daemon /usr/local/bin/$DAEMON $ARGS
-	RETVAL=$?
+	echo -n $"Starting $SERVICECOLLECT services: "
+	daemon $DAEMON_HOME/$DAEMONCOLLECT $ARGSCOLLECT
+	RETVALCOLLECT=$?
 	echo
-	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/$DAEMON || RETVAL=1
+	[ $RETVALCOLLECT -eq 0 ] && touch /var/lock/subsys/$DAEMONCOLLECT || RETVALCOLLECT=1
+
+	echo -n $"Starting $SERVICEPROCESS services: "
+	daemon $DAEMON_HOME/$DAEMONPROCESS $ARGSPROCESS
+	RETVALPROCESS=$?
+	echo
+	[ $RETVALPROCESS -eq 0 ] && touch /var/lock/subsys/$DAEMONPROCESS || RETVALPROCESS=1
+
 	echo -n $"Starting $SERVICEXML services: "
 	daemon /usr/local/bin/$DAEMONXML $ARGSXML
 	RETVALXML=$?
 	echo
 	[ $RETVALXML -eq 0 ] && touch /var/lock/subsys/$DAEMONXML || RETVALXML=1
-	return  $RETVAL
+
+	if [ $RETVALCOLLECT -eq 0 ] && [ $RETVALPROCESS -eq 0 ] && [ $RETVALXML -eq 0 ]
+	then
+		return 0
+	else
+		return 1
+	fi
 }	
 
 stop() {
-	echo -n $"Shutting down $SERVICE services: "
-	killproc $DAEMON
-	RETVAL=$?
+	echo -n $"Shutting down $SERVICECOLLECT services: "
+	killproc $DAEMONCOLLECT
+	RETVALCOLLECT=$?
 	echo
-	[ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/$DAEMON
+	[ $RETVALCOLLECT -eq 0 ] && rm -f /var/lock/subsys/$DAEMONCOLLECT
+
+	echo -n $"Shutting down $SERVICEPROCESS services: "
+	killproc $DAEMONPROCESS
+	RETVALPROCESS=$?
+	echo
+	[ $RETVALPROCESS -eq 0 ] && rm -f /var/lock/subsys/$DAEMONPROCESS
 
 	echo -n $"Shutting down $SERVICEXML services: "
 	killproc $DAEMONXML
 	RETVALXML=$?
 	echo
 	[ $RETVALXML -eq 0 ] && rm -f /var/lock/subsys/$DAEMONXML
-	return $RETVAL
+
+	if [ $RETVALCOLLECT -eq 0 ] && [ $RETVALPROCESS -eq 0 ] && [ $RETVALXML -eq 0 ]
+	then
+		return 0
+	else
+		return 1
+	fi
 }	
 
 restart() {
@@ -66,31 +98,25 @@ restart() {
 }	
 
 rhstatus() {
-	status $DAEMON
-	RETVAL=$?
-#	status $DAEMONXML
+	status $DAEMONCOLLECT
+	RETVALCOLLECT=$?
+	status $DAEMONPROCESS
+	RETVALPROCESS=$?
 
 	# Handle this ourselves since something obviously doesnt like python daemons
-<<<<<<< HEAD:scripts/stcollectd.slc4
-        if [ -f /var/run/$DAEMONXML.pid -a -f /var/lock/subsys/$DAEMONXML ] ; then
-                read pid < /var/run/$DAEMONXML.pid
-		echo "$DAEMONXML (pid $pid) is running..."
-        else
-=======
 	if [ -f /var/run/$DAEMONXML.pid -a -f /var/lock/subsys/$DAEMONXML ] ; then
 		read pid < /var/run/$DAEMONXML.pid
 		echo "$DAEMONXML (pid $pid) is running..."
 	else
->>>>>>> b0cc51c... Updated SLC4 init script to show status on stxmlrpcd correctly:scripts/stcollectd.slc4
 		echo "$DAEMONXML is stopped"
 	fi
-
 	RETVALXML=$?
-	if [ $RETVAL -ne 0 ]; then
-		return $RETVAL
-	fi
-	if [ $RETVALXML -ne 0 ]; then
-		return $RETVALXML
+
+	if [ $RETVALCOLLECT -eq 0 ] && [ $RETVALPROCESS -eq 0 ] && [ $RETVALXML -eq 0 ]
+	then
+		return 0
+	else
+		return 1
 	fi
 }	
 
