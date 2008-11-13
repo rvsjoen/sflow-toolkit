@@ -2,17 +2,15 @@
 
 mqd_t create_msg_queue(char* queue){
 	mqd_t q = mq_open(queue, O_CREAT|O_WRONLY, 0700, NULL);
-	if(q == -1){
+	if(q == -1)
 		logmsg(LOGLEVEL_ERROR, "msgqueue: %s", strerror(errno));
-	}
 	return q;
 }
 
 mqd_t open_msg_queue(char* queue){
 	mqd_t q = mq_open(queue, O_RDONLY);
-	if(q == -1){
+	if(q == -1)
 		logmsg(LOGLEVEL_ERROR, "msgqueue: %s", strerror(errno));
-	}
 	return q;
 }
 
@@ -29,7 +27,8 @@ void send_msg(mqd_t q, msg_t* m){
 	char msg[MSG_SIZE];
 	sprintf(msg, "%u %s %u", m->agent, m->filename, m->type);
 	logmsg(LOGLEVEL_DEBUG, "Sending message: %s", msg);
-	mq_send(q, msg, strlen(msg), 0);
+	if(mq_send(q, msg, strlen(msg), 0) == -1)
+		logmsg(LOGLEVEL_ERROR, "msgqueue: %s", strerror(errno));
 }
 
 void recv_msg(mqd_t q, msg_t* m){
@@ -39,8 +38,8 @@ void recv_msg(mqd_t q, msg_t* m){
 	} else {
  //		char msg[] = "2307580894 /home/sjoen/work/git/sftoolkit/src/samples_flow.dat 0";
 		char filename[256];
-		uint32_t agent = -1;
-		SFSample_t type = -1;
+		uint32_t agent;
+		SFSample_t type;
 		sscanf(msg, "%u %s %u", &agent, filename, &type);
 		printf("MSG: %s Agent: %u Filename: %s Type: %u\n", msg, agent, filename, type);
 		m->agent = agent;

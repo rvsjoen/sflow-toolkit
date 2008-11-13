@@ -80,13 +80,15 @@ void writePcapRecord(const char* filename, SFFlowSample* sample)
 	fclose(f);
 }
 
-void writeToPcap(const char* filename, SFFlowSample* sample){
+void writeToPcap(const char* filename, SFFlowSample* sample)
+{
 	if(!fileExists(filename))
 		writePcapHeader(filename);
 	 writePcapRecord(filename, sample);
 }
 
-void getFilePath(uint32_t agent_address, time_t timestamp, char* filename){
+void getFilePath(uint32_t agent_address, time_t timestamp, char* filename)
+{
 	sprintf(
 			filename+strlen(filename),
 			"%i.%i.%i.%i/",
@@ -133,7 +135,7 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 				m.agent = a->agent;
 				m.type = SFTYPE_FLOW;
 				strncpy(m.filename, a->fn_flow, 256);
-//				send_msg(queue, &m);
+				send_msg(queue, &m);
 			}
 
 			FILE* f = NULL;
@@ -177,7 +179,7 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 				m.agent = a->agent;
 				m.type = SFTYPE_CNTR;
 				strncpy(m.filename, a->fn_cntr, 256);
-//				send_msg(queue, &m);
+				send_msg(queue, &m);
 
 			FILE* f = NULL;
 			if((f=fopen(filename, "a")) == NULL){
