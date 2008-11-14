@@ -14,8 +14,8 @@
 #include "messaging.h"
 #include "logger.h"
 #include "util.h"
-#include "dataparser.h"
 #include "storage.h"
+#include "dataparser.h"
 
 extern uint32_t log_level;
 extern bool daemonize;

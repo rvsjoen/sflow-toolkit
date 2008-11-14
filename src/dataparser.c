@@ -22,7 +22,7 @@ void process_file_flow(const char* filename, uint32_t agent){
 		logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
 	}
 
-//	conv_print_ethernet(&c_ethernet);
+	conv_store_ethernet(&c_ethernet);
 //	conv_print_ip(&c_ip);
 //	conv_print_tcp(&c_tcp);
 //	conv_print_udp(&c_udp);
@@ -158,18 +158,26 @@ bool is_tcp(const uint8_t* pkt){
 void conv_update_ethernet(conv_ethernet_t* c, const uint8_t* pkt, SFFlowSample* s){
 	c->f_rx++;
 	c->b_rx += s->raw_header_frame_length;
+	UNUSED_ARGUMENT(pkt);
+	UNUSED_ARGUMENT(s);
 }
 
 void conv_update_ip(conv_ip_t* c, const uint8_t* pkt, SFFlowSample* s){
 	c->f_rx++;
+	UNUSED_ARGUMENT(pkt);
+	UNUSED_ARGUMENT(s);
 }
 
 void conv_update_tcp(conv_tcp_t* c, const uint8_t* pkt, SFFlowSample* s){
 	c->f_rx++;
+	UNUSED_ARGUMENT(pkt);
+	UNUSED_ARGUMENT(s);
 }
 
 void conv_update_udp(conv_udp_t* c, const uint8_t* pkt, SFFlowSample* s){
 	c->f_rx++;
+	UNUSED_ARGUMENT(pkt);
+	UNUSED_ARGUMENT(s);
 }
 
 conv_t* conv_list_search(conv_list_t* list, conv_key_t* key){
@@ -183,17 +191,21 @@ conv_t* conv_list_search(conv_list_t* list, conv_key_t* key){
 	return NULL;
 }
 
-void conv_print_ethernet(conv_list_t* list){
+void conv_store_ethernet(conv_list_t* list){
 	conv_list_node_t* n = list->data;
-	printf("\nEthernet conversation list (%u conversations)\n", list->num);
+//	printf("\nEthernet conversation list (%u conversations)\n", list->num);
+	logmsg(LOGLEVEL_DEBUG, "Storing ethernet conversations");
 	while(n){
 		conv_key_ethernet_t* k = (conv_key_ethernet_t*) n->key;
 		conv_ethernet_t* c = (conv_ethernet_t*) n->conv;
-		char msrc[32];
-		char mdst[32];
-		strncpy(msrc, ether_ntoa((struct ether_addr*)k->src), 32);
-		strncpy(mdst, ether_ntoa((struct ether_addr*)k->dst), 32);
-		printf("%s -> %s %u %u\n", msrc, mdst, c->f_rx, c->b_rx);
+//		storage_store_conv_ethernet(k, c);
+
+//		char msrc[32];
+//		char mdst[32];
+//		strncpy(msrc, ether_ntoa((struct ether_addr*)k->src), 32);
+//		strncpy(mdst, ether_ntoa((struct ether_addr*)k->dst), 32);
+//		printf("%s -> %s %u %u\n", msrc, mdst, c->f_rx, c->b_rx);
+
 		n = n->next;
 	}
 }

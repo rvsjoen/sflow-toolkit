@@ -19,5 +19,5 @@ stprocessd_SOURCES = stprocessd.c					\
 					 util.c util.h                  \
 					 messaging.c messaging.h		\
 					 dataparser.c dataparser.h		\
-					 storage.c storage.h
+					 storage.c storage.h			
 stprocessd_LDFLAGS = -lrt -lmysqlclient

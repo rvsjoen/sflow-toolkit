@@ -16,6 +16,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
+#include "storage.h"
 #include "sflowparser.h"
 #include "util.h"
 
@@ -143,7 +144,7 @@ void conv_update_ip(conv_ip_t* c, const uint8_t* pkt, SFFlowSample* s);
 void conv_update_tcp(conv_tcp_t* c, const uint8_t* pkt, SFFlowSample* s);
 void conv_update_udp(conv_udp_t* c, const uint8_t* pkt, SFFlowSample* s);
 
-void conv_print_ethernet(conv_list_t* list);
+void conv_store_ethernet(conv_list_t* list);
 void conv_print_ip(conv_list_t* list);
 void conv_print_tcp(conv_list_t* list);
 void conv_print_udp(conv_list_t* list);
