@@ -27,14 +27,14 @@ void disable_echo(bool b){
 
 void exit_collector(int r){
 	disable_echo(false);
-	logmsg(LOGLEVEL_DEBUG, "Exiting gracefully");
+	logmsg(LOGLEVEL_INFO, "Exiting gracefully");
 	exit(r);
 }
 
 void exit_on_error() {
 	if(!daemonize)
 		disable_echo(false);
-	logmsg(LOGLEVEL_DEBUG, "Exiting on error");
+	logmsg(LOGLEVEL_ERROR, "Exiting on error");
 	exit(1);
 }
 

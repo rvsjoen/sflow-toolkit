@@ -264,7 +264,7 @@ void* writeBufferToDisk(){
 		buffer_cw_cntr = bqueue_pop_wait(buffers_flush_cntr);
 
 		// We got something, write it to disk
-		logmsg(LOGLEVEL_DEBUG, "Writing to disk (%u flow samples, %u counter samples) from buffer",
+		logmsg(LOGLEVEL_INFO, "Writing to disk (%u flow samples, %u counter samples) from buffer",
 			buffer_cw_flow->count, buffer_cw_cntr->count);
 		if( buffer_cw_flow->count >0 ){
 			uint32_t i=0;
@@ -404,7 +404,7 @@ void hook_exit(int signal){
  * =====================================================================================
  */
 void handle_signal(int sig){
-	logmsg(LOGLEVEL_DEBUG, "Shutdown initiated");
+	logmsg(LOGLEVEL_INFO, "Shutdown initiated");
 	exit_collector_thread = true;
 	pthread_join(collect_thread, NULL);
 	hook_exit(sig);

@@ -21,7 +21,7 @@ bqueue_t* bqueue_init(uint32_t num, uint32_t buffersize, uint32_t itemsize){
 }
 
 void bqueue_destroy(bqueue_t* b){
-	logmsg(LOGLEVEL_DEBUG, "Destroying buffer");
+	logmsg(LOGLEVEL_INFO, "Destroying buffer");
 	while(b->num > 0){
 		buffer_t* buf = bqueue_pop_wait(b);
 		free(buf->data);
@@ -84,7 +84,7 @@ buffer_t* bqueue_pop(bqueue_t* queue){
 
 	// Nothing is happening, try to allocate a new buffer
 	if(res == ETIMEDOUT){
-		logmsg(LOGLEVEL_DEBUG, "Timed out waiting for new buffer, allocating a new one");
+		logmsg(LOGLEVEL_INFO, "Timed out waiting for new buffer, allocating a new one");
 		// Try to allocate a buffer, if not possible we wait until something frees up
 		if(bqueue_push_new(queue) == ENOMEM){
 			while (queue->num == 0) {
@@ -95,7 +95,7 @@ buffer_t* bqueue_pop(bqueue_t* queue){
 			}
 		}
 	} else if(queue->num > num_buffers){
-		logmsg(LOGLEVEL_DEBUG, "Too many free buffers, freeing one");
+		logmsg(LOGLEVEL_INFO, "Too many free buffers, freeing one");
 		bqueue_free(queue);
 	}
 
@@ -154,7 +154,7 @@ buffer_t* bqueue_pop_wait(bqueue_t* queue){
 }
 
 int bqueue_push_new(bqueue_t* queue){
-	logmsg(LOGLEVEL_DEBUG, "\t Allocating new buffer");
+	logmsg(LOGLEVEL_DEBUG, "Allocating new buffer");
 	buffer_t* buf = (buffer_t*) malloc(sizeof(buffer_t));
 
 	if(buf ==NULL)

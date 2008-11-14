@@ -103,9 +103,7 @@ void parse_event(const yaml_event_t ev)
 					buffer_size = atoi(val);
 				} else if (strcmp(key, CONFIG_KEY_BUFFER_COUNT) == 0) {
 					num_buffers = atoi(val);
-				} else {
-					logmsg(LOGLEVEL_ERROR, "Unknown value");
-				}
+				} 
 				is_value = !is_value;
 			}
 			break;
@@ -134,7 +132,7 @@ void parseConfigFile(char* filename)
 	int error = 0;
 	file = fopen(filename, "r");
 	if(file != NULL){
-		logmsg(LOGLEVEL_DEBUG, "Reading configuration from file: %s", filename);
+		logmsg(LOGLEVEL_INFO, "Reading configuration from file: %s", filename);
 		yaml_parser_initialize(&parser);
 		yaml_parser_set_input_file(&parser, file);
 		while (!done)
@@ -154,6 +152,6 @@ void parseConfigFile(char* filename)
 		get_agents();
 		logmsg(LOGLEVEL_DEBUG, "Parsing complete: %s (%d events)", (error ? "FAILURE" : "SUCCESS"), count);
 	} else {
-		logmsg(LOGLEVEL_DEBUG, "Error reading configuration file %s", filename);
+		logmsg(LOGLEVEL_ERROR, "Error reading configuration file %s", filename);
 	}
 }

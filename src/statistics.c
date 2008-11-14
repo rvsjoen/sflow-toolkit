@@ -98,7 +98,7 @@ void update_stats(unsigned int samples, unsigned int seconds, uint32_t bytes){
 			NULL
 		};
 		optind = opterr = 0;
-		logmsg(LOGLEVEL_DEBUG, "Updating stats: Time %u, Samples %u, CPU %u, VMEM %u, Bytes written %u", (unsigned int)time(NULL), samples, ((stime+utime)*100)/(hz*seconds), vmem, bytes);
+		logmsg(LOGLEVEL_INFO, "Updating stats: Time %u, Samples %u, CPU %u, VMEM %u, Bytes written %u", (unsigned int)time(NULL), samples, ((stime+utime)*100)/(hz*seconds), vmem, bytes);
 		rrd_clear_error();
 		rrd_update(3, updateparams);
 	}
