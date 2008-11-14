@@ -25,7 +25,7 @@
 #define CONV_UDP		0x3
 
 // Ethernet protocol ID's
-#define ETHERTYPE_PUP       0x0200          /* Xerox PUP */
+#define ETHERTYPE_PUP       0x0200      /* Xerox PUP */
 #define ETHERTYPE_SPRITE    0x0500      /* Sprite */
 #define ETHERTYPE_IP        0x0800      /* IP */
 #define ETHERTYPE_ARP       0x0806      /* Address resolution */
