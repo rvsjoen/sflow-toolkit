@@ -8,6 +8,8 @@
 #include <mqueue.h>
 #include <errno.h>
 #include <string.h>
+#include <unistd.h>
+#include <getopt.h>
 
 #include "messaging.h"
 #include "logger.h"
@@ -16,6 +18,18 @@
 #include "storage.h"
 
 extern uint32_t log_level;
+extern bool daemonize;
+
+void parse_commandline(int argc, char** argv){
+	int opt;
+	while((opt = getopt(argc, argv, "vd")) != -1){
+		switch(opt)
+		{
+			case 'd': daemonize = false; 	break;
+			case 'v': log_level++;			break;
+		}
+	}
+}
 
 void process_file(const msg_t* m){
 	if(m->type == SFTYPE_FLOW){
@@ -29,12 +43,11 @@ void process_file(const msg_t* m){
 
 int main(int argc, char** argv)
 {
-	UNUSED_ARGUMENT(argc);
-	UNUSED_ARGUMENT(argv);
+	parse_commandline(argc, argv);
 
-	daemonize_me();
+	if(daemonize)
+		daemonize_me();
 
-	log_level = LOGLEVEL_DEBUG;
 	mqd_t queue;
 
 	storage_init();

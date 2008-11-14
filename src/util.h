@@ -28,7 +28,6 @@ void disable_echo(bool b);
  */
 void exit_collector(int r);
 
-
 /* 
  * ===  FUNCTION  ======================================================================
  *         Name:  exit_on_error
