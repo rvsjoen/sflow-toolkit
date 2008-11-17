@@ -41,9 +41,14 @@ void destroy_msg_queue(mqd_t q, char* qname){
 
 void send_msg(mqd_t q, msg_t* m){
 	char msg[MSG_SIZE];
+
+	struct timespec t;
+	t.tv_sec = 0;
+	t.tv_nsec= 1000;
+
 	sprintf(msg, "%u %s %u", m->agent, m->filename, m->type);
 	logmsg(LOGLEVEL_DEBUG, "Sending message: %s", msg);
-	if(mq_send(q, msg, strlen(msg), 0) == -1)
+	if(mq_timedsend(q, msg, strlen(msg), 0, &t) == -1)
 		logmsg(LOGLEVEL_ERROR, "msgqueue: %s", strerror(errno));
 }
 
