@@ -10,7 +10,7 @@ void process_file_flow(const char* filename, uint32_t agent){
 
 	UNUSED_ARGUMENT(agent);
 	
-	// Zero the hash tables
+	// Zero the hash tables before processing the file
 	memset(hash_ethernet, 	0, sizeof(conv_list_t*)*HASH_RANGE);
 	memset(hash_ip, 		0, sizeof(conv_list_t*)*HASH_RANGE);
 	memset(hash_tcp, 		0, sizeof(conv_list_t*)*HASH_RANGE);
@@ -68,8 +68,8 @@ void get_key_ethernet(SFFlowSample* s, conv_key_ethernet_t* k){
 	struct ether_header* hdr = (struct ether_header*) pkt;
 	memcpy(k->src, hdr->ether_shost, ETH_ALEN);
 	memcpy(k->dst, hdr->ether_dhost, ETH_ALEN);
-//	k->sflow_input_if = s->sample_input_if_value;
-//	k->sflow_output_if = s->sample_output_if_value;
+	k->sflow_input_if = s->sample_input_if_value;
+	k->sflow_output_if = s->sample_output_if_value;
 }
 
 uint8_t* strip_vlan(const uint8_t* pkt){
@@ -218,7 +218,6 @@ void conv_store_ethernet(){
 			free(c);
 			free(tmp);
 
-
 			count++;
 		}
 		free(list);
@@ -227,30 +226,90 @@ void conv_store_ethernet(){
 }
 
 void conv_store_ip(){
-	/*
-	conv_list_node_t* n = list->data;
-	logmsg(LOGLEVEL_DEBUG, "Storing ip conversations");
-	while(n){
-		n = n->next;
-	}*/
+	int count = 0;
+	int i;
+	for(i=0; i<HASH_RANGE;i++)
+	{
+		conv_list_t* list = hash_ip[i];
+
+		if(list == NULL)
+			continue;
+
+		conv_list_node_t* n = list->data;
+		while(n){
+			conv_key_ip_t* k = (conv_key_ip_t*) n->key;
+			conv_ip_t* c = (conv_ip_t*) n->conv;
+			conv_list_node_t* tmp;
+			tmp = n;
+			n = n->next;
+			storage_store_conv_ip(k, c);
+			free(k);
+			free(c);
+			free(tmp);
+
+			count++;
+		}
+		free(list);
+	}
+	logmsg(LOGLEVEL_DEBUG, "Stored %u ip conversations", count);
 }
 
 void conv_store_tcp(){
-	/*
-	conv_list_node_t* n = list->data;
-	logmsg(LOGLEVEL_DEBUG, "Storing tcp conversations");
-	while(n){
-		n = n->next;
-	}*/
+	int count = 0;
+	int i;
+	for(i=0; i<HASH_RANGE;i++)
+	{
+		conv_list_t* list = hash_tcp[i];
+
+		if(list == NULL)
+			continue;
+
+		conv_list_node_t* n = list->data;
+		while(n){
+			conv_key_tcp_t* k = (conv_key_tcp_t*) n->key;
+			conv_tcp_t* c = (conv_tcp_t*) n->conv;
+			conv_list_node_t* tmp;
+			tmp = n;
+			n = n->next;
+			storage_store_conv_tcp(k, c);
+			free(k);
+			free(c);
+			free(tmp);
+
+			count++;
+		}
+		free(list);
+	}
+	logmsg(LOGLEVEL_DEBUG, "Stored %u tcp conversations", count);
 }
 
 void conv_store_udp(){
-	/*
-	conv_list_node_t* n = list->data;
-	logmsg(LOGLEVEL_DEBUG, "Storing udp conversations");
-	while(n){
-		n = n->next;
-	}*/
+	int count = 0;
+	int i;
+	for(i=0; i<HASH_RANGE;i++)
+	{
+		conv_list_t* list = hash_udp[i];
+
+		if(list == NULL)
+			continue;
+
+		conv_list_node_t* n = list->data;
+		while(n){
+			conv_key_udp_t* k = (conv_key_udp_t*) n->key;
+			conv_udp_t* c = (conv_udp_t*) n->conv;
+			conv_list_node_t* tmp;
+			tmp = n;
+			n = n->next;
+			storage_store_conv_udp(k, c);
+			free(k);
+			free(c);
+			free(tmp);
+
+			count++;
+		}
+		free(list);
+	}
+	logmsg(LOGLEVEL_DEBUG, "Stored %u udp conversations", count);
 }
 
 void conv_list_add(const uint8_t* pkt, conv_key_t* key, uint32_t ctype, SFFlowSample* s){
