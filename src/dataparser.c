@@ -80,11 +80,27 @@ void process_sample_flow(SFFlowSample* s){
 
 void get_key_ethernet(SFFlowSample* s, conv_key_ethernet_t* k){
 	uint8_t* pkt = s->raw_header;
+
+	printSingleLineHex(pkt, 40);
+	printf("\n");
+
 	struct ether_header* hdr = (struct ether_header*) pkt;
 	memcpy(k->src, hdr->ether_shost, ETH_ALEN);
 	memcpy(k->dst, hdr->ether_dhost, ETH_ALEN);
+
 	k->sflow_input_if = s->sample_input_if_value;
 	k->sflow_output_if = s->sample_output_if_value;
+
+	printSingleLineHex(k, 40);
+	printf("\n");
+
+	char src[16];
+	char dst[16];
+	memset(src, 0, 16*sizeof(char));
+	memset(dst, 0, 16*sizeof(char));
+	ether_ntoa_r((struct ether_addr*) k->src, src);
+	ether_ntoa_r((struct ether_addr*) k->dst, dst);
+	printf("%s, %s\n", src, dst);
 }
 
 uint8_t* strip_vlan(const uint8_t* pkt){
@@ -231,7 +247,6 @@ void conv_store_ethernet(){
 			free(k);
 			free(c);
 			free(tmp);
-
 			cnt_ethernet++;
 		}
 		free(list);

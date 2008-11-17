@@ -23,8 +23,18 @@ void storage_destroy()
 
 void storage_store_conv_ethernet(struct _conv_key_ethernet* key, struct _conv_ethernet* conv)
 {
+	char src[16];
+	char dst[16];
+
+	memset(src, 0, 16*sizeof(char));
+	memset(dst, 0, 16*sizeof(char));
+
+	ether_ntoa_r((struct ether_addr*) key->src, src);
+	ether_ntoa_r((struct ether_addr*) key->dst, dst);
+
 	char query[256];
-//	sprintf(query, "INSERT INTO conv_ethernet VALUES (%u, '%s');", foocnt, "Hello World!");
+	sprintf(query, "INSERT INTO conv_ethernet VALUES (0, '%s', '%s');", src, dst);
+	printf("%s\n", query);
 }
 
 void storage_store_conv_ip(conv_key_ip_t* key, conv_ip_t* conv)

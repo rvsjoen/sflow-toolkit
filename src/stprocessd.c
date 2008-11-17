@@ -53,12 +53,12 @@ int main(int argc, char** argv)
 	storage_init();
 	queue = open_msg_queue(MSG_QUEUE_NAME);
 
-	while(true){
+//	while(true){
 		msg_t m;
 		memset(&m, 0, sizeof(msg_t));
 		recv_msg(queue, &m);
 		process_file(&m);
-	}
+//	}
 
 	close_msg_queue(queue);
 	storage_destroy();
