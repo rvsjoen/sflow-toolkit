@@ -150,16 +150,16 @@ void conv_update_ip(conv_ip_t* c, const uint8_t* pkt, SFFlowSample* s);
 void conv_update_tcp(conv_tcp_t* c, const uint8_t* pkt, SFFlowSample* s);
 void conv_update_udp(conv_udp_t* c, const uint8_t* pkt, SFFlowSample* s);
 
-void conv_store_ethernet(conv_list_t* list);
-void conv_store_ip(conv_list_t* list);
-void conv_store_tcp(conv_list_t* list);
-void conv_store_udp(conv_list_t* list);
+void conv_store_ethernet();
+void conv_store_ip();
+void conv_store_tcp();
+void conv_store_udp();
 
 conv_t* conv_list_search(conv_list_t* list, conv_key_t* key);
 void conv_list_add(const uint8_t* pkt, conv_key_t* key, uint32_t ctype, SFFlowSample* s);
 
 // Process a single sample
-void process_sample_flow(SFFlowSample* s, conv_list_t* c_ethernet, conv_list_t* c_ip, conv_list_t* c_tcp, conv_list_t* c_udp);
+void process_sample_flow(SFFlowSample* s);
 void process_sample_cntr(SFCntrSample* s);
 
 // These are the main entry points for processing a single binary 

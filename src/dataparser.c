@@ -1,48 +1,39 @@
 #include "dataparser.h"
 #include "storage.h"
 
-conv_list_t hash_ethernet[HASH_RANGE];
-conv_list_t hash_ip[HASH_RANGE];
-conv_list_t hash_tcp[HASH_RANGE];
-conv_list_t hash_udp[HASH_RANGE];
+conv_list_t* hash_ethernet[HASH_RANGE];
+conv_list_t* hash_ip[HASH_RANGE];
+conv_list_t* hash_tcp[HASH_RANGE];
+conv_list_t* hash_udp[HASH_RANGE];
 
 void process_file_flow(const char* filename, uint32_t agent){
 
 	UNUSED_ARGUMENT(agent);
 	
 	// Zero the hash tables
-	memset(hash_ethernet, 0, sizeof(conv_list_t)*HASH_RANGE);
-	memset(hash_ip, 0, sizeof(conv_list_t)*HASH_RANGE);
-	memset(hash_tcp, 0, sizeof(conv_list_t)*HASH_RANGE);
-	memset(hash_udp, 0, sizeof(conv_list_t)*HASH_RANGE);
+	memset(hash_ethernet, 	0, sizeof(conv_list_t*)*HASH_RANGE);
+	memset(hash_ip, 		0, sizeof(conv_list_t*)*HASH_RANGE);
+	memset(hash_tcp, 		0, sizeof(conv_list_t*)*HASH_RANGE);
+	memset(hash_udp, 		0, sizeof(conv_list_t*)*HASH_RANGE);
 
-	conv_list_t c_ethernet, c_ip, c_tcp, c_udp;
-	memset(&c_ethernet, 0, sizeof(conv_list_t));
-	memset(&c_ip, 0, sizeof(conv_list_t));
-	memset(&c_tcp, 0, sizeof(conv_list_t));
-	memset(&c_udp, 0, sizeof(conv_list_t));
-	
-	
 	FILE* fd = NULL;
 	if((fd = fopen(filename, "r"))){
 		SFFlowSample s;
 		while(fread(&s, sizeof(SFFlowSample), 1, fd)){
-			process_sample_flow(&s, &c_ethernet, &c_ip, &c_tcp, &c_udp);
+			process_sample_flow(&s);
 		}
 		fclose(fd);
 	} else {
 		logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
 	}
 
-	/*
-	conv_store_ethernet(&c_ethernet);
-	conv_store_ip(&c_ip);
-	conv_store_tcp(&c_tcp);
-	conv_store_udp(&c_udp);
-	*/
+	conv_store_ethernet();
+	conv_store_ip();
+	conv_store_tcp();
+	conv_store_udp();
 }
 
-void process_sample_flow(SFFlowSample* s, conv_list_t* c_ethernet, conv_list_t* c_ip, conv_list_t* c_tcp, conv_list_t* c_udp){
+void process_sample_flow(SFFlowSample* s){
 	
 	// Declare some keys
 	conv_key_ethernet_t key_ethernet;
@@ -61,13 +52,13 @@ void process_sample_flow(SFFlowSample* s, conv_list_t* c_ethernet, conv_list_t* 
 	conv_list_add(pkt, (conv_key_t*) &key_ethernet, CONV_ETHERNET, s);
 	if(is_ip(pkt)){
 		get_key_ip(s, &key_ip);
-//		conv_list_add(c_ip, pkt, (conv_key_t*) &key_ip, CONV_IP, s);
+		conv_list_add(pkt, (conv_key_t*) &key_ip, CONV_IP, s);
 		if(is_tcp(pkt)){
 			get_key_tcp(s, &key_tcp);
-//			conv_list_add(c_tcp, pkt, (conv_key_t*) &key_tcp, CONV_TCP, s);
+			conv_list_add(pkt, (conv_key_t*) &key_tcp, CONV_TCP, s);
 		} else if(is_udp(pkt)){
 			get_key_udp(s, &key_udp);
-//			conv_list_add(c_udp, pkt, (conv_key_t*) &key_udp, CONV_UDP, s);
+			conv_list_add(pkt, (conv_key_t*) &key_udp, CONV_UDP, s);
 		}
 	}
 }
@@ -205,79 +196,93 @@ conv_t* conv_list_search(conv_list_t* list, conv_key_t* key){
 	return NULL;
 }
 
-void conv_store_ethernet(conv_list_t* list){
-	conv_list_node_t* n = list->data;
-	logmsg(LOGLEVEL_DEBUG, "Storing ethernet conversations");
-	while(n){
-		conv_key_ethernet_t* k = (conv_key_ethernet_t*) n->key;
-		conv_ethernet_t* c = (conv_ethernet_t*) n->conv;
+void conv_store_ethernet(){
+	int count = 0;
+	int i;
+	for(i=0; i<HASH_RANGE;i++)
+	{
+		conv_list_t* list = hash_ethernet[i];
 
-//		char msrc[32];
-//		char mdst[32];
-//		strncpy(msrc, ether_ntoa((struct ether_addr*)k->src), 32);
-//		strncpy(mdst, ether_ntoa((struct ether_addr*)k->dst), 32);
-//		printf("%s -> %s %u %u\n", msrc, mdst, c->f_rx, c->b_rx);
+		if(list == NULL)
+			continue;
 
-		conv_list_node_t* tmp;
-		tmp = n;
-		n = n->next;
-		storage_store_conv_ethernet(k, c);
-		free(k);
-		free(c);
-		free(tmp);
+		conv_list_node_t* n = list->data;
+		while(n){
+			conv_key_ethernet_t* k = (conv_key_ethernet_t*) n->key;
+			conv_ethernet_t* c = (conv_ethernet_t*) n->conv;
+			conv_list_node_t* tmp;
+			tmp = n;
+			n = n->next;
+			storage_store_conv_ethernet(k, c);
+			free(k);
+			free(c);
+			free(tmp);
+
+
+			count++;
+		}
+		free(list);
 	}
+	logmsg(LOGLEVEL_DEBUG, "Stored %u ethernet conversations", count);
 }
 
-void conv_store_ip(conv_list_t* list){
+void conv_store_ip(){
+	/*
 	conv_list_node_t* n = list->data;
 	logmsg(LOGLEVEL_DEBUG, "Storing ip conversations");
 	while(n){
 		n = n->next;
-	}
+	}*/
 }
 
-void conv_store_tcp(conv_list_t* list){
+void conv_store_tcp(){
+	/*
 	conv_list_node_t* n = list->data;
 	logmsg(LOGLEVEL_DEBUG, "Storing tcp conversations");
 	while(n){
 		n = n->next;
-	}
+	}*/
 }
 
-void conv_store_udp(conv_list_t* list){
+void conv_store_udp(){
+	/*
 	conv_list_node_t* n = list->data;
 	logmsg(LOGLEVEL_DEBUG, "Storing udp conversations");
 	while(n){
 		n = n->next;
-	}
+	}*/
 }
 
 void conv_list_add(const uint8_t* pkt, conv_key_t* key, uint32_t ctype, SFFlowSample* s){
 
-	UNUSED_ARGUMENT(pkt);
-	conv_t* c = NULL;
-
-	int h;
+	int h = 0;
+	conv_list_t* list = NULL;
 	switch(ctype){
 		case CONV_ETHERNET:
 			h = hash_key_ethernet((conv_key_ethernet_t*) key);
+			list = hash_ethernet[h];
 			break;
 		case CONV_IP:
+			h = hash_key_ip((conv_key_ip_t*) key);
+			list = hash_ip[h];
 			break;
 		case CONV_TCP:
+			h = hash_key_tcp((conv_key_tcp_t*) key);
+			list = hash_tcp[h];
 			break;
 		case CONV_UDP:
+			h = hash_key_udp((conv_key_udp_t*) key);
+			list = hash_udp[h];
 			break;
 	}
 
 	// First get a pointer to the list we are going to do a linear search on
-	conv_list_t* list = NULL;
-	list = &hash_ethernet[h];
 	if(list == NULL){
 		list = (conv_list_t*) malloc(sizeof(conv_list_t));
 		memset(list, 0, sizeof(conv_list_t));
 	}
 
+	conv_t* c = NULL;
 	c = conv_list_search(list, key);
 
 	if(c == NULL){
@@ -337,13 +342,32 @@ int hash_key_ethernet(conv_key_ethernet_t* k){
 }
 
 int hash_key_ip(conv_key_ip_t* k){
-	return 0;
+	int result = 0;
+	result += k->sflow_input_if % HASH_RANGE;
+	result += k->sflow_output_if % HASH_RANGE;
+	result += k->src % HASH_RANGE;
+	result += k->dst % HASH_RANGE;
+	return result % HASH_RANGE;
 }
 
 int hash_key_tcp(conv_key_tcp_t* k){
-	return 0;
+	int result = 0;
+	result += k->sflow_input_if % HASH_RANGE;
+	result += k->sflow_output_if % HASH_RANGE;
+	result += k->src % HASH_RANGE;
+	result += k->dst % HASH_RANGE;
+	result += k->src_port % HASH_RANGE;
+	result += k->dst_port % HASH_RANGE;
+	return result % HASH_RANGE;
 }
 
 int hash_key_udp(conv_key_udp_t* k){
-	return 0;
+	int result = 0;
+	result += k->sflow_input_if % HASH_RANGE;
+	result += k->sflow_output_if % HASH_RANGE;
+	result += k->src % HASH_RANGE;
+	result += k->dst % HASH_RANGE;
+	result += k->src_port % HASH_RANGE;
+	result += k->dst_port % HASH_RANGE;
+	return result % HASH_RANGE;
 }
