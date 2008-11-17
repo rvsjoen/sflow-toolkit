@@ -24,6 +24,8 @@
 #define CONV_TCP		0x2
 #define CONV_UDP		0x3
 
+#define HASH_RANGE 500
+
 // Ethernet protocol ID's
 #define ETHERTYPE_PUP       0x0200      /* Xerox PUP */
 #define ETHERTYPE_SPRITE    0x0500      /* Sprite */
@@ -133,6 +135,11 @@ bool is_ip(const uint8_t* pkt);
 bool is_tcp(const uint8_t* pkt);
 bool is_udp(const uint8_t* pkt);
 
+int hash_key_ethernet(conv_key_ethernet_t* k);
+int hash_key_ip(conv_key_ip_t* k);
+int hash_key_tcp(conv_key_tcp_t* k);
+int hash_key_udp(conv_key_udp_t* k);
+
 void get_key_ethernet(SFFlowSample* spl, conv_key_ethernet_t* k);
 void get_key_ip(SFFlowSample* spl, conv_key_ip_t* k);
 void get_key_udp(SFFlowSample* spl, conv_key_udp_t* k);
@@ -149,7 +156,7 @@ void conv_store_tcp(conv_list_t* list);
 void conv_store_udp(conv_list_t* list);
 
 conv_t* conv_list_search(conv_list_t* list, conv_key_t* key);
-void conv_list_add(conv_list_t* list, const uint8_t* pkt, conv_key_t* key, uint32_t ctype, SFFlowSample* s);
+void conv_list_add(const uint8_t* pkt, conv_key_t* key, uint32_t ctype, SFFlowSample* s);
 
 // Process a single sample
 void process_sample_flow(SFFlowSample* s, conv_list_t* c_ethernet, conv_list_t* c_ip, conv_list_t* c_tcp, conv_list_t* c_udp);
