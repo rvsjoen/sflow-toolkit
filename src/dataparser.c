@@ -6,6 +6,11 @@ conv_list_t* hash_ip[HASH_RANGE];
 conv_list_t* hash_tcp[HASH_RANGE];
 conv_list_t* hash_udp[HASH_RANGE];
 
+uint32_t cnt_ethernet;
+uint32_t cnt_ip;
+uint32_t cnt_tcp;
+uint32_t cnt_udp;
+
 void process_file_flow(const char* filename, uint32_t agent){
 
 	UNUSED_ARGUMENT(agent);
@@ -27,10 +32,20 @@ void process_file_flow(const char* filename, uint32_t agent){
 		logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
 	}
 
+	cnt_ethernet = cnt_ip = cnt_tcp = cnt_udp = 0;
 	conv_store_ethernet();
 	conv_store_ip();
 	conv_store_tcp();
 	conv_store_udp();
+
+	if(cnt_ip > cnt_ethernet){
+		logmsg(LOGLEVEL_ERROR, "More IP packets than ethernet");
+//		exit(EXIT_FAILURE);
+	}
+	if(cnt_tcp > cnt_ip || cnt_udp > cnt_ip){
+		logmsg(LOGLEVEL_ERROR, "More TCP or UDP packets than IP");
+//		exit(EXIT_FAILURE);
+	}
 }
 
 void process_sample_flow(SFFlowSample* s){
@@ -197,7 +212,6 @@ conv_t* conv_list_search(conv_list_t* list, conv_key_t* key){
 }
 
 void conv_store_ethernet(){
-	int count = 0;
 	int i;
 	for(i=0; i<HASH_RANGE;i++)
 	{
@@ -218,15 +232,14 @@ void conv_store_ethernet(){
 			free(c);
 			free(tmp);
 
-			count++;
+			cnt_ethernet++;
 		}
 		free(list);
 	}
-	logmsg(LOGLEVEL_DEBUG, "Stored %u ethernet conversations", count);
+	logmsg(LOGLEVEL_DEBUG, "Stored %u ethernet conversations", cnt_ethernet);
 }
 
 void conv_store_ip(){
-	int count = 0;
 	int i;
 	for(i=0; i<HASH_RANGE;i++)
 	{
@@ -247,15 +260,14 @@ void conv_store_ip(){
 			free(c);
 			free(tmp);
 
-			count++;
+			cnt_ip++;
 		}
 		free(list);
 	}
-	logmsg(LOGLEVEL_DEBUG, "Stored %u ip conversations", count);
+	logmsg(LOGLEVEL_DEBUG, "Stored %u ip conversations", cnt_ip);
 }
 
 void conv_store_tcp(){
-	int count = 0;
 	int i;
 	for(i=0; i<HASH_RANGE;i++)
 	{
@@ -276,15 +288,14 @@ void conv_store_tcp(){
 			free(c);
 			free(tmp);
 
-			count++;
+			cnt_tcp++;
 		}
 		free(list);
 	}
-	logmsg(LOGLEVEL_DEBUG, "Stored %u tcp conversations", count);
+	logmsg(LOGLEVEL_DEBUG, "Stored %u tcp conversations", cnt_tcp);
 }
 
 void conv_store_udp(){
-	int count = 0;
 	int i;
 	for(i=0; i<HASH_RANGE;i++)
 	{
@@ -305,11 +316,11 @@ void conv_store_udp(){
 			free(c);
 			free(tmp);
 
-			count++;
+			cnt_udp++;
 		}
 		free(list);
 	}
-	logmsg(LOGLEVEL_DEBUG, "Stored %u udp conversations", count);
+	logmsg(LOGLEVEL_DEBUG, "Stored %u udp conversations", cnt_udp);
 }
 
 void conv_list_add(const uint8_t* pkt, conv_key_t* key, uint32_t ctype, SFFlowSample* s){
