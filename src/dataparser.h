@@ -16,7 +16,6 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-#include "storage.h"
 #include "sflowparser.h"
 #include "util.h"
 

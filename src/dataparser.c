@@ -1,4 +1,5 @@
 #include "dataparser.h"
+#include "storage.h"
 
 void process_file_flow(const char* filename, uint32_t agent){
 
@@ -21,11 +22,7 @@ void process_file_flow(const char* filename, uint32_t agent){
 	} else {
 		logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
 	}
-
 	conv_store_ethernet(&c_ethernet);
-//	conv_print_ip(&c_ip);
-//	conv_print_tcp(&c_tcp);
-//	conv_print_udp(&c_udp);
 }
 
 void process_sample_flow(SFFlowSample* s, conv_list_t* c_ethernet, conv_list_t* c_ip, conv_list_t* c_tcp, conv_list_t* c_udp){
@@ -193,12 +190,10 @@ conv_t* conv_list_search(conv_list_t* list, conv_key_t* key){
 
 void conv_store_ethernet(conv_list_t* list){
 	conv_list_node_t* n = list->data;
-//	printf("\nEthernet conversation list (%u conversations)\n", list->num);
 	logmsg(LOGLEVEL_DEBUG, "Storing ethernet conversations");
 	while(n){
 		conv_key_ethernet_t* k = (conv_key_ethernet_t*) n->key;
 		conv_ethernet_t* c = (conv_ethernet_t*) n->conv;
-//		storage_store_conv_ethernet(k, c);
 
 //		char msrc[32];
 //		char mdst[32];
@@ -206,7 +201,13 @@ void conv_store_ethernet(conv_list_t* list){
 //		strncpy(mdst, ether_ntoa((struct ether_addr*)k->dst), 32);
 //		printf("%s -> %s %u %u\n", msrc, mdst, c->f_rx, c->b_rx);
 
+		conv_list_node_t* tmp;
+		tmp = n;
 		n = n->next;
+		storage_store_conv_ethernet(k, c);
+		free(k);
+		free(c);
+		free(tmp);
 	}
 }
 

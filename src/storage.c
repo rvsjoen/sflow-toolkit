@@ -22,15 +22,14 @@ void storage_destroy()
 }
 
 int foocnt = 0;
-//void storage_store_conv_ethernet(struct _conv_key_ethernet* key, struct _conv_ethernet* conv)
-//{
-	/*
+
+void storage_store_conv_ethernet(struct _conv_key_ethernet* key, struct _conv_ethernet* conv)
+{
 	char query[256];
-	sprintf(query, "INSERT INTO conv_ethernet VALUES (%u, '%s');", i, "Hello World!");
+	sprintf(query, "INSERT INTO conv_ethernet VALUES (%u, '%s');", foocnt, "Hello World!");
 	mysql_query(&db, query);
 	foocnt++;
-	*/
-//}
+}
 
 /*
 void storage_store_conv_ip(conv_key_ip_t* key, conv_ip_t* conv)
