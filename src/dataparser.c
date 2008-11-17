@@ -91,8 +91,8 @@ void get_key_ip(SFFlowSample* s, conv_key_ip_t* k){
 	struct iphdr* hdr = (struct iphdr*) p;
 	k->src = ntohl(hdr->saddr);
 	k->dst = ntohl(hdr->daddr);
-//	k->sflow_input_if = s->sample_input_if_value;
-//	k->sflow_output_if = s->sample_output_if_value;
+	k->sflow_input_if = s->sample_input_if_value;
+	k->sflow_output_if = s->sample_output_if_value;
 }
 
 uint8_t* strip_ip(const uint8_t* pkt){
@@ -112,8 +112,8 @@ void get_key_udp(SFFlowSample* s, conv_key_udp_t* k){
 	struct udphdr* udp_hdr = (struct udphdr*) p;
 	k->src_port = ntohs(udp_hdr->source);
 	k->dst_port = ntohs(udp_hdr->dest);
-//	k->sflow_input_if = s->sample_input_if_value;
-//	k->sflow_output_if = s->sample_output_if_value;
+	k->sflow_input_if = s->sample_input_if_value;
+	k->sflow_output_if = s->sample_output_if_value;
 }
 
 void get_key_tcp(SFFlowSample* s, conv_key_tcp_t* k){
@@ -126,8 +126,8 @@ void get_key_tcp(SFFlowSample* s, conv_key_tcp_t* k){
 	struct tcphdr* tcp_hdr = (struct tcphdr*) p;
 	k->src_port = ntohs(tcp_hdr->source);
 	k->dst_port = ntohs(tcp_hdr->dest);
-//	k->sflow_input_if = s->sample_input_if_value;
-//	k->sflow_output_if = s->sample_output_if_value;
+	k->sflow_input_if = s->sample_input_if_value;
+	k->sflow_output_if = s->sample_output_if_value;
 }
 
 bool is_ip(const uint8_t* pkt){
@@ -261,26 +261,45 @@ void conv_list_add(const uint8_t* pkt, conv_key_t* key, uint32_t ctype, SFFlowSa
 		case CONV_ETHERNET:
 			h = hash_key_ethernet((conv_key_ethernet_t*) key);
 			list = hash_ethernet[h];
+			// First get a pointer to the list we are going to do a linear search on
+			if(list == NULL){
+				list = (conv_list_t*) malloc(sizeof(conv_list_t));
+				memset(list, 0, sizeof(conv_list_t));
+				hash_ethernet[h] = list;
+			}
 			break;
 		case CONV_IP:
 			h = hash_key_ip((conv_key_ip_t*) key);
 			list = hash_ip[h];
+			// First get a pointer to the list we are going to do a linear search on
+			if(list == NULL){
+				list = (conv_list_t*) malloc(sizeof(conv_list_t));
+				memset(list, 0, sizeof(conv_list_t));
+				hash_ip[h] = list;
+			}
 			break;
 		case CONV_TCP:
 			h = hash_key_tcp((conv_key_tcp_t*) key);
 			list = hash_tcp[h];
+			// First get a pointer to the list we are going to do a linear search on
+			if(list == NULL){
+				list = (conv_list_t*) malloc(sizeof(conv_list_t));
+				memset(list, 0, sizeof(conv_list_t));
+				hash_tcp[h] = list;
+			}
 			break;
 		case CONV_UDP:
 			h = hash_key_udp((conv_key_udp_t*) key);
 			list = hash_udp[h];
+			// First get a pointer to the list we are going to do a linear search on
+			if(list == NULL){
+				list = (conv_list_t*) malloc(sizeof(conv_list_t));
+				memset(list, 0, sizeof(conv_list_t));
+				hash_udp[h] = list;
+			}
 			break;
 	}
 
-	// First get a pointer to the list we are going to do a linear search on
-	if(list == NULL){
-		list = (conv_list_t*) malloc(sizeof(conv_list_t));
-		memset(list, 0, sizeof(conv_list_t));
-	}
 
 	conv_t* c = NULL;
 	c = conv_list_search(list, key);
