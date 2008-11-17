@@ -23,6 +23,9 @@ void process_file_flow(const char* filename, uint32_t agent){
 		logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
 	}
 	conv_store_ethernet(&c_ethernet);
+	conv_store_ip(&c_ip);
+	conv_store_tcp(&c_tcp);
+	conv_store_udp(&c_udp);
 }
 
 void process_sample_flow(SFFlowSample* s, conv_list_t* c_ethernet, conv_list_t* c_ip, conv_list_t* c_tcp, conv_list_t* c_udp){
@@ -41,16 +44,16 @@ void process_sample_flow(SFFlowSample* s, conv_list_t* c_ethernet, conv_list_t* 
 	
 	// Populate the keys from the sample
 	get_key_ethernet(s, &key_ethernet);
-	conv_list_add(c_ethernet, pkt, (conv_key_t*) &key_ethernet, CONV_ETHERNET, s);
+//	conv_list_add(c_ethernet, pkt, (conv_key_t*) &key_ethernet, CONV_ETHERNET, s);
 	if(is_ip(pkt)){
 		get_key_ip(s, &key_ip);
-		conv_list_add(c_ip, pkt, (conv_key_t*) &key_ip, CONV_IP, s);
+//		conv_list_add(c_ip, pkt, (conv_key_t*) &key_ip, CONV_IP, s);
 		if(is_tcp(pkt)){
 			get_key_tcp(s, &key_tcp);
-			conv_list_add(c_tcp, pkt, (conv_key_t*) &key_tcp, CONV_TCP, s);
+//			conv_list_add(c_tcp, pkt, (conv_key_t*) &key_tcp, CONV_TCP, s);
 		} else if(is_udp(pkt)){
 			get_key_udp(s, &key_udp);
-			conv_list_add(c_udp, pkt, (conv_key_t*) &key_udp, CONV_UDP, s);
+//			conv_list_add(c_udp, pkt, (conv_key_t*) &key_udp, CONV_UDP, s);
 		}
 	}
 }
@@ -211,25 +214,25 @@ void conv_store_ethernet(conv_list_t* list){
 	}
 }
 
-void conv_print_ip(conv_list_t* list){
+void conv_store_ip(conv_list_t* list){
 	conv_list_node_t* n = list->data;
-	printf("\nIP conversation list (%u conversations)\n", list->num);
+	logmsg(LOGLEVEL_DEBUG, "Storing ip conversations");
 	while(n){
 		n = n->next;
 	}
 }
 
-void conv_print_tcp(conv_list_t* list){
+void conv_store_tcp(conv_list_t* list){
 	conv_list_node_t* n = list->data;
-	printf("\nTCP conversation list (%u conversations)\n", list->num);
+	logmsg(LOGLEVEL_DEBUG, "Storing tcp conversations");
 	while(n){
 		n = n->next;
 	}
 }
 
-void conv_print_udp(conv_list_t* list){
+void conv_store_udp(conv_list_t* list){
 	conv_list_node_t* n = list->data;
-	printf("\nUDP conversation list (%u conversations)\n", list->num);
+	logmsg(LOGLEVEL_DEBUG, "Storing udp conversations");
 	while(n){
 		n = n->next;
 	}

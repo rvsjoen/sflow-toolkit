@@ -144,9 +144,9 @@ void conv_update_tcp(conv_tcp_t* c, const uint8_t* pkt, SFFlowSample* s);
 void conv_update_udp(conv_udp_t* c, const uint8_t* pkt, SFFlowSample* s);
 
 void conv_store_ethernet(conv_list_t* list);
-void conv_print_ip(conv_list_t* list);
-void conv_print_tcp(conv_list_t* list);
-void conv_print_udp(conv_list_t* list);
+void conv_store_ip(conv_list_t* list);
+void conv_store_tcp(conv_list_t* list);
+void conv_store_udp(conv_list_t* list);
 
 conv_t* conv_list_search(conv_list_t* list, conv_key_t* key);
 void conv_list_add(conv_list_t* list, const uint8_t* pkt, conv_key_t* key, uint32_t ctype, SFFlowSample* s);
