@@ -33,16 +33,20 @@ void parse_commandline(int argc, char** argv){
 
 void process_file(const msg_t* m){
 //	process_file_flow("/home/sjoen/work/git/sftoolkit/src/samples_flow.dat", 177354499, 12345);
+//
+//
+	logmsg(LOGLEVEL_DEBUG, "Message: type=%u file=%s agent=%s", m->type, m->filename, m->agent);
 	if(m->type == SFTYPE_FLOW){
 		logmsg(LOGLEVEL_INFO, "Processing flow file (%s)", m->filename);
 		process_file_flow(m->filename, m->agent, m->timestamp);
 	} else if (m->type == SFTYPE_CNTR) {
+//		process_file_cntr(m->filename, m->agent, m->timestamp);
 		logmsg(LOGLEVEL_DEBUG, "Processing counter file (%s)", m->filename);
+
 	}
 }
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv){
 	parse_commandline(argc, argv);
 
 	if(daemonize)
