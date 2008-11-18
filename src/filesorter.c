@@ -140,7 +140,7 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 				msg_t m;
 				m.agent = a->agent;
 				m.type = SFTYPE_FLOW;
-				m.timestamp = (uint32_t)s->timestamp/60;
+				m.timestamp = ((uint32_t)s->timestamp/60)-1;
 				strncpy(m.filename, a->fn_flow, 256);
 				send_msg(queue, &m);
 			}
@@ -185,7 +185,7 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 				msg_t m;	
 				m.agent = a->agent;
 				m.type = SFTYPE_CNTR;
-				m.timestamp = (uint32_t)s->timestamp/60;
+				m.timestamp = ((uint32_t)s->timestamp/60)-1;
 				strncpy(m.filename, a->fn_cntr, 256);
 				send_msg(queue, &m);
 
