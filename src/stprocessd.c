@@ -32,13 +32,13 @@ void parse_commandline(int argc, char** argv){
 }
 
 void process_file(const msg_t* m){
+//	process_file_flow("/home/sjoen/work/git/sftoolkit/src/samples_flow.dat", 177354499, 12345);
 	if(m->type == SFTYPE_FLOW){
-		logmsg(LOGLEVEL_DEBUG, "Processing flow file (%s)", m->filename);
-		process_file_flow(m->filename, m->agent);
+		logmsg(LOGLEVEL_INFO, "Processing flow file (%s)", m->filename);
+		process_file_flow(m->filename, m->agent, m->timestamp);
 	} else if (m->type == SFTYPE_CNTR) {
 		logmsg(LOGLEVEL_DEBUG, "Processing counter file (%s)", m->filename);
 	}
-
 }
 
 int main(int argc, char** argv)
@@ -53,12 +53,12 @@ int main(int argc, char** argv)
 	storage_init();
 	queue = open_msg_queue(MSG_QUEUE_NAME);
 
-//	while(true){
+	while(true){
 		msg_t m;
 		memset(&m, 0, sizeof(msg_t));
 		recv_msg(queue, &m);
 		process_file(&m);
-//	}
+	}
 
 	close_msg_queue(queue);
 	storage_destroy();

@@ -11,7 +11,7 @@ uint32_t cnt_ip;
 uint32_t cnt_tcp;
 uint32_t cnt_udp;
 
-void process_file_flow(const char* filename, uint32_t agent){
+void process_file_flow(const char* filename, uint32_t agent, uint32_t timestamp){
 
 	UNUSED_ARGUMENT(agent);
 	
@@ -33,19 +33,10 @@ void process_file_flow(const char* filename, uint32_t agent){
 	}
 
 	cnt_ethernet = cnt_ip = cnt_tcp = cnt_udp = 0;
-	conv_store_ethernet();
-	conv_store_ip();
-	conv_store_tcp();
-	conv_store_udp();
-
-	if(cnt_ip > cnt_ethernet){
-		logmsg(LOGLEVEL_ERROR, "More IP packets than ethernet");
-//		exit(EXIT_FAILURE);
-	}
-	if(cnt_tcp > cnt_ip || cnt_udp > cnt_ip){
-		logmsg(LOGLEVEL_ERROR, "More TCP or UDP packets than IP");
-//		exit(EXIT_FAILURE);
-	}
+	conv_store_ethernet(agent, timestamp);
+	conv_store_ip(agent, timestamp);
+	conv_store_tcp(agent, timestamp);
+	conv_store_udp(agent, timestamp);
 }
 
 void process_sample_flow(SFFlowSample* s){
@@ -81,26 +72,14 @@ void process_sample_flow(SFFlowSample* s){
 void get_key_ethernet(SFFlowSample* s, conv_key_ethernet_t* k){
 	uint8_t* pkt = s->raw_header;
 
-	printSingleLineHex(pkt, 40);
-	printf("\n");
-
 	struct ether_header* hdr = (struct ether_header*) pkt;
+
 	memcpy(k->src, hdr->ether_shost, ETH_ALEN);
 	memcpy(k->dst, hdr->ether_dhost, ETH_ALEN);
 
 	k->sflow_input_if = s->sample_input_if_value;
 	k->sflow_output_if = s->sample_output_if_value;
 
-	printSingleLineHex(k, 40);
-	printf("\n");
-
-	char src[16];
-	char dst[16];
-	memset(src, 0, 16*sizeof(char));
-	memset(dst, 0, 16*sizeof(char));
-	ether_ntoa_r((struct ether_addr*) k->src, src);
-	ether_ntoa_r((struct ether_addr*) k->dst, dst);
-	printf("%s, %s\n", src, dst);
 }
 
 uint8_t* strip_vlan(const uint8_t* pkt){
@@ -192,26 +171,26 @@ bool is_tcp(const uint8_t* pkt){
 }
 
 void conv_update_ethernet(conv_ethernet_t* c, const uint8_t* pkt, SFFlowSample* s){
-	c->f_rx++;
-	c->b_rx += s->raw_header_frame_length;
+	c->frames++;
+	c->bytes += s->raw_header_frame_length;
 	UNUSED_ARGUMENT(pkt);
 	UNUSED_ARGUMENT(s);
 }
 
 void conv_update_ip(conv_ip_t* c, const uint8_t* pkt, SFFlowSample* s){
-	c->f_rx++;
+	c->packets++;
 	UNUSED_ARGUMENT(pkt);
 	UNUSED_ARGUMENT(s);
 }
 
 void conv_update_tcp(conv_tcp_t* c, const uint8_t* pkt, SFFlowSample* s){
-	c->f_rx++;
+	c->segments++;
 	UNUSED_ARGUMENT(pkt);
 	UNUSED_ARGUMENT(s);
 }
 
 void conv_update_udp(conv_udp_t* c, const uint8_t* pkt, SFFlowSample* s){
-	c->f_rx++;
+	c->segments++;
 	UNUSED_ARGUMENT(pkt);
 	UNUSED_ARGUMENT(s);
 }
@@ -227,7 +206,7 @@ conv_t* conv_list_search(conv_list_t* list, conv_key_t* key){
 	return NULL;
 }
 
-void conv_store_ethernet(){
+void conv_store_ethernet(uint32_t agent, uint32_t timestamp){
 	int i;
 	for(i=0; i<HASH_RANGE;i++)
 	{
@@ -243,7 +222,7 @@ void conv_store_ethernet(){
 			conv_list_node_t* tmp;
 			tmp = n;
 			n = n->next;
-			storage_store_conv_ethernet(k, c);
+			storage_store_conv_ethernet(k, c, agent, timestamp);
 			free(k);
 			free(c);
 			free(tmp);
@@ -254,7 +233,7 @@ void conv_store_ethernet(){
 	logmsg(LOGLEVEL_DEBUG, "Stored %u ethernet conversations", cnt_ethernet);
 }
 
-void conv_store_ip(){
+void conv_store_ip(uint32_t agent, uint32_t timestamp){
 	int i;
 	for(i=0; i<HASH_RANGE;i++)
 	{
@@ -270,7 +249,7 @@ void conv_store_ip(){
 			conv_list_node_t* tmp;
 			tmp = n;
 			n = n->next;
-			storage_store_conv_ip(k, c);
+			storage_store_conv_ip(k, c, agent, timestamp);
 			free(k);
 			free(c);
 			free(tmp);
@@ -282,7 +261,7 @@ void conv_store_ip(){
 	logmsg(LOGLEVEL_DEBUG, "Stored %u ip conversations", cnt_ip);
 }
 
-void conv_store_tcp(){
+void conv_store_tcp(uint32_t agent, uint32_t timestamp){
 	int i;
 	for(i=0; i<HASH_RANGE;i++)
 	{
@@ -298,7 +277,7 @@ void conv_store_tcp(){
 			conv_list_node_t* tmp;
 			tmp = n;
 			n = n->next;
-			storage_store_conv_tcp(k, c);
+			storage_store_conv_tcp(k, c, agent, timestamp);
 			free(k);
 			free(c);
 			free(tmp);
@@ -310,7 +289,7 @@ void conv_store_tcp(){
 	logmsg(LOGLEVEL_DEBUG, "Stored %u tcp conversations", cnt_tcp);
 }
 
-void conv_store_udp(){
+void conv_store_udp(uint32_t agent, uint32_t timestamp){
 	int i;
 	for(i=0; i<HASH_RANGE;i++)
 	{
@@ -326,7 +305,7 @@ void conv_store_udp(){
 			conv_list_node_t* tmp;
 			tmp = n;
 			n = n->next;
-			storage_store_conv_udp(k, c);
+			storage_store_conv_udp(k, c, agent, timestamp);
 			free(k);
 			free(c);
 			free(tmp);

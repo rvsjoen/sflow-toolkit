@@ -42,8 +42,8 @@
 typedef struct _conv_key_ethernet {
 	uint32_t sflow_input_if;
 	uint32_t sflow_output_if;
-	uint8_t src[6];  // struct ether_addr
-	uint8_t dst[6];
+	uint8_t src[ETH_ALEN];  // struct ether_addr
+	uint8_t dst[ETH_ALEN];
 } conv_key_ethernet_t;
 
 typedef struct _conv_key_ip {
@@ -79,38 +79,23 @@ typedef union _conv_key_t {
 } conv_key_t;
 
 typedef struct _conv_ethernet {
-	uint32_t f_rx;
-	uint32_t f_tx;
-	uint32_t b_rx;
-	uint32_t b_tx;
-	uint32_t etype_arp;
-	uint32_t etype_rarp;
-	uint32_t etype_ip;
-	uint32_t etype_pup;
+	uint32_t bytes;
+	uint32_t frames;
 } conv_ethernet_t;
 
 typedef struct _conv_ip {
-	uint32_t f_rx;
-	uint32_t f_tx;
-	uint32_t b_rx;
-	uint32_t b_tx;
-	uint32_t protocols[sizeof(uint8_t)];
+	uint32_t packets;
+	uint32_t bytes;
 } conv_ip_t;
 
 typedef struct _conv_tcp {
-	uint32_t f_rx;
-	uint32_t f_tx;
-	uint32_t b_rx;
-	uint32_t b_tx;
-	uint8_t flags;
+	uint32_t segments;
+	uint32_t bytes;
 } conv_tcp_t;
 
 typedef struct _conv_udp {
-	uint32_t f_rx;
-	uint32_t f_tx;
-	uint32_t b_rx;
-	uint32_t b_tx;
-	uint8_t flags;
+	uint32_t segments;
+	uint32_t bytes;
 } conv_udp_t;
 
 typedef union _conv {
@@ -150,10 +135,10 @@ void conv_update_ip(conv_ip_t* c, const uint8_t* pkt, SFFlowSample* s);
 void conv_update_tcp(conv_tcp_t* c, const uint8_t* pkt, SFFlowSample* s);
 void conv_update_udp(conv_udp_t* c, const uint8_t* pkt, SFFlowSample* s);
 
-void conv_store_ethernet();
-void conv_store_ip();
-void conv_store_tcp();
-void conv_store_udp();
+void conv_store_ethernet(uint32_t agent, uint32_t timestamp);
+void conv_store_ip(uint32_t agent, uint32_t timestamp);
+void conv_store_tcp(uint32_t agent, uint32_t timestamp);
+void conv_store_udp(uint32_t agent, uint32_t timestamp);
 
 conv_t* conv_list_search(conv_list_t* list, conv_key_t* key);
 void conv_list_add(const uint8_t* pkt, conv_key_t* key, uint32_t ctype, SFFlowSample* s);
@@ -164,7 +149,7 @@ void process_sample_cntr(SFCntrSample* s);
 
 // These are the main entry points for processing a single binary 
 // buffer containing samples
-void process_file_flow(const char* filename, uint32_t agent);
-void process_file_cntr(const char* filename, uint32_t agent);
+void process_file_flow(const char* filename, uint32_t agent, uint32_t timestamp);
+void process_file_cntr(const char* filename, uint32_t agent, uint32_t timestamp);
 
 #endif
