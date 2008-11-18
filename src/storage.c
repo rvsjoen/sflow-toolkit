@@ -23,7 +23,7 @@ void storage_store_conv_ethernet(conv_key_ethernet_t* key, conv_ethernet_t* conv
 	char* query;
 	char a[16];
 	num_to_ip(agent, a);
-	asprintf(&query, "INSERT INTO conv_ethernet timestamp,agent,input_if,output_if,src,dst,bytes,frames VALUES (%u, '%s', %u, %u, '%s', '%s', %u, %u);", 
+	asprintf(&query, "INSERT INTO conv_ethernet (timestamp,agent,input_if,output_if,src,dst,bytes,frames) VALUES (%u, '%s', %u, %u, '%s', '%s', %u, %u)", 
 			timestamp,
 			a,
 			key->sflow_input_if,
@@ -45,7 +45,7 @@ void storage_store_conv_ip(conv_key_ip_t* key, conv_ip_t* conv, uint32_t agent, 
 	num_to_ip(agent, a);
 	num_to_ip(key->src, src);
 	num_to_ip(key->dst, dst);
-	asprintf(&query, "INSERT INTO conv_ip timestamp,agent,input_if,output_if,src,dst,bytes,packets VALUES (%u, '%s', %u, %u, '%s', '%s', %u, %u);", 
+	asprintf(&query, "INSERT INTO conv_ip (timestamp,agent,input_if,output_if,src,dst,bytes,packets) VALUES (%u, '%s', %u, %u, '%s', '%s', %u, %u)", 
 			timestamp,
 			a,
 			key->sflow_input_if,
@@ -67,7 +67,7 @@ void storage_store_conv_tcp(conv_key_tcp_t* key, conv_tcp_t* conv, uint32_t agen
 	num_to_ip(agent, a);
 	num_to_ip(key->src, src);
 	num_to_ip(key->dst, dst);
-	asprintf(&query, "INSERT INTO conv_tcp timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,segments VALUES (%u, '%s', %u, %u, '%s', %u,'%s',%u, %u, %u);",
+	asprintf(&query, "INSERT INTO conv_tcp (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,segments) VALUES (%u, '%s', %u, %u, '%s', %u,'%s',%u, %u, %u)",
 			timestamp,
 			a,
 			key->sflow_input_if,
@@ -91,7 +91,7 @@ void storage_store_conv_udp(conv_key_udp_t* key, conv_udp_t* conv, uint32_t agen
 	num_to_ip(agent, a);
 	num_to_ip(key->src, src);
 	num_to_ip(key->dst, dst);
-	asprintf(&query, "INSERT INTO conv_udp timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,segments VALUES (%u, '%s', %u, %u, '%s', %u,'%s',%u, %u, %u);",
+	asprintf(&query, "INSERT INTO conv_udp (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,segments) VALUES (%u, '%s', %u, %u, '%s', %u,'%s',%u, %u, %u)",
 			timestamp,
 			a,
 			key->sflow_input_if,

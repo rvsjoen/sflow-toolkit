@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS conv_udp;
 CREATE TABLE conv_ethernet(
 	id 			INTEGER NOT NULL AUTO_INCREMENT,
 	timestamp 	INTEGER,
-	agent 		INTEGER,
+	agent 		VARCHAR(16),
 	input_if 	INTEGER,
 	output_if 	INTEGER,
 	src 		VARCHAR(18),
@@ -19,7 +19,7 @@ CREATE TABLE conv_ethernet(
 CREATE TABLE conv_ip(
 	id 			INTEGER NOT NULL AUTO_INCREMENT,
 	timestamp 	INTEGER,
-	agent 		INTEGER,
+	agent 		VARCHAR(16),
 	input_if 	INTEGER,
 	output_if 	INTEGER,
 	src 		VARCHAR(16),
@@ -32,7 +32,7 @@ CREATE TABLE conv_ip(
 CREATE TABLE conv_tcp(
 	id 			INTEGER NOT NULL AUTO_INCREMENT,
 	timestamp 	INTEGER,
-	agent 		INTEGER,
+	agent 		VARCHAR(16),
 	input_if 	INTEGER,
 	output_if 	INTEGER,
 	src 		VARCHAR(16),
@@ -47,7 +47,7 @@ CREATE TABLE conv_tcp(
 CREATE TABLE conv_udp(
 	id 			INTEGER NOT NULL AUTO_INCREMENT,
 	timestamp 	INTEGER,
-	agent 		INTEGER,
+	agent 		VARCHAR(16),
 	input_if 	INTEGER,
 	output_if 	INTEGER,
 	src 		VARCHAR(16),
