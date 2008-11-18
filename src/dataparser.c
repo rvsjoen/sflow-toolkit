@@ -11,6 +11,10 @@ uint32_t cnt_ip;
 uint32_t cnt_tcp;
 uint32_t cnt_udp;
 
+void process_file_cntr(const char* filename, uint32_t agent, uint32_t timestamp){
+	logmsg(LOGLEVEL_DEBUG, "PARSING COUNTER FILE");
+}
+
 void process_file_flow(const char* filename, uint32_t agent, uint32_t timestamp){
 
 	UNUSED_ARGUMENT(agent);

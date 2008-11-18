@@ -18,7 +18,7 @@
 typedef struct _msg {
 	uint32_t agent;
 	uint32_t timestamp;
-	SFSample_t type;
+	uint32_t type;
 	char filename[256];
 } msg_t;
 

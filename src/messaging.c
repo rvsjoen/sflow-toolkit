@@ -42,26 +42,36 @@ void destroy_msg_queue(mqd_t q, char* qname){
 void send_msg(mqd_t q, msg_t* m){
 	char msg[MSG_SIZE];
 
-	// Wait for 100 nano-seconds and then just move on (in case stprocessd dies)
+	// Wait for 100 nano-seconds and then just move on (in case stprocessd dies, remove when sure this shit works)
 	struct timespec t;
 	t.tv_sec = 0;
 	t.tv_nsec= 100;
 
-	sprintf(msg, "%u %u %s %u", m->agent, m->timestamp, m->filename, m->type);
+	memset(msg, 0, MSG_SIZE*sizeof(char));
+	sprintf(msg, "%u %u %s %i", m->agent, m->timestamp, m->filename, m->type);
 	logmsg(LOGLEVEL_DEBUG, "Sending message: %s", msg);
+
 	if(mq_timedsend(q, msg, strlen(msg), 0, &t) == -1)
 		logmsg(LOGLEVEL_ERROR, "msgqueue: %s", strerror(errno));
 }
 
 void recv_msg(mqd_t q, msg_t* m){
-	char msg[8192];
-	if(mq_receive(q, msg, 8192, 0) == -1){
+	char msg[MSG_SIZE];
+	int len;
+	len = mq_receive(q, msg, MSG_SIZE, 0);
+
+	if(len == -1){
 		logmsg(LOGLEVEL_ERROR, "msgqueue: %s", strerror(errno));
 	} else {
+
+		// Make sure there is a null terminator here
+		msg[len] = '\0';
+		logmsg(LOGLEVEL_DEBUG, "Received message: %s", msg);
+
 		char filename[256];
 		uint32_t agent;
 		uint32_t timestamp;
-		SFSample_t type;
+		uint32_t type;
 		sscanf(msg, "%u %u %s %u", &agent, &timestamp, filename, &type);
 		m->agent = agent;
 		m->type = type;

@@ -136,8 +136,8 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 			// If we had a previous file, close it and pass it on to the processing daemon
 			if(a->fd_flow != NULL){
 				fclose(a->fd_flow);
-
 				msg_t m;
+				memset(&m, 0, sizeof(msg_t));
 				m.agent = a->agent;
 				m.type = SFTYPE_FLOW;
 				m.timestamp = ((uint32_t)s->timestamp/60)-1;
@@ -179,15 +179,16 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 			createFolder(filename);
 			sprintf(filename+strlen(filename), "samples_cntr.dat");
 
-			if(a->fd_cntr != NULL)
+			if(a->fd_cntr != NULL){
 				fclose(a->fd_cntr);
-
 				msg_t m;	
+				memset(&m, 0, sizeof(msg_t));
 				m.agent = a->agent;
 				m.type = SFTYPE_CNTR;
 				m.timestamp = ((uint32_t)s->timestamp/60)-1;
 				strncpy(m.filename, a->fn_cntr, 256);
 				send_msg(queue, &m);
+			}
 
 			FILE* f = NULL;
 			if((f=fopen(filename, "a")) == NULL){
