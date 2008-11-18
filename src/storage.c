@@ -33,6 +33,7 @@ void storage_store_conv_ethernet(conv_key_ethernet_t* key, conv_ethernet_t* conv
 			conv->bytes, 
 			conv->frames
 			);
+	mysql_query(&db, query);
 //	logmsg(LOGLEVEL_DEBUG, "%s", query);
 }
 
@@ -54,6 +55,7 @@ void storage_store_conv_ip(conv_key_ip_t* key, conv_ip_t* conv, uint32_t agent, 
 			conv->bytes,
 			conv->packets
 			);
+	mysql_query(&db, query);
 //	logmsg(LOGLEVEL_DEBUG, "%s", query);
 }
 
@@ -77,6 +79,7 @@ void storage_store_conv_tcp(conv_key_tcp_t* key, conv_tcp_t* conv, uint32_t agen
 			conv->bytes,
 			conv->segments
 			);
+	mysql_query(&db, query);
 //	logmsg(LOGLEVEL_DEBUG, "%s", query);
 }
 
@@ -100,5 +103,6 @@ void storage_store_conv_udp(conv_key_udp_t* key, conv_udp_t* conv, uint32_t agen
 			conv->bytes,
 			conv->segments
 			);
+	mysql_query(&db, query);
 //	logmsg(LOGLEVEL_DEBUG, "%s", query);
 }
