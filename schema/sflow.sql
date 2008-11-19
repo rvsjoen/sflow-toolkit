@@ -58,3 +58,9 @@ CREATE TABLE conv_udp(
 	segments	INTEGER,
 	PRIMARY KEY(id)
 );
+
+CREATE TABLE counters (
+	id			INTEGER NOT NULL AUTO_INCREMENT,
+	timestamp 	INTEGER,
+	agent 		VARCHAR(16),
+);

@@ -12,7 +12,16 @@ uint32_t cnt_tcp;
 uint32_t cnt_udp;
 
 void process_file_cntr(const char* filename, uint32_t agent, uint32_t timestamp){
-	logmsg(LOGLEVEL_DEBUG, "PARSING COUNTER FILE");
+	FILE* fd = NULL;
+	if((fd = fopen(filename, "r"))){
+		SFCntrSample s;
+		while(fread(&s, sizeof(SFCntrSample), 1, fd)){
+			storage_store_cntr(&s);
+		}
+		fclose(fd);
+	} else {
+		logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
+	}
 }
 
 void process_file_flow(const char* filename, uint32_t agent, uint32_t timestamp){

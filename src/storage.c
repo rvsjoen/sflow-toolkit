@@ -106,3 +106,19 @@ void storage_store_conv_udp(conv_key_udp_t* key, conv_udp_t* conv, uint32_t agen
 	mysql_query(&db, query);
 //	logmsg(LOGLEVEL_DEBUG, "%s", query);
 }
+
+void storage_store_cntr(SFCntrSample* s){
+	// Remember sflow_input_if and sflow_output_if
+	char* query;
+	char a[16];
+	num_to_ip(s->agent_address, a);
+	asprintf(&query, 
+			"INSERT INTO counters \
+			(timestamp,agent) \
+			VALUES (%u, '%s')", 
+			(uint32_t)s->timestamp,
+			a
+			);
+//	mysql_query(&db, query);
+	logmsg(LOGLEVEL_DEBUG, "%s", query);
+}
