@@ -1,4 +1,4 @@
-bin_SCRIPTS = stcleanup stxmlrpcd stexport
+bin_SCRIPTS = stcleanup stxmlrpcd stexport stconvert
 
 install-exec-hook:
 	python setup.py install 

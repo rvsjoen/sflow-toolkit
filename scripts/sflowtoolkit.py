@@ -18,6 +18,9 @@ date_string = "%Y.%m.%d %H:%M"
 flow_pattern = "17L128s"
 cntr_pattern = "8LQ2LQ6LQ6L13L"
 
+RX = 0
+TX = 1
+
 """
 This is a dictionary containing the indexes to the valid fields in a generic 
 counter sample
@@ -149,8 +152,6 @@ def check_index_flow(index, buf, v):
 	else:
 		return False
 
-RX = 0
-TX = 1
 def check_index_flow_tmp(index, buf, v):
         index = int(index)
         direction = None
