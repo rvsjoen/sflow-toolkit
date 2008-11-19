@@ -108,17 +108,45 @@ void storage_store_conv_udp(conv_key_udp_t* key, conv_udp_t* conv, uint32_t agen
 }
 
 void storage_store_cntr(SFCntrSample* s){
-	// Remember sflow_input_if and sflow_output_if
 	char* query;
 	char a[16];
 	num_to_ip(s->agent_address, a);
+
+
+//	printf("%u, '%s', %u, %u, %llu\n", (uint32_t)s->timestamp,a,s->counter_generic_if_index,s->counter_generic_if_type,s->counter_generic_if_speed);
+//	printInHex(s, sizeof(SFCntrSample));
+
 	asprintf(&query, 
-			"INSERT INTO counters \
-			(timestamp,agent) \
-			VALUES (%u, '%s')", 
+			"INSERT INTO counters (\
+			timestamp,agent,if_index,if_type,if_speed,if_direction,if_if_status,\
+			if_in_octets,if_in_ucast_pkts,if_in_mcast_pkts,if_in_bcast_pkts,\
+			if_in_discards,if_in_errors,if_in_unknown_proto,if_out_octets,\
+			if_out_ucast_pkts,if_out_mcast_pkts,if_out_bcast_pkts,if_out_discards,\
+			if_out_errors,if_promisc)\ 
+			VALUES (%u, '%s', %u, %u, %llu, %u, %u, %llu, %u, %u, %u, %u, %u, %u, \
+					%llu, %u, %u, %u, %u, %u, %u)", 
 			(uint32_t)s->timestamp,
-			a
+			a,
+			s->counter_generic_if_index,
+			s->counter_generic_if_type,
+			s->counter_generic_if_speed,
+			s->counter_generic_if_direction,
+			s->counter_generic_if_if_status,
+			s->counter_generic_if_in_octets,
+			s->counter_generic_if_in_ucast_pkts,
+			s->counter_generic_if_in_mcast_pkts,
+			s->counter_generic_if_in_bcast_pkts,
+			s->counter_generic_if_in_discards,
+			s->counter_generic_if_in_errors,
+			s->counter_generic_if_in_unknown_proto,
+			s->counter_generic_if_out_octets,
+			s->counter_generic_if_out_ucast_pkts,
+			s->counter_generic_if_out_mcast_pkts,
+			s->counter_generic_if_out_bcast_pkts,
+			s->counter_generic_if_out_discards,
+			s->counter_generic_if_out_errors,
+			s->counter_generic_if_promisc
 			);
-//	mysql_query(&db, query);
-	logmsg(LOGLEVEL_DEBUG, "%s", query);
+	mysql_query(&db, query);
+//	logmsg(LOGLEVEL_DEBUG, "%s", query);
 }
