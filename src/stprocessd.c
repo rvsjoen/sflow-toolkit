@@ -32,7 +32,6 @@ void parse_commandline(int argc, char** argv){
 }
 
 void process_file(const msg_t* m){
-//	process_file_flow("/home/sjoen/work/git/sftoolkit/src/samples_flow.dat", 177354499, 12345);
 	if(m->type == SFTYPE_FLOW){
 		logmsg(LOGLEVEL_INFO, "Processing flow file (%s)", m->filename);
 		process_file_flow(m->filename, m->agent, m->timestamp);
