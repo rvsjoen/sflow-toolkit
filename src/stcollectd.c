@@ -63,14 +63,14 @@ bqueue_t* buffers_flush_cntr 	= NULL;
 bqueue_t* buffers_flush_flow 	= NULL;
 
 agentlist_t* agents				= NULL;
-char** validagents				= NULL;
 cmph_t *h 						= NULL;
+char** validagents				= NULL;
 uint32_t num_agents 			= 0;
 
-uint32_t cnt 			= 0;
-uint32_t cnt_total_f  	= 0;
-uint32_t cnt_total_c 	= 0;
-uint32_t bytes_total	= 0;
+uint64_t total_datagrams		= 0;
+uint64_t total_samples_flow		= 0;
+uint64_t total_samples_cntr		= 0;
+uint64_t total_bytes_written	= 0;
 
 uint32_t sock_fd 		= 0;
 uint32_t time_start 	= 0;
@@ -306,16 +306,18 @@ void* writeBufferToDisk(){
  */
 void* collect(){
 	sock_fd = createAndBindSocket();
-	logmsg(LOGLEVEL_DEBUG, "Waiting for packets...");
-	init_stats();
+
 	time_t t 	= 0; // This is when we start the collecting thread
 	time_start = time(NULL);
-	update_realtime_stats();
+
+	stats_init_stcollectd();
+	stats_update_stcollectd_realtime(time_start, num_agents, total_datagrams, total_samples_flow, total_samples_cntr, total_bytes_written);
 
 	uint32_t flush_cnt = 0;
 	struct sockaddr addr;
 	socklen_t addr_len;
 
+	logmsg(LOGLEVEL_DEBUG, "Waiting for packets...");
 	while(!exit_collector_thread)
 	{
 
@@ -325,7 +327,7 @@ void* collect(){
 
 		addr_len = sizeof(struct sockaddr);
 		uint32_t bytes_received = recvfrom(sock_fd, &buf, RECEIVE_BUFFER_SIZE, 0, (struct sockaddr*)&addr, &addr_len);
-		cnt++;
+		total_datagrams++;
 		flush_cnt++;
 
 		if(t == 0) t = time_current;
@@ -336,8 +338,8 @@ void* collect(){
 		time_t d_t = time_current - t;
 
 		// Print a message every print_interval packets received
-		if(cnt%print_interval==0)
-			logmsg(LOGLEVEL_INFO, "Processed %u packets", cnt);
+		if(total_datagrams%print_interval==0)
+			logmsg(LOGLEVEL_INFO, "Processed %u packets", total_datagrams);
 
 		// We flush if the interval has expired or if one of the buffers are full
 		if(((unsigned int)d_t >= flush_interval) || buffer_cc_flow->count >= (buffer_size - MAX_DATAGRAM_SAMPLES) || buffer_cc_cntr->count >= (buffer_size - MAX_DATAGRAM_SAMPLES)){
@@ -346,12 +348,11 @@ void* collect(){
 				srate = (buffer_cc_flow->count+buffer_cc_cntr->count)/(double)d_t;
 
 			logmsg(LOGLEVEL_INFO, "%u seconds since last update, effective sampling rate: %.1f samples/sec", d_t, srate);
-
 			uint32_t bytes = (buffer_cc_cntr->count*sizeof(SFCntrSample)+buffer_cc_flow->count*sizeof(SFFlowSample));
-			bytes_total += bytes;
-			update_stats((int)srate, d_t, bytes);
+			total_bytes_written += bytes;
+			stats_update_stcollectd(d_t, num_agents, total_datagrams, total_samples_flow, total_samples_cntr, total_bytes_written);
 			flushLists();
-			update_realtime_stats();
+			stats_update_stcollectd_realtime(time_start, num_agents, total_datagrams, total_samples_flow, total_samples_cntr, total_bytes_written);
 			t = time_current;
 		}
 		time_end = time_current; // We stopped collecting here, used to calculate the total average sampling rate
@@ -381,7 +382,7 @@ void hook_exit(int signal){
 	time_t d_t = time_end - time_start;
 	logmsg(LOGLEVEL_INFO, "Ran for %u seconds", d_t);
 	logmsg(LOGLEVEL_INFO, "Total: %u packet(s), %u flow samples, %u counter samples, average sampling rate %.1f samples/sec", 
-			cnt, cnt_total_f, cnt_total_c, (cnt_total_f+cnt_total_c)/(double)(d_t));
+			total_datagrams, total_samples_flow, total_samples_cntr, (total_samples_flow+total_samples_cntr)/(double)(d_t));
 
 	agentlist_print_stats(agents);
 
@@ -479,10 +480,21 @@ void printConfig(){
 int main(int argc, char** argv){
 
 	initLogger();
-	parseConfigFile(DEFAULT_CONFIG_FILE);
+	parse_config_file(DEFAULT_CONFIG_FILE);
 	parseCommandLine(argc, argv);
 	if(strcmp(file_config, DEFAULT_CONFIG_FILE) != 0)
-		parseConfigFile(file_config);
+		parse_config_file(file_config);
+
+	// We parsed the configuration file, get the values we need
+	print_interval	= config_get_print_interval();
+	num_buffers		= config_get_num_buffers();
+	port 			= config_get_port();
+	flush_interval 	= config_get_flush_interval();
+	buffer_size		= config_get_buffer_size();
+	interface 		= config_get_interface();
+	cwd				= config_get_datadir();
+	validagents		= config_get_validagents();
+	num_agents		= config_get_num_agents();
 
 	printConfig();
 

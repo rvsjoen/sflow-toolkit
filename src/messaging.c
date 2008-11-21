@@ -17,7 +17,7 @@ mqd_t create_msg_queue(char* queue){
 	attr.mq_maxmsg = MSG_MAXMSGS;
 	attr.mq_msgsize = sizeof(msg_t);
 
-	mqd_t q = mq_open(queue, O_CREAT|O_WRONLY, 0700, &attr);
+	mqd_t q = mq_open(queue, O_CREAT|O_WRONLY, DEFFILEMODE, &attr);
 	if(q == -1)
 		logmsg(LOGLEVEL_ERROR, "msgqueue: %s", strerror(errno));
 	return q;
@@ -78,4 +78,11 @@ void recv_msg(mqd_t q, msg_t* m){
 		m->timestamp = timestamp;
 		strncpy(m->filename, filename, 256);
 	}
+}
+
+uint32_t msg_pending(mqd_t q){
+	struct mq_attr attr;
+	memset(&attr, 0, sizeof(struct mq_attr));
+	mq_getattr(q, &attr);
+	return attr.mq_curmsgs;
 }

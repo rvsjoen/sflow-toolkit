@@ -28,6 +28,7 @@ void destroy_msg_queue(mqd_t q, char* qname);
 void close_msg_queue(mqd_t queue);
 void send_msg(mqd_t q, msg_t* m);
 void recv_msg(mqd_t q, msg_t* m);
+uint32_t msg_pending(mqd_t q);
 
 #endif
 

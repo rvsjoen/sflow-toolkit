@@ -1,15 +1,16 @@
 #include "configparser.h"
 #include "logger.h"
 
-extern uint32_t print_interval;
-extern uint32_t num_buffers;
-extern uint32_t port;
-extern uint32_t flush_interval;
-extern uint32_t buffer_size;
-extern int32_t num_agents;
-extern char* interface;
-extern char** validagents;
-extern char* cwd;
+// Internal variables
+static uint32_t config_print_interval;
+static uint32_t config_num_buffers;
+static uint32_t config_port;
+static uint32_t config_flush_interval;
+static uint32_t config_buffer_size;
+static char* 	 config_interface;
+static char* 	 config_datadir;
+static char** 	 config_validagents;
+static uint32_t config_num_agents;
 
 bool is_value;
 bool is_list;
@@ -18,7 +19,7 @@ agent_node* agent_list;
 
 void get_agents(){
 	// First we just count the elements in the linked list to allocate some memory
-	int num = 0;
+	uint32_t num = 0;
 	agent_node* start = agent_list;
 	while(start != NULL){
 		num++;
@@ -26,13 +27,13 @@ void get_agents(){
 	}
 
 	// If we are re-reading the list free the old list first
-	if (validagents != NULL)
+	if (config_validagents != NULL)
 	{
-		int j;
-		for(j=0;j<num_agents;j++)
-			free(validagents[j]);
-		free(validagents);
-		validagents = NULL;
+		uint32_t j;
+		for(j=0;j<config_num_agents;j++)
+			free(config_validagents[j]);
+		free(config_validagents);
+		config_validagents = NULL;
 	}
 
 	char** result = NULL;
@@ -53,12 +54,12 @@ void get_agents(){
 		i++;
 	}
 
-	num_agents = num;
-	validagents = result;
+	// Update these values so the getters can get to the data
+	config_num_agents = num;
+	config_validagents = result;
 }
 
-void parse_event(const yaml_event_t ev)
-{
+void parse_event(const yaml_event_t ev){
 	yaml_event_type_t ev_type = ev.type;
 	switch(ev_type)
 	{
@@ -84,25 +85,25 @@ void parse_event(const yaml_event_t ev)
 			} else {
 				char* val = (char*) ev.data.scalar.value;
 				if(strcmp(key, CONFIG_KEY_FLUSH_INTERVAL)==0) {
-					flush_interval = atoi(val);
+					config_flush_interval = atoi(val);
 				} else if (strcmp(key, CONFIG_KEY_PRINT_INTERVAL) == 0) {
-					print_interval = atoi(val);
+					config_print_interval = atoi(val);
 				} else if (strcmp(key, CONFIG_KEY_INTERFACE) == 0){
-					if(interface != NULL)
-						free(interface);
-					interface = malloc(sizeof(char)*strlen(val)+1);
-					strncpy(interface, val, strlen(val));
+					if(config_interface != NULL)
+						free(config_interface);
+					config_interface = malloc(sizeof(char)*strlen(val)+1);
+					strncpy(config_interface, val, strlen(val));
 				} else if (strcmp(key, CONFIG_KEY_PORT) == 0) {
-					port = atoi(val);
+					config_port = atoi(val);
 				} else if (strcmp(key, CONFIG_KEY_DATA_DIR) == 0) {
-					if(cwd != NULL)
-						free(cwd);
-					cwd = malloc(sizeof(char)*strlen(val)+1);
-					strncpy(cwd, val, strlen(val));
+					if(config_datadir != NULL)
+						free(config_datadir);
+					config_datadir = malloc(sizeof(char)*strlen(val)+1);
+					strncpy(config_datadir, val, strlen(val));
 				} else if (strcmp(key, CONFIG_KEY_BUFFER_SIZE) == 0) {
-					buffer_size = atoi(val);
+					config_buffer_size = atoi(val);
 				} else if (strcmp(key, CONFIG_KEY_BUFFER_COUNT) == 0) {
-					num_buffers = atoi(val);
+					config_num_buffers = atoi(val);
 				} 
 				is_value = !is_value;
 			}
@@ -119,8 +120,7 @@ void parse_event(const yaml_event_t ev)
 	}
 }
 
-void parseConfigFile(char* filename)
-{
+void parse_config_file(char* filename){
 	agent_list = NULL;
 	is_list = false;
 	is_value = false;
@@ -154,4 +154,40 @@ void parseConfigFile(char* filename)
 	} else {
 		logmsg(LOGLEVEL_ERROR, "Error reading configuration file %s", filename);
 	}
+}
+
+char* config_get_datadir(){
+	return config_datadir;
+}
+
+char* config_get_interface(){
+	return config_interface;
+}
+
+uint32_t config_get_print_interval(){ 
+	return config_print_interval; 
+}
+
+uint32_t config_get_flush_interval(){ 
+	return config_flush_interval;
+}
+
+uint32_t config_get_buffer_size(){ 
+	return config_buffer_size; 
+}
+
+uint32_t config_get_num_buffers(){ 
+	return config_num_buffers; 
+}
+
+uint32_t config_get_num_agents(){ 
+	return config_num_agents; 
+}
+
+uint32_t config_get_port(){ 
+	return config_port; 
+}
+
+char** config_get_validagents(){
+	return config_validagents;
 }

@@ -11,14 +11,19 @@
 #include <unistd.h>
 #include <getopt.h>
 
+#include "statistics.h"
 #include "messaging.h"
 #include "logger.h"
 #include "util.h"
 #include "dataparser.h"
+#include "configparser.h"
 #include "storage.h"
+
+#define DEFAULT_CONFIG_FILE     "/etc/stcollectd.conf"
 
 extern uint32_t log_level;
 extern bool daemonize;
+mqd_t queue;
 
 void parse_commandline(int argc, char** argv){
 	int opt;
@@ -43,11 +48,12 @@ void process_file(const msg_t* m){
 
 int main(int argc, char** argv){
 	parse_commandline(argc, argv);
+	parse_config_file(DEFAULT_CONFIG_FILE);
+
+	stats_init_stprocessd();
 
 	if(daemonize)
 		daemonize_me();
-
-	mqd_t queue;
 
 	storage_init();
 	queue = open_msg_queue(MSG_QUEUE_NAME);

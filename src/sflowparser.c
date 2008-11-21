@@ -5,18 +5,14 @@ extern char** validagents;
 extern agentlist_t* agents;
 extern buffer_t* buffer_cc_flow;
 extern buffer_t* buffer_cc_cntr;
-
-
 extern int32_t log_level;
-extern int32_t cnt_total_f;
-extern int32_t cnt_total_c;
+extern uint64_t total_samples_flow;
+extern uint64_t total_samples_cntr;
 extern SFFlowSample** sfbuf;
 extern SFCntrSample** scbuf;
 extern uint32_t* scnum;
 extern uint32_t* sfnum;
 extern uint32_t buffer_current_collect;
-
-
 
 bool print_parse = false;
 
@@ -317,7 +313,7 @@ void parseSample(SFDatagram* datagram, SFSample* s_tmpl){
 		SFFlowSample* s = &current_buffer[buffer_cc_flow->count];
 		buffer_cc_flow->count++;
 
-		cnt_total_f++;
+		total_samples_flow++;
 		s->timestamp		= s_tmpl->timestamp;
 		s->agent_address	= s_tmpl->agent_address;
 		s->sub_agent_id		= s_tmpl->sub_agent_id;
@@ -332,7 +328,7 @@ void parseSample(SFDatagram* datagram, SFSample* s_tmpl){
 		SFCntrSample* s = &current_buffer[buffer_cc_cntr->count];
 		buffer_cc_cntr->count++;
 
-		cnt_total_c++; 
+		total_samples_cntr++; 
 		s->timestamp		= s_tmpl->timestamp;
 		s->agent_address	= s_tmpl->agent_address;
 		s->sub_agent_id		= s_tmpl->sub_agent_id;
@@ -361,8 +357,7 @@ void printDatagramHeader(const SFLSample_datagram_hdr* hdr){
 		  );
 }
 
-void parseDatagram(uint8_t* data, uint32_t n, struct sockaddr_in* addr)
-{
+void parseDatagram(uint8_t* data, uint32_t n, struct sockaddr_in* addr){
 	// Initialize the pointers in the SFDatagram structure
 	// Also set the timestamp this packet was received
 	SFDatagram datagram;
