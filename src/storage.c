@@ -35,6 +35,7 @@ void storage_store_conv_ethernet(conv_key_ethernet_t* key, conv_ethernet_t* conv
 			);
 	mysql_query(&db, query);
 //	logmsg(LOGLEVEL_DEBUG, "%s", query);
+	free(query);
 }
 
 void storage_store_conv_ip(conv_key_ip_t* key, conv_ip_t* conv, uint32_t agent, uint32_t timestamp){
@@ -57,6 +58,7 @@ void storage_store_conv_ip(conv_key_ip_t* key, conv_ip_t* conv, uint32_t agent, 
 			);
 	mysql_query(&db, query);
 //	logmsg(LOGLEVEL_DEBUG, "%s", query);
+	free(query);
 }
 
 void storage_store_conv_tcp(conv_key_tcp_t* key, conv_tcp_t* conv, uint32_t agent, uint32_t timestamp){
@@ -81,6 +83,7 @@ void storage_store_conv_tcp(conv_key_tcp_t* key, conv_tcp_t* conv, uint32_t agen
 			);
 	mysql_query(&db, query);
 //	logmsg(LOGLEVEL_DEBUG, "%s", query);
+	free(query);
 }
 
 void storage_store_conv_udp(conv_key_udp_t* key, conv_udp_t* conv, uint32_t agent, uint32_t timestamp){
@@ -105,16 +108,13 @@ void storage_store_conv_udp(conv_key_udp_t* key, conv_udp_t* conv, uint32_t agen
 			);
 	mysql_query(&db, query);
 //	logmsg(LOGLEVEL_DEBUG, "%s", query);
+	free(query);
 }
 
 void storage_store_cntr(SFCntrSample* s){
 	char* query;
 	char a[16];
 	num_to_ip(s->agent_address, a);
-
-
-//	printf("%u, '%s', %u, %u, %llu\n", (uint32_t)s->timestamp,a,s->counter_generic_if_index,s->counter_generic_if_type,s->counter_generic_if_speed);
-//	printInHex(s, sizeof(SFCntrSample));
 
 	asprintf(&query, 
 			"INSERT INTO counters (\
@@ -149,4 +149,5 @@ void storage_store_cntr(SFCntrSample* s){
 			);
 	mysql_query(&db, query);
 //	logmsg(LOGLEVEL_DEBUG, "%s", query);
+	free(query);
 }
