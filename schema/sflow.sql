@@ -5,7 +5,6 @@ DROP TABLE IF EXISTS conv_udp;
 DROP TABLE IF EXISTS counters;
 
 CREATE TABLE conv_ethernet(
-	id 			SERIAL,
 	timestamp 	INTEGER UNSIGNED,
 	agent 		VARCHAR(16),
 	input_if 	INTEGER UNSIGNED,
@@ -14,11 +13,10 @@ CREATE TABLE conv_ethernet(
 	dst 		VARCHAR(18),
 	bytes 		INTEGER UNSIGNED,
 	frames 		INTEGER UNSIGNED,
-	PRIMARY KEY(id)
-);
+	CONSTRAINT conv_ethernet_pk PRIMARY KEY (timestamp,agent,input_if,output_if,src,dst)
+) ENGINE=innodb;
 
 CREATE TABLE conv_ip(
-	id 			SERIAL,
 	timestamp 	INTEGER UNSIGNED,
 	agent 		VARCHAR(16),
 	input_if 	INTEGER UNSIGNED,
@@ -27,11 +25,10 @@ CREATE TABLE conv_ip(
 	dst 		VARCHAR(16),
 	bytes 		INTEGER UNSIGNED,
 	packets		INTEGER UNSIGNED,
-	PRIMARY KEY(id)
-);
+	CONSTRAINT conv_ip_pk PRIMARY KEY (timestamp,agent,input_if,output_if,src,dst)
+) ENGINE=innodb;
 
 CREATE TABLE conv_tcp(
-	id 			SERIAL,
 	timestamp 	INTEGER UNSIGNED,
 	agent 		VARCHAR(16),
 	input_if 	INTEGER UNSIGNED,
@@ -42,8 +39,8 @@ CREATE TABLE conv_tcp(
 	dport		INTEGER UNSIGNED,
 	bytes 		INTEGER UNSIGNED,
 	segments	INTEGER UNSIGNED,
-	PRIMARY KEY(id)
-);
+	CONSTRAINT conv_tcp_pk PRIMARY KEY (timestamp,agent,input_if,output_if,src,sport,dst,dport)
+) ENGINE=innodb;
 
 CREATE TABLE conv_udp(
 	id 			SERIAL,
@@ -57,11 +54,10 @@ CREATE TABLE conv_udp(
 	dport		INTEGER UNSIGNED,
 	bytes 		INTEGER UNSIGNED,
 	segments	INTEGER UNSIGNED,
-	PRIMARY KEY(id)
-);
+	CONSTRAINT conv_udp_pk PRIMARY KEY (timestamp,agent,input_if,output_if,src,sport,dst,dport)
+) ENGINE=innodb;
 
 CREATE TABLE counters (
-	id						SERIAL,
 	timestamp				INTEGER UNSIGNED,
 	agent					VARCHAR(16),
 	if_index				INTEGER UNSIGNED,
@@ -83,5 +79,5 @@ CREATE TABLE counters (
 	if_out_discards 		INTEGER UNSIGNED,
 	if_out_errors 			INTEGER UNSIGNED,
 	if_promisc				INTEGER UNSIGNED,
-	PRIMARY KEY(id)
-);
+	CONSTRAINT counters_pk PRIMARY KEY (timestamp,agent,if_index)
+) ENGINE=innodb;
