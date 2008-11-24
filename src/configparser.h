@@ -15,6 +15,7 @@
 #define CONFIG_KEY_AGENTS			"agents"
 #define CONFIG_KEY_BUFFER_SIZE		"buffer size"
 #define CONFIG_KEY_BUFFER_COUNT		"buffer count"
+#define CONFIG_KEY_STATS_INTERVAL	"stats interval"
 
 typedef struct _agent_node {
 	char agent[16];
@@ -32,6 +33,7 @@ uint32_t config_get_buffer_size();
 uint32_t config_get_num_buffers();
 uint32_t config_get_num_agents();
 uint32_t config_get_port();
+uint32_t config_get_stats_interval();
 char** config_get_validagents();
 
 #endif

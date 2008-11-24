@@ -71,7 +71,7 @@ void stats_init_stcollectd(){
 				"DS:agents:GAUGE:600:0:U",
 		        "DS:cpu:GAUGE:600:0:100",
 		        "DS:mem:GAUGE:600:0:U",
-		        "DS:write:GAUGE:600:0:U",
+		        "DS:write:COUNTER:600:0:U",
 		        "RRA:AVERAGE:0.5:1:720",
 		        "RRA:AVERAGE:0.5:6:720",
 		        "RRA:AVERAGE:0.5:120:720",
@@ -133,6 +133,7 @@ void stats_update_stprocessd(uint32_t seconds, mqd_t queue){
 				vmem,
 				msg_pending(queue)
 				);
+		logmsg(LOGLEVEL_DEBUG, tmp);
 		char *updateparams[] = {
 			"rrdupdate",
 			stats_stcollectd_file,

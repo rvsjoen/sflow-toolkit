@@ -11,6 +11,7 @@ static char* 	 config_interface;
 static char* 	 config_datadir;
 static char** 	 config_validagents;
 static uint32_t config_num_agents;
+static uint32_t config_stats_interval;
 
 bool is_value;
 bool is_list;
@@ -104,6 +105,8 @@ void parse_event(const yaml_event_t ev){
 					config_buffer_size = atoi(val);
 				} else if (strcmp(key, CONFIG_KEY_BUFFER_COUNT) == 0) {
 					config_num_buffers = atoi(val);
+				} else if (strcmp(key, CONFIG_KEY_STATS_INTERVAL) == 0) {
+					config_stats_interval = atoi(val);
 				} 
 				is_value = !is_value;
 			}
@@ -190,4 +193,8 @@ uint32_t config_get_port(){
 
 char** config_get_validagents(){
 	return config_validagents;
+}
+
+uint32_t config_get_stats_interval(){
+	return config_stats_interval;
 }

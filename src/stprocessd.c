@@ -10,6 +10,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <time.h>
 
 #include "statistics.h"
 #include "messaging.h"
@@ -55,11 +56,16 @@ int main(int argc, char** argv){
 	if(daemonize)
 		daemonize_me();
 
+	time_t start = time(NULL);
+
 	storage_init();
 	queue = open_msg_queue(MSG_QUEUE_NAME);
 
 	msg_t m;
 	while(true){
+		time_t now = time(NULL);
+		if((now-start)%config_get_stats_interval() == 0)
+			stats_update_stprocessd(now-start, queue);
 		memset(&m, 0, sizeof(msg_t));
 		recv_msg(queue, &m);
 		process_file(&m);
