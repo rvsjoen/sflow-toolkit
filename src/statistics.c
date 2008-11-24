@@ -195,7 +195,10 @@ void stats_update_stcollectd(uint32_t seconds, uint32_t num_agents, uint64_t tot
 				((stime+utime)*100)/(hz*seconds), 
 				vmem, 
 				total_bytes_written
-				);
+			   );
+
+		logmsg(LOGLEVEL_DEBUG, tmp);
+
 		char *updateparams[] = {
 			"rrdupdate",
 			stats_stcollectd_file,
