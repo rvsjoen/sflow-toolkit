@@ -12,6 +12,8 @@ uint32_t cnt_tcp;
 uint32_t cnt_udp;
 
 void process_file_cntr(const char* filename, uint32_t agent, uint32_t timestamp){
+	UNUSED_ARGUMENT(agent);
+	UNUSED_ARGUMENT(timestamp);
 	FILE* fd = NULL;
 	if((fd = fopen(filename, "r"))){
 		SFCntrSample s;
@@ -192,19 +194,25 @@ void conv_update_ethernet(conv_ethernet_t* c, const uint8_t* pkt, SFFlowSample* 
 
 void conv_update_ip(conv_ip_t* c, const uint8_t* pkt, SFFlowSample* s){
 	c->packets++;
-	UNUSED_ARGUMENT(pkt);
+	uint8_t* p = strip_ethernet(pkt);
+	p += sizeof(uint8_t)*2;
+	c->bytes += ntohs(*((uint16_t*)p));
 	UNUSED_ARGUMENT(s);
 }
 
 void conv_update_tcp(conv_tcp_t* c, const uint8_t* pkt, SFFlowSample* s){
 	c->segments++;
-	UNUSED_ARGUMENT(pkt);
+	uint8_t* p = strip_ethernet(pkt);
+	p+= sizeof(uint8_t)*2;
+	c->bytes += ntohs(*((uint16_t*)p));
 	UNUSED_ARGUMENT(s);
 }
 
 void conv_update_udp(conv_udp_t* c, const uint8_t* pkt, SFFlowSample* s){
 	c->segments++;
-	UNUSED_ARGUMENT(pkt);
+	uint8_t* p = strip_ip(strip_ethernet(pkt));
+	p += sizeof(uint8_t)*4;
+	c->bytes += ntohs(*((uint16_t*)p));
 	UNUSED_ARGUMENT(s);
 }
 
