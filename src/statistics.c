@@ -133,7 +133,8 @@ void stats_update_stprocessd(uint32_t seconds, mqd_t queue){
 				vmem,
 				msg_pending(queue)
 				);
-		logmsg(LOGLEVEL_DEBUG, tmp);
+
+		logmsg(LOGLEVEL_DEBUG, "Updating statistics: %s", tmp);
 		char *updateparams[] = {
 			"rrdupdate",
 			stats_stcollectd_file,
@@ -198,7 +199,7 @@ void stats_update_stcollectd(uint32_t seconds, uint32_t num_agents, uint64_t tot
 				total_bytes_written
 			   );
 
-		logmsg(LOGLEVEL_DEBUG, tmp);
+		logmsg(LOGLEVEL_DEBUG, "Updating statistics: %s", tmp);
 
 		char *updateparams[] = {
 			"rrdupdate",
