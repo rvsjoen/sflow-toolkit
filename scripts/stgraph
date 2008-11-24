@@ -1,120 +1,180 @@
 #!/bin/bash
 
 # The directory where the output images should be put
-DIR=/tmp/sflow/statistics
+DIR=/netsw/sflow
 
 # The full path to the rrdtool executable
 RRDTOOL=/usr/bin/rrdtool
 
 # The full path to the database
-DB=$DIR/../statistics.rrd
+DB_STCOLLECTD=$DIR/statistics_stcollectd.rrd
+DB_STPROCESSD=$DIR/statistics_stprocessd.rrd
+
+FULL=775
+HALF=337
+
+COLOR1=#FF0000
+COLOR2=#00FF00
+COLOR3=#0000FF
+COLOR4=#FF00FF
 
 ### CHANGES ABOVE THIS LINE ###
 
-TITLE="sFlow samples"
-LEGEND="samples/sec"
+$RRDTOOL graph $DIR/statistics/samples_1h.png \
+	-h 150 -w $FULL	\
+	--vertical-label "samples/sec" \
+	--title "Sampling rate" \
+	--start end-1h \
+	DEF:samples=$DB_STCOLLECTD:samples:AVERAGE LINE1:samples$COLOR1:"Samples" \
+	DEF:datagrams=$DB_STCOLLECTD:datagrams:AVERAGE LINE1:datagrams$COLOR2:"Datagrams" \
+	DEF:samples_flow=$DB_STCOLLECTD:samples_flow:AVERAGE LINE1:samples_flow$COLOR3:"Flow Samples" \
+	DEF:samples_cntr=$DB_STCOLLECTD:samples_cntr:AVERAGE LINE1:samples_cntr$COLOR4:"Counter Samples"	
 
-$RRDTOOL graph $DIR/samples_1h.png 					\
-	-h 200 -w 775 						\
-	--vertical-label $LEGEND 				\
-	--title "$TITLE (last hour)" 				\
-	--start end-1h 						\
-	DEF:samples=$DB:samples:AVERAGE LINE1:samples#FF0000
+$RRDTOOL graph $DIR/statistics/samples_6h.png \
+	-h 100 -w $FULL	\
+	--vertical-label "samples/sec" \
+	--title "Sampling rate" \
+	--start end-6h \
+	DEF:samples=$DB_STCOLLECTD:samples:AVERAGE LINE1:samples$COLOR1:"Samples" \
+	DEF:datagrams=$DB_STCOLLECTD:datagrams:AVERAGE LINE1:datagrams$COLOR2:"Datagrams" \
+	DEF:samples_flow=$DB_STCOLLECTD:samples_flow:AVERAGE LINE1:samples_flow$COLOR3:"Flow Samples" \
+	DEF:samples_cntr=$DB_STCOLLECTD:samples_cntr:AVERAGE LINE1:samples_cntr$COLOR4:"Counter Samples"	
 
+$RRDTOOL graph $DIR/statistics/samples_24h.png \
+	-h 100 -w $FULL	\
+	--vertical-label "samples/sec" \
+	--title "Sampling rate" \
+	--start end-6h \
+	DEF:samples=$DB_STCOLLECTD:samples:AVERAGE LINE1:samples$COLOR1:"Samples" \
+	DEF:datagrams=$DB_STCOLLECTD:datagrams:AVERAGE LINE1:datagrams$COLOR2:"Datagrams" \
+	DEF:samples_flow=$DB_STCOLLECTD:samples_flow:AVERAGE LINE1:samples_flow$COLOR3:"Flow Samples" \
+	DEF:samples_cntr=$DB_STCOLLECTD:samples_cntr:AVERAGE LINE1:samples_cntr$COLOR4:"Counter Samples"	
 
-$RRDTOOL graph $DIR/samples_6h.png 					\
-	-h 200 							\
-	-w 775 							\
-	--vertical-label $LEGEND 				\
-	--title "$TITLE (last 6 hours)" 			\
-	--start end-6h 						\
-	DEF:samples=$DB:samples:AVERAGE LINE1:samples#FF0000
+$RRDTOOL graph $DIR/statistics/samples_1w.png \
+	-h 50 -w $HALF	\
+	--vertical-label "samples/sec" \
+	--title "Sampling rate" \
+	--start end-1w \
+	DEF:samples=$DB_STCOLLECTD:samples:AVERAGE LINE1:samples$COLOR1:"Samples" \
+	DEF:datagrams=$DB_STCOLLECTD:datagrams:AVERAGE LINE1:datagrams$COLOR2:"Datagrams" \
+	DEF:samples_flow=$DB_STCOLLECTD:samples_flow:AVERAGE LINE1:samples_flow$COLOR3:"Flow Samples" \
+	DEF:samples_cntr=$DB_STCOLLECTD:samples_cntr:AVERAGE LINE1:samples_cntr$COLOR4:"Counter Samples"	
 
-$RRDTOOL graph $DIR/samples_24h.png 					\
-	-w 775 							\
-	--vertical-label $LEGEND 				\
-	--title "$TITLE (last 24h)" 				\
-	--start end-24h 					\
-	DEF:samples=$DB:samples:AVERAGE LINE1:samples#FF0000
+$RRDTOOL graph $DIR/statistics/samples_1m.png \
+	-h 50 -w $HALF	\
+	--vertical-label "samples/sec" \
+	--title "Sampling rate" \
+	--start end-1m \
+	DEF:samples=$DB_STCOLLECTD:samples:AVERAGE LINE1:samples$COLOR1:"Samples" \
+	DEF:datagrams=$DB_STCOLLECTD:datagrams:AVERAGE LINE1:datagrams$COLOR2:"Datagrams" \
+	DEF:samples_flow=$DB_STCOLLECTD:samples_flow:AVERAGE LINE1:samples_flow$COLOR3:"Flow Samples" \
+	DEF:samples_cntr=$DB_STCOLLECTD:samples_cntr:AVERAGE LINE1:samples_cntr$COLOR4:"Counter Samples"	
 
-$RRDTOOL graph $DIR/samples_1w.png 					\
-	-w 337 							\
-	--vertical-label $LEGEND 				\
-	--title "$TITLE (last week)" 				\
-	--start end-1w 						\
-	DEF:samples=$DB:samples:AVERAGE LINE1:samples#FF0000
+#### System information - CPU ###
 
-$RRDTOOL graph $DIR/samples_1m.png 				\
-	-w 337 							\
-	--vertical-label $LEGEND 				\
-	--title "$TITLE (last month)"				\
-	--start end-1m 						\
-	DEF:samples=$DB:samples:AVERAGE LINE1:samples#FF0000
+$RRDTOOL graph $DIR/statistics/cpu_1h.png \
+	-h 80 -w $FULL \
+	--upper-limit 100 \
+	--lower-limit 0	\
+	--title "CPU (%)" \
+	--start end-1h \
+        DEF:cpu_stcollectd=$DB_STCOLLECTD:cpu:AVERAGE LINE1:cpu_stcollectd$COLOR1:"stcollectd" \
+        DEF:cpu_stprocessd=$DB_STPROCESSD:cpu:AVERAGE LINE1:cpu_stprocessd$COLOR2:"stprocessd"
 
-### System information - CPU ###
+$RRDTOOL graph $DIR/statistics/cpu_6h.png \
+	-h 80 -w $FULL \
+	--upper-limit 100 \
+	--lower-limit 0	\
+	--title "CPU (%)" \
+	--start end-6h \
+        DEF:cpu_stcollectd=$DB_STCOLLECTD:cpu:AVERAGE LINE1:cpu_stcollectd$COLOR1:"stcollectd" \
+        DEF:cpu_stprocessd=$DB_STPROCESSD:cpu:AVERAGE LINE1:cpu_stprocessd$COLOR2:"stprocessd"
 
-$RRDTOOL graph $DIR/cpu_1h.png 					\
-	-h 100 -w 775                                            \
-	--upper-limit 100					\
-	--lower-limit 0						\
-	--title "CPU (%)"                           		\
-	--start end-1h                                          \
-        DEF:cpu=$DB:cpu:AVERAGE LINE1:cpu#0000FF
+$RRDTOOL graph $DIR/statistics/cpu_24h.png \
+	-h 80 -w $FULL \
+	--upper-limit 100 \
+	--lower-limit 0	\
+	--title "CPU (%)" \
+	--start end-24h \
+        DEF:cpu_stcollectd=$DB_STCOLLECTD:cpu:AVERAGE LINE1:cpu_stcollectd$COLOR1:"stcollectd" \
+        DEF:cpu_stprocessd=$DB_STPROCESSD:cpu:AVERAGE LINE1:cpu_stprocessd$COLOR2:"stprocessd"
 
-$RRDTOOL graph $DIR/cpu_6h.png 					\
-	-h 100 -w 775                 				\
-	--upper-limit 100					\
-	--lower-limit 0						\
-	--title "CPU (%)"                        		\
-	--start end-6h                                          \
-        DEF:cpu=$DB:cpu:AVERAGE LINE1:cpu#0000FF
+#### System information - Memory ###
 
-$RRDTOOL graph $DIR/cpu_24h.png 				\
-	-h 50 -w 350                                            \
-	--upper-limit 100					\
-	--lower-limit 0						\
-	--title "CPU (%)"                       		\
-	--start end-24h                                         \
-        DEF:cpu=$DB:cpu:AVERAGE LINE1:cpu#0000FF
+$RRDTOOL graph $DIR/statistics/mem_1h.png \
+	-h 80 -w $FULL \
+	--title "Virtual memory" \
+	--start end-1h \
+        DEF:mem_stcollectd=$DB_STCOLLECTD:mem:AVERAGE LINE1:mem_stcollectd$COLOR1:"stcollectd" \
+        DEF:mem_stprocessd=$DB_STPROCESSD:mem:AVERAGE LINE1:mem_stprocessd$COLOR2:"stprocessd"
 
-### System information - Memory ###
+$RRDTOOL graph $DIR/statistics/mem_6h.png \
+	-h 80 -w $FULL \
+	--title "Virtual memory" \
+	--start end-6h \
+        DEF:mem_stcollectd=$DB_STCOLLECTD:mem:AVERAGE LINE1:mem_stcollectd$COLOR1:"stcollectd" \
+        DEF:mem_stprocessd=$DB_STPROCESSD:mem:AVERAGE LINE1:mem_stprocessd$COLOR2:"stprocessd"
 
-$RRDTOOL graph $DIR/mem_1h.png 					\
-	-h 50 -w 350                                            \
-	--title "Memory"		                        \
-	--start end-1h                                          \
-        DEF:mem=$DB:mem:AVERAGE 				\
-	"CDEF:realmem=mem,1000,*"				\
-	LINE1:realmem#00FF00
+$RRDTOOL graph $DIR/statistics/mem_24h.png \
+	-h 80 -w $FULL \
+	--title "Virtual memory" \
+	--start end-24h \
+        DEF:mem_stcollectd=$DB_STCOLLECTD:mem:AVERAGE LINE1:mem_stcollectd$COLOR1:"stcollectd" \
+        DEF:mem_stprocessd=$DB_STPROCESSD:mem:AVERAGE LINE1:mem_stprocessd$COLOR2:"stprocessd"
+#### System information - Disk ###
 
-$RRDTOOL graph $DIR/mem_6h.png 					\
-	-h 50 -w 350                                            \
-	--title "Memory"		                        \
-	--start end-6h                                          \
-        DEF:mem=$DB:mem:AVERAGE 				\
-	"CDEF:realmem=mem,1000,*"				\
-	LINE1:realmem#00FF00
+$RRDTOOL graph $DIR/statistics/write_1h.png \
+	-h 80 -w $FULL \
+	--title "Bytes written" \
+	--start end-1h \
+        DEF:write_stcollectd=$DB_STCOLLECTD:write:AVERAGE LINE1:write_stcollectd$COLOR1
 
-$RRDTOOL graph $DIR/mem_24h.png 	 			\
-	-h 50 -w 350                                            \
-	--title "Memory"		                        \
-	--start end-24h                                         \
-        DEF:mem=$DB:mem:AVERAGE 				\
-	"CDEF:realmem=mem,1000,*"				\
-	LINE1:realmem#00FF00
+$RRDTOOL graph $DIR/statistics/write_6h.png \
+	-h 80 -w $FULL \
+	--title "Bytes written" \
+	--start end-6h \
+        DEF:write_stcollectd=$DB_STCOLLECTD:write:AVERAGE LINE1:write_stcollectd$COLOR1
 
-### System information - Disk ###
+$RRDTOOL graph $DIR/statistics/write_24h.png \
+	-h 80 -w $FULL \
+	--title "Bytes written" \
+	--start end-24h \
+        DEF:write_stcollectd=$DB_STCOLLECTD:write:AVERAGE LINE1:write_stcollectd$COLOR1
 
-$RRDTOOL graph $DIR/write_1h.png 	 			\
-	-h 50 -w 350                                            \
-	--title "Disk Write (bytes)"		                        \
-	--start end-1h                                         \
-        DEF:disk_read=$DB:write:AVERAGE 				\
-	LINE1:disk_read#FF6600
+#### Misc stats
 
-$RRDTOOL graph $DIR/write_6h.png 	 			\
-	-h 50 -w 350                                            \
-	--title "Disk Write (bytes)"		                        \
-	--start end-6h                                         \
-        DEF:disk_write=$DB:write:AVERAGE 				\
-	LINE1:disk_write#FF0099
+$RRDTOOL graph $DIR/statistics/agents_1h.png \
+	-h 50 -w $HALF \
+	--title "Active agents" \
+	--start end-1h \
+        DEF:agents_stcollectd=$DB_STCOLLECTD:agents:AVERAGE LINE1:agents_stcollectd$COLOR1
+
+$RRDTOOL graph $DIR/statistics/agents_6h.png \
+	-h 50 -w $HALF \
+	--title "Active agents" \
+	--start end-6h \
+        DEF:agents_stcollectd=$DB_STCOLLECTD:agents:AVERAGE LINE1:agents_stcollectd$COLOR1
+
+$RRDTOOL graph $DIR/statistics/agents_24h.png \
+	-h 50 -w $HALF \
+	--title "Active agents" \
+	--start end-24h \
+        DEF:agents_stcollectd=$DB_STCOLLECTD:agents:AVERAGE LINE1:agents_stcollectd$COLOR1
+
+$RRDTOOL graph $DIR/statistics/messages_1h.png \
+	-h 50 -w $HALF \
+	--title "Messages pending" \
+	--start end-1h \
+        DEF:messages_stprocessd=$DB_STPROCESSD:messages:AVERAGE LINE1:messages_stprocessd$COLOR1
+
+$RRDTOOL graph $DIR/statistics/messages_6h.png \
+	-h 50 -w $HALF \
+	--title "Messages pending" \
+	--start end-6h \
+        DEF:messages_stprocessd=$DB_STPROCESSD:messages:AVERAGE LINE1:messages_stprocessd$COLOR1
+
+$RRDTOOL graph $DIR/statistics/messages_24h.png \
+	-h 50 -w $HALF \
+	--title "Messages pending" \
+	--start end-24h \
+        DEF:messages_stprocessd=$DB_STPROCESSD:messages:AVERAGE LINE1:messages_stprocessd$COLOR1
