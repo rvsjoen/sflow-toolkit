@@ -22,14 +22,19 @@ void storage_store_conv_ethernet(conv_key_ethernet_t* key, conv_ethernet_t* conv
 	// Remember sflow_input_if and sflow_output_if
 	char* query;
 	char a[16];
+	char src[18];
+	char dst[18];
+	strncpy(src, ether_ntoa((const struct ether_addr *)key->src), 18);
+	strncpy(dst, ether_ntoa((const struct ether_addr *)key->dst), 18);
+
 	num_to_ip(agent, a);
 	asprintf(&query, "INSERT INTO conv_ethernet (timestamp,agent,input_if,output_if,src,dst,bytes,frames) VALUES (%u, '%s', %u, %u, '%s', '%s', %u, %u)", 
 			timestamp,
 			a,
 			key->sflow_input_if,
 			key->sflow_output_if,
-			ether_ntoa((const struct ether_addr *)key->src), 
-			ether_ntoa((const struct ether_addr *)key->dst), 
+			src,
+			dst,
 			conv->bytes, 
 			conv->frames
 			);
