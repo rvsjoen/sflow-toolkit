@@ -51,7 +51,7 @@ void storage_store_conv_ip(conv_key_ip_t* key, conv_ip_t* conv, uint32_t agent, 
 	num_to_ip(agent, a);
 	num_to_ip(key->src, src);
 	num_to_ip(key->dst, dst);
-	asprintf(&query, "INSERT INTO conv_ip (timestamp,agent,input_if,output_if,src,dst,bytes,packets) VALUES (%u, '%s', %u, %u, '%s', '%s', %u, %u)", 
+	asprintf(&query, "INSERT INTO conv_ip (timestamp,agent,input_if,output_if,src,dst,bytes,frames) VALUES (%u, '%s', %u, %u, '%s', '%s', %u, %u)", 
 			timestamp,
 			a,
 			key->sflow_input_if,
@@ -59,7 +59,7 @@ void storage_store_conv_ip(conv_key_ip_t* key, conv_ip_t* conv, uint32_t agent, 
 			src,
 			dst,
 			conv->bytes,
-			conv->packets
+			conv->frames
 			);
 	mysql_query(&db, query);
 //	logmsg(LOGLEVEL_DEBUG, "%s", query);
@@ -74,7 +74,7 @@ void storage_store_conv_tcp(conv_key_tcp_t* key, conv_tcp_t* conv, uint32_t agen
 	num_to_ip(agent, a);
 	num_to_ip(key->src, src);
 	num_to_ip(key->dst, dst);
-	asprintf(&query, "INSERT INTO conv_tcp (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,segments) VALUES (%u, '%s', %u, %u, '%s', %u,'%s',%u, %u, %u)",
+	asprintf(&query, "INSERT INTO conv_tcp (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,frames) VALUES (%u, '%s', %u, %u, '%s', %u,'%s',%u, %u, %u)",
 			timestamp,
 			a,
 			key->sflow_input_if,
@@ -84,7 +84,7 @@ void storage_store_conv_tcp(conv_key_tcp_t* key, conv_tcp_t* conv, uint32_t agen
 			dst,
 			key->dst_port,
 			conv->bytes,
-			conv->segments
+			conv->frames
 			);
 	mysql_query(&db, query);
 //	logmsg(LOGLEVEL_DEBUG, "%s", query);
@@ -99,7 +99,7 @@ void storage_store_conv_udp(conv_key_udp_t* key, conv_udp_t* conv, uint32_t agen
 	num_to_ip(agent, a);
 	num_to_ip(key->src, src);
 	num_to_ip(key->dst, dst);
-	asprintf(&query, "INSERT INTO conv_udp (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,segments) VALUES (%u, '%s', %u, %u, '%s', %u,'%s',%u, %u, %u)",
+	asprintf(&query, "INSERT INTO conv_udp (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,frames) VALUES (%u, '%s', %u, %u, '%s', %u,'%s',%u, %u, %u)",
 			timestamp,
 			a,
 			key->sflow_input_if,
@@ -109,7 +109,7 @@ void storage_store_conv_udp(conv_key_udp_t* key, conv_udp_t* conv, uint32_t agen
 			dst,
 			key->dst_port,
 			conv->bytes,
-			conv->segments
+			conv->frames
 			);
 	mysql_query(&db, query);
 //	logmsg(LOGLEVEL_DEBUG, "%s", query);
@@ -127,7 +127,7 @@ void storage_store_cntr(SFCntrSample* s){
 			if_in_octets,if_in_ucast_pkts,if_in_mcast_pkts,if_in_bcast_pkts,\
 			if_in_discards,if_in_errors,if_in_unknown_proto,if_out_octets,\
 			if_out_ucast_pkts,if_out_mcast_pkts,if_out_bcast_pkts,if_out_discards,\
-			if_out_errors,if_promisc)\ 
+			if_out_errors,if_promisc)\
 			VALUES (%u, '%s', %u, %u, %llu, %u, %u, %llu, %u, %u, %u, %u, %u, %u, \
 					%llu, %u, %u, %u, %u, %u, %u)", 
 			(uint32_t)s->timestamp,

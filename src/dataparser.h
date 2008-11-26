@@ -84,17 +84,17 @@ typedef struct _conv_ethernet {
 } conv_ethernet_t;
 
 typedef struct _conv_ip {
-	uint32_t packets;
+	uint32_t frames;
 	uint32_t bytes;
 } conv_ip_t;
 
 typedef struct _conv_tcp {
-	uint32_t segments;
+	uint32_t frames;
 	uint32_t bytes;
 } conv_tcp_t;
 
 typedef struct _conv_udp {
-	uint32_t segments;
+	uint32_t frames;
 	uint32_t bytes;
 } conv_udp_t;
 

@@ -193,7 +193,7 @@ void conv_update_ethernet(conv_ethernet_t* c, const uint8_t* pkt, SFFlowSample* 
 }
 
 void conv_update_ip(conv_ip_t* c, const uint8_t* pkt, SFFlowSample* s){
-	c->packets++;
+	c->frames++;
 	uint8_t* p = strip_ethernet(pkt);
 	p += sizeof(uint8_t)*2;
 	c->bytes += ntohs(*((uint16_t*)p));
@@ -201,7 +201,7 @@ void conv_update_ip(conv_ip_t* c, const uint8_t* pkt, SFFlowSample* s){
 }
 
 void conv_update_tcp(conv_tcp_t* c, const uint8_t* pkt, SFFlowSample* s){
-	c->segments++;
+	c->frames++;
 	uint8_t* p = strip_ethernet(pkt);
 	p+= sizeof(uint8_t)*2;
 	c->bytes += ntohs(*((uint16_t*)p));
@@ -209,7 +209,7 @@ void conv_update_tcp(conv_tcp_t* c, const uint8_t* pkt, SFFlowSample* s){
 }
 
 void conv_update_udp(conv_udp_t* c, const uint8_t* pkt, SFFlowSample* s){
-	c->segments++;
+	c->frames++;
 	uint8_t* p = strip_ip(strip_ethernet(pkt));
 	p += sizeof(uint8_t)*4;
 	c->bytes += ntohs(*((uint16_t*)p));

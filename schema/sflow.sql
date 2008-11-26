@@ -24,7 +24,7 @@ CREATE TABLE conv_ip(
 	src 		VARCHAR(16),
 	dst 		VARCHAR(16),
 	bytes 		INTEGER UNSIGNED,
-	packets		INTEGER UNSIGNED,
+	frames		INTEGER UNSIGNED,
 	CONSTRAINT conv_ip_pk PRIMARY KEY (timestamp,agent,input_if,output_if,src,dst)
 ) ENGINE=innodb;
 
@@ -38,7 +38,7 @@ CREATE TABLE conv_tcp(
 	dst 		VARCHAR(16),
 	dport		INTEGER UNSIGNED,
 	bytes 		INTEGER UNSIGNED,
-	segments	INTEGER UNSIGNED,
+	frames		INTEGER UNSIGNED,
 	CONSTRAINT conv_tcp_pk PRIMARY KEY (timestamp,agent,input_if,output_if,src,sport,dst,dport)
 ) ENGINE=innodb;
 
@@ -53,7 +53,7 @@ CREATE TABLE conv_udp(
 	dst 		VARCHAR(16),
 	dport		INTEGER UNSIGNED,
 	bytes 		INTEGER UNSIGNED,
-	segments	INTEGER UNSIGNED,
+	frames		INTEGER UNSIGNED,
 	CONSTRAINT conv_udp_pk PRIMARY KEY (timestamp,agent,input_if,output_if,src,sport,dst,dport)
 ) ENGINE=innodb;
 
