@@ -170,7 +170,7 @@ bool is_ip(const uint8_t* pkt){
 bool is_udp(const uint8_t* pkt){
 	struct iphdr* hdr = (struct iphdr*) strip_ethernet(pkt);
 	if(is_ip(pkt)){
-		if(hdr->protocol == 0x17) // 0x17 UDP
+		if(hdr->protocol == 0x11) // 0x11 UDP (17)
 			return true;
 	}
 	return false;
