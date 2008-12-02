@@ -134,7 +134,7 @@ def get_filenames(agent, start, end, datadir, type):
 			for j in range(60):
 				m = (d[0],d[1],d[2],i,j,0,0,0,-1)
 				timestamp = time.mktime(m)
-				if timestamp >= start_ts and timestamp < end_ts:
+				if timestamp >= start_ts and timestamp <= end_ts:
 					files.append(datadir+"/"+agent+"/%d%02d%02d/%02d/%02d/samples_"%m[:5]+type+".dat")
 	return files
 
