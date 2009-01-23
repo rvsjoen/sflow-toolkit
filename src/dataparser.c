@@ -231,30 +231,33 @@ conv_t* conv_list_search(conv_list_t* list, conv_key_t* key){
 }
 
 void conv_store_ethernet(uint32_t agent, uint32_t timestamp){
-	int i;
-	for(i=0; i<HASH_RANGE;i++)
-	{
-		conv_list_t* list = hash_ethernet[i];
 
-		if(list == NULL)
-			continue;
+	storage_store_conv_ethernet_list(hash_ethernet, HASH_RANGE, agent, timestamp);
 
-		conv_list_node_t* n = list->data;
-		while(n){
-			conv_key_ethernet_t* k = (conv_key_ethernet_t*) n->key;
-			conv_ethernet_t* c = (conv_ethernet_t*) n->conv;
-			conv_list_node_t* tmp;
-			tmp = n;
-			n = n->next;
-			storage_store_conv_ethernet(k, c, agent, timestamp);
-			free(k);
-			free(c);
-			free(tmp);
-			cnt_ethernet++;
-		}
-		free(list);
-	}
-	logmsg(LOGLEVEL_DEBUG, "Stored %u ethernet conversations", cnt_ethernet);
+//	int i;
+//	for(i=0; i<HASH_RANGE;i++)
+//	{
+//		conv_list_t* list = hash_ethernet[i];
+//
+//		if(list == NULL)
+//			continue;
+//
+//		conv_list_node_t* n = list->data;
+//		while(n){
+//			conv_key_ethernet_t* k = (conv_key_ethernet_t*) n->key;
+//			conv_ethernet_t* c = (conv_ethernet_t*) n->conv;
+//			conv_list_node_t* tmp;
+//			tmp = n;
+//			n = n->next;
+//			storage_store_conv_ethernet(k, c, agent, timestamp);
+//			free(k);
+//			free(c);
+//			free(tmp);
+//			cnt_ethernet++;
+//		}
+//		free(list);
+//	}
+//	logmsg(LOGLEVEL_DEBUG, "Stored %u ethernet conversations", cnt_ethernet);
 }
 
 void conv_store_ip(uint32_t agent, uint32_t timestamp){
