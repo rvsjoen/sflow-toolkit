@@ -60,7 +60,7 @@ void storage_store_conv_ethernet_list(conv_list_t** hash_ethernet, uint32_t num,
 			strncpy(dst, ether_ntoa((const struct ether_addr *)k->dst), 18);
 			num_to_ip(agent, a);
 
-			ptr += sizeof(char) * sprintf(ptr, "(%u, '%s', %u, %u, '%s', '%s', %u, %u)",
+			ptr += sizeof(char) * sprintf(ptr, "(%u, '%s', %u, %u, '%s', '%s', %u, %u),",
 				timestamp,
 				a,
 				k->sflow_input_if,
@@ -76,8 +76,8 @@ void storage_store_conv_ethernet_list(conv_list_t** hash_ethernet, uint32_t num,
 			free(tmp);
 			cnt_ethernet++;
 
-			if(i%BULK_INSERT_NUM == 0){
-				logmsg(LOGLEVEL_DEBUG, "%s", query);
+			if(cnt_ethernet%BULK_INSERT_NUM == 0){
+				*(--ptr) = ' ';
 				mysql_query(&db, query);
 				ptr = query;
 				memset(query, 0, sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE); 
@@ -87,8 +87,7 @@ void storage_store_conv_ethernet_list(conv_list_t** hash_ethernet, uint32_t num,
 		}
 		free(list);
 	}
-
-	logmsg(LOGLEVEL_DEBUG, "%s", query);
+	*(--ptr) = ' ';
 	mysql_query(&db, query);
 	free(query);
 	logmsg(LOGLEVEL_DEBUG, "Stored %u ethernet conversations", cnt_ethernet);

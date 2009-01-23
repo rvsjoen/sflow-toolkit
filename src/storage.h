@@ -24,4 +24,6 @@ void storage_store_conv_tcp(conv_key_tcp_t* key, conv_tcp_t* conv, uint32_t agen
 void storage_store_conv_udp(conv_key_udp_t* key, conv_udp_t* conv, uint32_t agent, uint32_t timestamp);
 void storage_store_cntr(SFCntrSample* s);
 
+void storage_store_conv_ethernet_list(conv_list_t** hash_ethernet, uint32_t num, uint32_t agent, uint32_t timestamp);
+
 #endif
