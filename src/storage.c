@@ -127,7 +127,7 @@ void storage_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agent, uin
 			num_to_ip(k->src, src);
 			num_to_ip(k->dst, dst);
 
-			ptr += sizeof(char) * sprintf(query, "(%u, '%s', %u, %u, '%s', '%s', %u, %u),", 
+			ptr += sizeof(char) * sprintf(ptr, "(%u, '%s', %u, %u, '%s', '%s', %u, %u),", 
 				timestamp,
 				a,
 				k->sflow_input_if,
@@ -193,7 +193,7 @@ void storage_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t agent, ui
 			num_to_ip(k->src, src);
 			num_to_ip(k->dst, dst);
 
-			ptr += sizeof(char) * sprintf(query, "(%u, '%s', %u, %u, '%s', %u,'%s',%u, %u, %u),",
+			ptr += sizeof(char) * sprintf(ptr, "(%u, '%s', %u, %u, '%s', %u,'%s',%u, %u, %u),",
 				timestamp,
 				a,
 				k->sflow_input_if,
@@ -261,7 +261,7 @@ void storage_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t agent, ui
 			num_to_ip(k->src, src);
 			num_to_ip(k->dst, dst);
 
-			ptr += sizeof(char) * sprintf(query, "(%u, '%s', %u, %u, '%s', %u,'%s',%u, %u, %u),",
+			ptr += sizeof(char) * sprintf(ptr, "(%u, '%s', %u, %u, '%s', %u,'%s',%u, %u, %u),",
 				timestamp,
 				a,
 				k->sflow_input_if,
