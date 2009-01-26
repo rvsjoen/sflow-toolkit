@@ -18,12 +18,10 @@ void storage_init();
 void storage_destroy();
 
 // Functions to store different kinds of conversations
-void storage_store_conv_ethernet(conv_key_ethernet_t*, conv_ethernet_t*, uint32_t agent, uint32_t timestamp);
-void storage_store_conv_ip(conv_key_ip_t* key, conv_ip_t* conv, uint32_t agent, uint32_t timestamp);
-void storage_store_conv_tcp(conv_key_tcp_t* key, conv_tcp_t* conv, uint32_t agent, uint32_t timestamp);
-void storage_store_conv_udp(conv_key_udp_t* key, conv_udp_t* conv, uint32_t agent, uint32_t timestamp);
 void storage_store_cntr(SFCntrSample* s);
-
-void storage_store_conv_ethernet_list(conv_list_t** hash_ethernet, uint32_t num, uint32_t agent, uint32_t timestamp);
+void storage_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp);
+void storage_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp);
+void storage_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp);
+void storage_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp);
 
 #endif

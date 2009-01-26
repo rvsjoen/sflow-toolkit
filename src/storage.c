@@ -2,8 +2,12 @@
 
 MYSQL db;
 
-#define BULK_INSERT_NUM  500
-#define BULK_INSERT_SIZE 150
+#define BULK_INSERT_NUM  			500
+#define BULK_INSERT_SIZE_ETHERNET 	200
+#define BULK_INSERT_SIZE_IP 		200
+#define BULK_INSERT_SIZE_TCP 		200
+#define BULK_INSERT_SIZE_UDP 		200
+
 
 void storage_error(){
 		logmsg(LOGLEVEL_ERROR, "storage: %s", mysql_error(&db));
@@ -23,29 +27,26 @@ void storage_destroy(){
 	logmsg(LOGLEVEL_DEBUG, "storage: closed database connection");
 }
 
-void storage_store_conv_ethernet_list(conv_list_t** hash_ethernet, uint32_t num, uint32_t agent, uint32_t timestamp){
-
+void storage_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
 	char* query;
 	char* ptr;
-	query = (char*) malloc(sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE);
+	query = (char*) malloc(sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE_ETHERNET);
 
 	char stmt[] = "INSERT INTO conv_ethernet (timestamp,agent,input_if,output_if,src,dst,bytes,frames) VALUES ";
 
 	ptr = query;
-	memset(query, 0, sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE); 
+	memset(query, 0, sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE_ETHERNET); 
 	ptr += sizeof(char) * sprintf(ptr, stmt);
 
-	uint32_t cnt_ethernet = 0;
-
+	uint32_t cnt= 0;
 	uint32_t i;
-	for(i=0; i<num;i++)
-	{
-		conv_list_t* list = hash_ethernet[i];
+	for(i=0; i<num;i++) {
+		conv_list_t* l = list[i];
 
-		if(list == NULL)
+		if(l == NULL)
 			continue;
 
-		conv_list_node_t* n = list->data;
+		conv_list_node_t* n = l->data;
 		while(n){
 			conv_key_ethernet_t* k = (conv_key_ethernet_t*) n->key;
 			conv_ethernet_t* c = (conv_ethernet_t*) n->conv;
@@ -74,121 +75,224 @@ void storage_store_conv_ethernet_list(conv_list_t** hash_ethernet, uint32_t num,
 			free(k);
 			free(c);
 			free(tmp);
-			cnt_ethernet++;
+			cnt++;
 
-			if(cnt_ethernet%BULK_INSERT_NUM == 0){
+			if(cnt%BULK_INSERT_NUM == 0){
 				*(--ptr) = ' ';
 				mysql_query(&db, query);
 				ptr = query;
-				memset(query, 0, sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE); 
+				memset(query, 0, sizeof(char) * BULK_INSERT_NUM * BULK_INSERT_SIZE_ETHERNET); 
 				ptr += sizeof(char) * sprintf(ptr, stmt);
 			}
-
 		}
-		free(list);
+		free(l);
 	}
 	*(--ptr) = ' ';
 	mysql_query(&db, query);
 	free(query);
-	logmsg(LOGLEVEL_DEBUG, "Stored %u ethernet conversations", cnt_ethernet);
+	logmsg(LOGLEVEL_DEBUG, "Stored %u ethernet conversations", cnt);
 }
 
-void storage_store_conv_ethernet(conv_key_ethernet_t* key, conv_ethernet_t* conv, uint32_t agent, uint32_t timestamp){
-	// Remember sflow_input_if and sflow_output_if
+void storage_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
 	char* query;
-	char a[16];
-	char src[18];
-	char dst[18];
-	strncpy(src, ether_ntoa((const struct ether_addr *)key->src), 18);
-	strncpy(dst, ether_ntoa((const struct ether_addr *)key->dst), 18);
+	char* ptr;
+	query = (char*) malloc(sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE_IP);
 
-	num_to_ip(agent, a);
-	asprintf(&query, "INSERT INTO conv_ethernet (timestamp,agent,input_if,output_if,src,dst,bytes,frames) VALUES (%u, '%s', %u, %u, '%s', '%s', %u, %u)", 
-			timestamp,
-			a,
-			key->sflow_input_if,
-			key->sflow_output_if,
-			src,
-			dst,
-			conv->bytes, 
-			conv->frames
+	char stmt[] = "INSERT INTO conv_ip (timestamp,agent,input_if,output_if,src,dst,bytes,frames) VALUES ";
+
+	ptr = query;
+	memset(query, 0, sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE_IP); 
+	ptr += sizeof(char) * sprintf(ptr, stmt);
+
+	uint32_t cnt = 0;
+	uint32_t i;
+	for(i=0; i<num; i++){
+		conv_list_t* l = list[i];
+
+		if(l == NULL)
+			continue;
+
+		conv_list_node_t* n = l->data;
+		while(n){
+			conv_key_ip_t* k = (conv_key_ip_t*) n->key;
+			conv_ip_t* c = (conv_ip_t*) n->conv;
+			conv_list_node_t* tmp;
+			tmp = n;
+			n = n->next;
+
+			char src[16];
+			char dst[16];
+			char a[16];
+			num_to_ip(agent, a);
+			num_to_ip(k->src, src);
+			num_to_ip(k->dst, dst);
+
+			ptr += sizeof(char) * sprintf(query, "(%u, '%s', %u, %u, '%s', '%s', %u, %u),", 
+				timestamp,
+				a,
+				k->sflow_input_if,
+				k->sflow_output_if,
+				src,
+				dst,
+				c->bytes,
+				c->frames
 			);
+
+			free(k);
+			free(c);
+			free(tmp);
+			cnt++;
+
+			if(cnt%BULK_INSERT_NUM == 0){
+				*(--ptr) = ' ';
+				mysql_query(&db, query);
+				ptr = query;
+				memset(query, 0, sizeof(char) * BULK_INSERT_NUM * BULK_INSERT_SIZE_IP); 
+				ptr += sizeof(char) * sprintf(ptr, stmt);
+			}
+		}
+		free(l);
+	}
+	*(--ptr) = ' ';
 	mysql_query(&db, query);
-//	logmsg(LOGLEVEL_DEBUG, "%s", query);
 	free(query);
+	logmsg(LOGLEVEL_DEBUG, "Stored %u ip conversations", cnt);
 }
 
-void storage_store_conv_ip(conv_key_ip_t* key, conv_ip_t* conv, uint32_t agent, uint32_t timestamp){
+void storage_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
 	char* query;
-	char src[16];
-	char dst[16];
-	char a[16];
-	num_to_ip(agent, a);
-	num_to_ip(key->src, src);
-	num_to_ip(key->dst, dst);
-	asprintf(&query, "INSERT INTO conv_ip (timestamp,agent,input_if,output_if,src,dst,bytes,frames) VALUES (%u, '%s', %u, %u, '%s', '%s', %u, %u)", 
-			timestamp,
-			a,
-			key->sflow_input_if,
-			key->sflow_output_if,
-			src,
-			dst,
-			conv->bytes,
-			conv->frames
+	char* ptr;
+	query = (char*) malloc(sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE_TCP);
+
+	char stmt[] = "INSERT INTO conv_tcp (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,frames) VALUES ";
+
+	ptr = query;
+	memset(query, 0, sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE_TCP); 
+	ptr += sizeof(char) * sprintf(ptr, stmt);
+
+	uint32_t cnt= 0;
+	uint32_t i;
+	for(i=0; i<num; i++){
+		conv_list_t* l = list[i];
+
+		if(l == NULL)
+			continue;
+
+		conv_list_node_t* n = l->data;
+		while(n){
+			conv_key_tcp_t* k = (conv_key_tcp_t*) n->key;
+			conv_tcp_t* c = (conv_tcp_t*) n->conv;
+			conv_list_node_t* tmp;
+			tmp = n;
+			n = n->next;
+
+			char src[16];
+			char dst[16];
+			char a[16];
+			num_to_ip(agent, a);
+			num_to_ip(k->src, src);
+			num_to_ip(k->dst, dst);
+
+			ptr += sizeof(char) * sprintf(query, "(%u, '%s', %u, %u, '%s', %u,'%s',%u, %u, %u),",
+				timestamp,
+				a,
+				k->sflow_input_if,
+				k->sflow_output_if,
+				src,
+				k->src_port,
+				dst,
+				k->dst_port,
+				c->bytes,
+				c->frames
 			);
+
+			free(k);
+			free(c);
+			free(tmp);
+			cnt++;
+
+			if(cnt%BULK_INSERT_NUM == 0){
+				*(--ptr) = ' ';
+				mysql_query(&db, query);
+				ptr = query;
+				memset(query, 0, sizeof(char) * BULK_INSERT_NUM * BULK_INSERT_SIZE_TCP); 
+				ptr += sizeof(char) * sprintf(ptr, stmt);
+			}
+		}
+		free(l);
+	}
+	*(--ptr) = ' ';
 	mysql_query(&db, query);
-//	logmsg(LOGLEVEL_DEBUG, "%s", query);
 	free(query);
+	logmsg(LOGLEVEL_DEBUG, "Stored %u tcp conversations", cnt);
 }
 
-void storage_store_conv_tcp(conv_key_tcp_t* key, conv_tcp_t* conv, uint32_t agent, uint32_t timestamp){
+void storage_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
 	char* query;
-	char src[16];
-	char dst[16];
-	char a[16];
-	num_to_ip(agent, a);
-	num_to_ip(key->src, src);
-	num_to_ip(key->dst, dst);
-	asprintf(&query, "INSERT INTO conv_tcp (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,frames) VALUES (%u, '%s', %u, %u, '%s', %u,'%s',%u, %u, %u)",
-			timestamp,
-			a,
-			key->sflow_input_if,
-			key->sflow_output_if,
-			src,
-			key->src_port,
-			dst,
-			key->dst_port,
-			conv->bytes,
-			conv->frames
-			);
-	mysql_query(&db, query);
-//	logmsg(LOGLEVEL_DEBUG, "%s", query);
-	free(query);
-}
+	char* ptr;
+	query = (char*) malloc(sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE_UDP);
 
-void storage_store_conv_udp(conv_key_udp_t* key, conv_udp_t* conv, uint32_t agent, uint32_t timestamp){
-	char* query;
-	char src[16];
-	char dst[16];
-	char a[16];
-	num_to_ip(agent, a);
-	num_to_ip(key->src, src);
-	num_to_ip(key->dst, dst);
-	asprintf(&query, "INSERT INTO conv_udp (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,frames) VALUES (%u, '%s', %u, %u, '%s', %u,'%s',%u, %u, %u)",
-			timestamp,
-			a,
-			key->sflow_input_if,
-			key->sflow_output_if,
-			src,
-			key->src_port,
-			dst,
-			key->dst_port,
-			conv->bytes,
-			conv->frames
+	char stmt[] = "INSERT INTO conv_udp (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,frames) VALUES ";
+
+	ptr = query;
+	memset(query, 0, sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE_UDP); 
+	ptr += sizeof(char) * sprintf(ptr, stmt);
+
+	uint32_t cnt= 0;
+	uint32_t i;
+	for(i=0; i<num; i++){
+		conv_list_t* l = list[i];
+
+		if(l == NULL)
+			continue;
+
+		conv_list_node_t* n = l->data;
+		while(n){
+			conv_key_udp_t* k = (conv_key_udp_t*) n->key;
+			conv_udp_t* c = (conv_udp_t*) n->conv;
+			conv_list_node_t* tmp;
+			tmp = n;
+			n = n->next;
+
+			char src[16];
+			char dst[16];
+			char a[16];
+			num_to_ip(agent, a);
+			num_to_ip(k->src, src);
+			num_to_ip(k->dst, dst);
+
+			ptr += sizeof(char) * sprintf(query, "(%u, '%s', %u, %u, '%s', %u,'%s',%u, %u, %u),",
+				timestamp,
+				a,
+				k->sflow_input_if,
+				k->sflow_output_if,
+				src,
+				k->src_port,
+				dst,
+				k->dst_port,
+				c->bytes,
+				c->frames
 			);
+
+			free(k);
+			free(c);
+			free(tmp);
+			cnt++;
+
+			if(cnt%BULK_INSERT_NUM == 0){
+				*(--ptr) = ' ';
+				mysql_query(&db, query);
+				ptr = query;
+				memset(query, 0, sizeof(char) * BULK_INSERT_NUM * BULK_INSERT_SIZE_UDP); 
+				ptr += sizeof(char) * sprintf(ptr, stmt);
+			}
+		}
+		free(l);
+	}
+	*(--ptr) = ' ';
 	mysql_query(&db, query);
-//	logmsg(LOGLEVEL_DEBUG, "%s", query);
 	free(query);
+	logmsg(LOGLEVEL_DEBUG, "Stored %u udp conversations", cnt);
 }
 
 void storage_store_cntr(SFCntrSample* s){
