@@ -1,4 +1,4 @@
-#include "filesorter.h"
+#include "samplestore.h"
 #include "agentlist.h"
 
 extern agentlist_t* agents;
@@ -100,6 +100,7 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 
 			// If we had a previous file, close it and pass it on to the processing daemon
 			if(a->fd_flow != 0){
+				close(a->fd_flow);
 				msg_t m;
 				memset(&m, 0, sizeof(msg_t));
 				m.agent = a->agent;
@@ -147,6 +148,7 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 			sprintf(filename+strlen(filename), "cntr");
 
 			if(a->fd_cntr != 0){
+				close(a->fd_cntr);
 				msg_t m;	
 				memset(&m, 0, sizeof(msg_t));
 				m.agent = a->agent;
