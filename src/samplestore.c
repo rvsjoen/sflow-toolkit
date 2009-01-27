@@ -62,10 +62,10 @@ void writeToPcap(const char* filename, SFFlowSample* sample)
 
 void getFilePath(uint32_t agent_address, time_t timestamp, char* filename)
 {
-	sprintf(filename+strlen(filename), "%u_", agent_address);
 	struct tm* t;
 	t = localtime(&timestamp);
 	strftime(filename+strlen(filename), 16, "%Y%m%d_%H%M_", t);
+	sprintf(filename+strlen(filename), "%u_", agent_address);
 }
 
 void addSampleToFile(const void* sample, char* root, SFSample_t type)
