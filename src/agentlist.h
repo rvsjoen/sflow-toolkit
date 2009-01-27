@@ -22,8 +22,8 @@ typedef struct _agent_t {
 	uint64_t samples_counter;
 	char fn_flow[256];
 	char fn_cntr[256];
-	FILE* fd_flow;
-	FILE* fd_cntr;
+	int fd_flow;
+	int fd_cntr;
 	uint32_t fd_min_flow;
 	uint32_t fd_min_cntr;
 } agent_t;

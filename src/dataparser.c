@@ -9,13 +9,13 @@ conv_list_t* hash_udp[HASH_RANGE];
 void process_file_cntr(const char* filename, uint32_t agent, uint32_t timestamp){
 	UNUSED_ARGUMENT(agent);
 	UNUSED_ARGUMENT(timestamp);
-	FILE* fd = NULL;
-	if((fd = fopen(filename, "r"))){
+	int fd;
+	if((fd = shm_open(filename, O_RDONLY, 0)) != -1){
 		SFCntrSample s;
-		while(fread(&s, sizeof(SFCntrSample), 1, fd)){
+		while(read(fd, &s, sizeof(SFCntrSample))){
 			storage_store_cntr(&s);
 		}
-		fclose(fd);
+		shm_unlink(filename);
 	} else {
 		logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
 	}
@@ -32,13 +32,13 @@ void process_file_flow(const char* filename, uint32_t agent, uint32_t timestamp)
 	// Process the file and extract information about conversations
 	// Each sample is processed and the extracted conversations are put into
 	// the hash tables on each layer
-	FILE* fd = NULL;
-	if((fd = fopen(filename, "r"))){
+	int fd;
+	if((fd = shm_open(filename, O_RDONLY, 0)) != -1){
 		SFFlowSample s;
-		while(fread(&s, sizeof(SFFlowSample), 1, fd)){
+		while(read(fd, &s, sizeof(SFFlowSample))){
 			process_sample_flow(&s);
 		}
-		fclose(fd);
+		shm_unlink(filename);
 	} else {
 		logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
 	}

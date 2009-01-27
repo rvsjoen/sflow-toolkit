@@ -15,6 +15,9 @@
 #include <netinet/ether.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "sflowparser.h"
 #include "util.h"

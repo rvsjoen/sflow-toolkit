@@ -25,7 +25,7 @@
 #include "util.h"
 #include "logger.h"
 #include "sflowparser.h"
-#include "filesorter.h"
+#include "samplestore.h"
 #include "statistics.h"
 #include "configparser.h"
 #include "messaging.h"

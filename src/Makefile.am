@@ -4,7 +4,7 @@ bin_PROGRAMS = stcollectd stprocessd
 stcollectd_SOURCES = stcollectd.c 					\
 					 logger.c logger.h 				\
 					 util.c util.h 					\
-					 filesorter.c filesorter.h 		\
+					 samplestore.c samplestore.h 	\
 					 sflowparser.c sflowparser.h 	\
 					 sflow.h 						\
 					 statistics.c statistics.h		\
