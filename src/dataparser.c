@@ -1,5 +1,5 @@
-#include "dataparser.h"
 #include "storage.h"
+#include "dataparser.h"
 
 conv_list_t* hash_ethernet[HASH_RANGE];
 conv_list_t* hash_ip[HASH_RANGE];
@@ -23,14 +23,15 @@ void process_file_cntr(const char* filename, uint32_t agent, uint32_t timestamp)
 
 void process_file_flow(const char* filename, uint32_t agent, uint32_t timestamp){
 
-	UNUSED_ARGUMENT(agent);
-	
 	// Zero the hash tables before processing the file
 	memset(hash_ethernet, 	0, sizeof(conv_list_t*)*HASH_RANGE);
 	memset(hash_ip, 		0, sizeof(conv_list_t*)*HASH_RANGE);
 	memset(hash_tcp, 		0, sizeof(conv_list_t*)*HASH_RANGE);
 	memset(hash_udp, 		0, sizeof(conv_list_t*)*HASH_RANGE);
 
+	// Process the file and extract information about conversations
+	// Each sample is processed and the extracted conversations are put into
+	// the hash tables on each layer
 	FILE* fd = NULL;
 	if((fd = fopen(filename, "r"))){
 		SFFlowSample s;
@@ -41,7 +42,7 @@ void process_file_flow(const char* filename, uint32_t agent, uint32_t timestamp)
 	} else {
 		logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
 	}
-
+	
 	storage_store_conv_ethernet(hash_ethernet, HASH_RANGE, agent, timestamp);
 	storage_store_conv_ip(hash_ip, HASH_RANGE, agent, timestamp);
 	storage_store_conv_tcp(hash_tcp, HASH_RANGE, agent, timestamp);
