@@ -27,7 +27,7 @@
 #define CONV_TCP		0x2
 #define CONV_UDP		0x3
 
-#define HASH_RANGE 		500
+#define HASH_RANGE 		1000
 
 // Ethernet protocol ID's
 #define ETHERTYPE_PUP       0x0200      /* Xerox PUP */
@@ -119,6 +119,16 @@ typedef struct _conv_list {
 	conv_list_node_t* data;
 } conv_list_t;
 
+typedef struct _counter_list_node {
+	SFCntrSample* sample;
+	struct _counter_list_node* next;
+} counter_list_node_t;
+
+typedef struct _counter_list {
+	uint32_t num;
+	counter_list_node_t* data;
+}	counter_list_t;
+
 bool is_ip(const uint8_t* pkt);
 bool is_tcp(const uint8_t* pkt);
 bool is_udp(const uint8_t* pkt);
@@ -137,11 +147,6 @@ void conv_update_ethernet(conv_ethernet_t* c, const uint8_t* pkt, SFFlowSample* 
 void conv_update_ip(conv_ip_t* c, const uint8_t* pkt, SFFlowSample* s);
 void conv_update_tcp(conv_tcp_t* c, const uint8_t* pkt, SFFlowSample* s);
 void conv_update_udp(conv_udp_t* c, const uint8_t* pkt, SFFlowSample* s);
-
-void conv_store_ethernet(uint32_t agent, uint32_t timestamp);
-void conv_store_ip(uint32_t agent, uint32_t timestamp);
-void conv_store_tcp(uint32_t agent, uint32_t timestamp);
-void conv_store_udp(uint32_t agent, uint32_t timestamp);
 
 conv_t* conv_list_search(conv_list_t* list, conv_key_t* key);
 void conv_list_add(const uint8_t* pkt, conv_key_t* key, uint32_t ctype, SFFlowSample* s);

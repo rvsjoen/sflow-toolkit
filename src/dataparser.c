@@ -9,10 +9,17 @@ conv_list_t* hash_udp[HASH_RANGE];
 void process_file_cntr(const char* filename, uint32_t agent, uint32_t timestamp){
 	UNUSED_ARGUMENT(agent);
 	UNUSED_ARGUMENT(timestamp);
+
+	// Create a new linked list to hold the samples
+	counter_list_t list;
+
 	int fd;
 	if((fd = shm_open(filename, O_RDONLY, 0)) != -1){
 		SFCntrSample s;
 		while(read(fd, &s, sizeof(SFCntrSample))){
+
+			
+
 			storage_store_cntr(&s);
 		}
 		close(fd);
@@ -20,6 +27,9 @@ void process_file_cntr(const char* filename, uint32_t agent, uint32_t timestamp)
 	} else {
 		logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
 	}
+
+	// Store the list
+	// Perform the query
 }
 
 void process_file_flow(const char* filename, uint32_t agent, uint32_t timestamp){
@@ -79,6 +89,10 @@ void process_sample_flow(SFFlowSample* s){
 			conv_list_add(pkt, (conv_key_t*) &key_udp, CONV_UDP, s);
 		}
 	}
+}
+
+void process_sample_cntr(SFCntrSample* s){
+	// Add each counter sample to the list
 }
 
 void get_key_ethernet(SFFlowSample* s, conv_key_ethernet_t* k){

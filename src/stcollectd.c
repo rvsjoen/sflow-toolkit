@@ -36,7 +36,7 @@
 #define DEFAULT_PORT 			6343
 #define RECEIVE_BUFFER_SIZE 	1500
 #define MAX_DATAGRAM_SAMPLES 	10
-#define DEFAULT_CONFIG_FILE		"/etc/stcollectd.conf"
+#define DEFAULT_CONFIG_FILE		"/etc/sflow-toolkit.conf"
 #define NUM_BUFFERS 			10
 #define PRINT_INTERVAL			1000
 #define MSG_QUEUE_NAME 			"/sflow"

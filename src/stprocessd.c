@@ -20,7 +20,7 @@
 #include "configparser.h"
 #include "storage.h"
 
-#define DEFAULT_CONFIG_FILE     "/etc/stcollectd.conf"
+#define DEFAULT_CONFIG_FILE     "/etc/sflow-toolkit.conf"
 
 extern uint32_t log_level;
 extern bool daemonize;
