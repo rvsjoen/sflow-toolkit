@@ -43,7 +43,6 @@ CREATE TABLE conv_tcp(
 ) ENGINE=innodb;
 
 CREATE TABLE conv_udp(
-	id 			SERIAL,
 	timestamp 	INTEGER UNSIGNED,
 	agent 		VARCHAR(16),
 	input_if 	INTEGER UNSIGNED,
