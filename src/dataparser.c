@@ -8,6 +8,7 @@ conv_list_t* hash_udp[HASH_RANGE];
 counter_list_t* cntr_list;
 
 void process_file_cntr(const char* filename, uint32_t agent, uint32_t timestamp){
+
 	UNUSED_ARGUMENT(agent);
 	UNUSED_ARGUMENT(timestamp);
 
@@ -25,7 +26,7 @@ void process_file_cntr(const char* filename, uint32_t agent, uint32_t timestamp)
 		logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
 	}
 
-	// Store the list
+	// Store the counter samples
 	storage_store_cntr(cntr_list);
 
 	// Free the memory
@@ -65,6 +66,12 @@ void process_file_flow(const char* filename, uint32_t agent, uint32_t timestamp)
 	storage_store_conv_ip(hash_ip, HASH_RANGE, agent, timestamp);
 	storage_store_conv_tcp(hash_tcp, HASH_RANGE, agent, timestamp);
 	storage_store_conv_udp(hash_udp, HASH_RANGE, agent, timestamp);
+
+	//TODO Free memory here instead of the storage module
+	conv_list_free(hash_ethernet);
+	conv_list_free(hash_ip);
+	conv_list_free(hash_tcp);
+	conv_list_free(hash_udp);
 }
 
 void process_sample_flow(SFFlowSample* s){
@@ -373,6 +380,25 @@ void conv_list_add(const uint8_t* pkt, conv_key_t* key, uint32_t ctype, SFFlowSa
 		case CONV_UDP:
 			conv_update_udp(&(c->conv_udp), pkt, s);
 			break;
+	}
+}
+
+void conv_list_free(conv_list_t** hash_list){
+	uint32_t i = 0;
+	for(i=0;i<HASH_RANGE;i++){
+		conv_list_t* l = hash_list[i];
+		if(l == NULL)
+			continue;
+		conv_list_node_t* n = l->data; 
+		while(n){
+			conv_list_node_t* tmp;
+			tmp = n;
+			n = n->next;
+			free(tmp->key);
+			free(tmp->conv);
+			free(tmp);
+		}
+		free(l);
 	}
 }
 

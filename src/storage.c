@@ -80,9 +80,9 @@ void storage_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_t agen
 				c->frames
 		   	);
 
-			free(k);
-			free(c);
-			free(tmp);
+	//		free(k);
+	//		free(c);
+	//		free(tmp);
 			cnt++;
 
 			if(cnt%BULK_INSERT_NUM == 0){
@@ -93,7 +93,7 @@ void storage_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_t agen
 				ptr += sizeof(char) * sprintf(ptr, stmt);
 			}
 		}
-		free(l);
+	//	free(l);
 	}
 	*(--ptr) = ' ';
 	mysql_query(&db, query);
@@ -156,9 +156,9 @@ void storage_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agent, uin
 				c->frames
 			);
 
-			free(k);
-			free(c);
-			free(tmp);
+	//		free(k);
+	//		free(c);
+	//		free(tmp);
 			cnt++;
 
 			if(cnt%BULK_INSERT_NUM == 0){
@@ -169,7 +169,7 @@ void storage_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agent, uin
 				ptr += sizeof(char) * sprintf(ptr, stmt);
 			}
 		}
-		free(l);
+	//	free(l);
 	}
 	*(--ptr) = ' ';
 	mysql_query(&db, query);
@@ -240,9 +240,9 @@ void storage_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t agent, ui
 				c->frames
 			);
 
-			free(k);
-			free(c);
-			free(tmp);
+	//		free(k);
+	//		free(c);
+	//		free(tmp);
 			cnt++;
 
 			if(cnt%BULK_INSERT_NUM == 0){
@@ -253,7 +253,7 @@ void storage_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t agent, ui
 				ptr += sizeof(char) * sprintf(ptr, stmt);
 			}
 		}
-		free(l);
+	//	free(l);
 	}
 	*(--ptr) = ' ';
 	mysql_query(&db, query);
@@ -308,9 +308,9 @@ void storage_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t agent, ui
 				c->frames
 			);
 
-			free(k);
-			free(c);
-			free(tmp);
+	//		free(k);
+	//		free(c);
+	//		free(tmp);
 			cnt++;
 
 			if(cnt%BULK_INSERT_NUM == 0){
@@ -321,7 +321,7 @@ void storage_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t agent, ui
 				ptr += sizeof(char) * sprintf(ptr, stmt);
 			}
 		}
-		free(l);
+	//	free(l);
 	}
 	*(--ptr) = ' ';
 	mysql_query(&db, query);
@@ -371,9 +371,8 @@ void storage_store_cntr(counter_list_t* list){
 				s->counter_generic_if_promisc
 				);
 		mysql_query(&db, query);
-		logmsg(LOGLEVEL_DEBUG, "%s", query);
+//		logmsg(LOGLEVEL_DEBUG, "%s", query);
 		free(query);
-
 		node = node->next;
 	}
 }

@@ -170,6 +170,7 @@ void conv_update_udp(conv_udp_t* c, const uint8_t* pkt, SFFlowSample* s);
 
 conv_t* conv_list_search(conv_list_t* list, conv_key_t* key);
 void conv_list_add(const uint8_t* pkt, conv_key_t* key, uint32_t ctype, SFFlowSample* s);
+void conv_list_free(conv_list_t** list);
 
 // Process a single sample
 void process_sample_flow(SFFlowSample* s);
