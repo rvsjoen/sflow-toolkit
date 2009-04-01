@@ -203,11 +203,12 @@ void conv_update_ethernet(conv_ethernet_t* c, const uint8_t* pkt, SFFlowSample* 
 	c->bytes += s->raw_header_frame_length;
 	struct ether_header* hdr = (struct ether_header*) pkt;
 
-	uint16_t ethertype = hdr->ether_type;
+	uint16_t ethertype = htons(hdr->ether_type);
+
 	if (ethertype == ETHERTYPE_VLAN){
 		c->protocols.ethertype_802_1q++;
 		hdr = (struct ether_header*) strip_vlan(pkt);
-		ethertype = hdr->ether_type;
+		ethertype = htons(hdr->ether_type);
 	}
 
 	switch(ethertype){

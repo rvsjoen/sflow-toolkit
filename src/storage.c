@@ -39,6 +39,7 @@ void storage_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_t agen
 	ptr += sizeof(char) * sprintf(ptr, stmt);
 
 	uint32_t cnt= 0;
+	uint32_t ethertype_ip = 0, ethertype_arp = 0, ethertype_rarp = 0, ethertype_802_1q = 0, ethertype_ipv6 = 0;
 	uint32_t i;
 	for(i=0; i<num;i++) {
 		conv_list_t* l = list[i];
@@ -50,6 +51,13 @@ void storage_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_t agen
 		while(n){
 			conv_key_ethernet_t* k = (conv_key_ethernet_t*) n->key;
 			conv_ethernet_t* c = (conv_ethernet_t*) n->conv;
+
+			ethertype_ip 		+= c->protocols.ethertype_ip;
+			ethertype_arp 		+= c->protocols.ethertype_arp;
+			ethertype_rarp 		+= c->protocols.ethertype_rarp;
+			ethertype_802_1q 	+= c->protocols.ethertype_802_1q;
+			ethertype_ipv6 		+= c->protocols.ethertype_ipv6;
+
 			conv_list_node_t* tmp;
 			tmp = n;
 			n = n->next;
@@ -90,7 +98,7 @@ void storage_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_t agen
 	*(--ptr) = ' ';
 	mysql_query(&db, query);
 	free(query);
-	logmsg(LOGLEVEL_DEBUG, "Stored %u ethernet conversations", cnt);
+	logmsg(LOGLEVEL_DEBUG, "Stored %u ethernet conversations (arp:%u, ip:%u, rarp:%u, 802_1q:%u, ipv6:%u)", cnt, ethertype_ip, ethertype_arp, ethertype_rarp, ethertype_802_1q, ethertype_ipv6 );
 }
 
 void storage_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
@@ -105,6 +113,11 @@ void storage_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agent, uin
 	ptr += sizeof(char) * sprintf(ptr, stmt);
 
 	uint32_t cnt = 0;
+
+	uint32_t ip_icmp = 0,
+			 ip_tcp = 0,
+			 ip_udp = 0;
+
 	uint32_t i;
 	for(i=0; i<num; i++){
 		conv_list_t* l = list[i];
@@ -116,6 +129,11 @@ void storage_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agent, uin
 		while(n){
 			conv_key_ip_t* k = (conv_key_ip_t*) n->key;
 			conv_ip_t* c = (conv_ip_t*) n->conv;
+
+			ip_icmp += c->protocol[1];
+			ip_tcp  += c->protocol[6];
+			ip_udp  += c->protocol[17];
+
 			conv_list_node_t* tmp;
 			tmp = n;
 			n = n->next;
@@ -156,7 +174,7 @@ void storage_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agent, uin
 	*(--ptr) = ' ';
 	mysql_query(&db, query);
 	free(query);
-	logmsg(LOGLEVEL_DEBUG, "Stored %u ip conversations", cnt);
+	logmsg(LOGLEVEL_DEBUG, "Stored %u ip conversations (icmp:%u, tcp:%u, udp:%u)", cnt, ip_icmp, ip_tcp, ip_udp);
 }
 
 void storage_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
@@ -171,6 +189,14 @@ void storage_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t agent, ui
 	ptr += sizeof(char) * sprintf(ptr, stmt);
 
 	uint32_t cnt= 0;
+
+	uint32_t tcp_urg = 0,
+			 tcp_ack = 0,
+			 tcp_psh = 0,
+			 tcp_rst = 0,
+			 tcp_syn = 0,
+			 tcp_fin = 0;
+
 	uint32_t i;
 	for(i=0; i<num; i++){
 		conv_list_t* l = list[i];
@@ -182,6 +208,14 @@ void storage_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t agent, ui
 		while(n){
 			conv_key_tcp_t* k = (conv_key_tcp_t*) n->key;
 			conv_tcp_t* c = (conv_tcp_t*) n->conv;
+
+			tcp_urg += c->flags[TCP_URG];
+			tcp_ack += c->flags[TCP_ACK];
+			tcp_psh += c->flags[TCP_PSH];
+			tcp_rst += c->flags[TCP_RST];
+			tcp_syn += c->flags[TCP_SYN];
+			tcp_fin += c->flags[TCP_FIN];
+
 			conv_list_node_t* tmp;
 			tmp = n;
 			n = n->next;
@@ -224,7 +258,7 @@ void storage_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t agent, ui
 	*(--ptr) = ' ';
 	mysql_query(&db, query);
 	free(query);
-	logmsg(LOGLEVEL_DEBUG, "Stored %u tcp conversations", cnt);
+	logmsg(LOGLEVEL_DEBUG, "Stored %u tcp conversations (urg:%u, ack:%u, psh:%u, rst:%u, syn:%u, fin:%u)", cnt, tcp_urg, tcp_ack, tcp_psh, tcp_rst, tcp_syn, tcp_fin);
 }
 
 void storage_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
