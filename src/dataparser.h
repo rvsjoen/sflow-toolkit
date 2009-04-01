@@ -43,12 +43,12 @@
 #define ETHERTYPE_LOOPBACK  0x9000      /* used to test interfaces */
 
 // TCP Flags
-#define TCP_URG 0
-#define TCP_ACK 1
-#define TCP_PSH 2
-#define TCP_RST 3
-#define TCP_SYN 4
-#define TCP_FIN 5
+#define TCP_URG 0x0
+#define TCP_ACK 0x1
+#define TCP_PSH 0x2
+#define TCP_RST 0x3
+#define TCP_SYN 0x4
+#define TCP_FIN 0x5
 
 typedef struct _conv_key_ethernet {
 	uint32_t sflow_input_if;

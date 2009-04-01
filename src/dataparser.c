@@ -5,24 +5,19 @@ conv_list_t* hash_ethernet[HASH_RANGE];
 conv_list_t* hash_ip[HASH_RANGE];
 conv_list_t* hash_tcp[HASH_RANGE];
 conv_list_t* hash_udp[HASH_RANGE];
+counter_list_t* cntr_list;
 
 void process_file_cntr(const char* filename, uint32_t agent, uint32_t timestamp){
 	UNUSED_ARGUMENT(agent);
 	UNUSED_ARGUMENT(timestamp);
 
 	// Create a new linked list to hold the samples
-	counter_list_t list;
-	UNUSED_ARGUMENT(list);
-
-
+	cntr_list = (counter_list_t*) malloc(sizeof(counter_list_t));
 	int fd;
 	if((fd = shm_open(filename, O_RDONLY, 0)) != -1){
 		SFCntrSample s;
 		while(read(fd, &s, sizeof(SFCntrSample))){
-
-			
-
-			storage_store_cntr(&s);
+			process_sample_cntr(&s);
 		}
 		close(fd);
 		shm_unlink(filename);
@@ -31,7 +26,16 @@ void process_file_cntr(const char* filename, uint32_t agent, uint32_t timestamp)
 	}
 
 	// Store the list
-	// Perform the query
+	storage_store_cntr(cntr_list);
+
+	// Free the memory
+	counter_list_node_t* node = cntr_list->data;
+	while(node){
+		counter_list_node_t* tmp = node;
+		node = node->next;
+		free(tmp);
+	}
+	free(cntr_list);
 }
 
 void process_file_flow(const char* filename, uint32_t agent, uint32_t timestamp){
@@ -94,8 +98,14 @@ void process_sample_flow(SFFlowSample* s){
 }
 
 void process_sample_cntr(SFCntrSample* s){
-	UNUSED_ARGUMENT(s);
-	// Add each counter sample to the list
+	counter_list_node_t* node = (counter_list_node_t*) malloc(sizeof(counter_list_node_t));
+	memset(node, 0, sizeof(counter_list_node_t));
+	node->sample = s;
+	if(cntr_list->data == NULL){
+		node->next = cntr_list->data;
+	}
+	cntr_list->data = node;
+	cntr_list->num++;
 }
 
 void get_key_ethernet(SFFlowSample* s, conv_key_ethernet_t* k){

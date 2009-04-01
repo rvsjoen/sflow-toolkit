@@ -98,7 +98,7 @@ void storage_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_t agen
 	*(--ptr) = ' ';
 	mysql_query(&db, query);
 	free(query);
-	logmsg(LOGLEVEL_DEBUG, "Stored %u ethernet conversations (arp:%u, ip:%u, rarp:%u, 802_1q:%u, ipv6:%u)", cnt, ethertype_ip, ethertype_arp, ethertype_rarp, ethertype_802_1q, ethertype_ipv6 );
+	logmsg(LOGLEVEL_DEBUG, "Stored %u ethernet conversations (ip:%u, arp:%u, rarp:%u, 802_1q:%u, ipv6:%u)", cnt, ethertype_ip, ethertype_arp, ethertype_rarp, ethertype_802_1q, ethertype_ipv6 );
 }
 
 void storage_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
@@ -329,43 +329,51 @@ void storage_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t agent, ui
 	logmsg(LOGLEVEL_DEBUG, "Stored %u udp conversations", cnt);
 }
 
-void storage_store_cntr(SFCntrSample* s){
-	char* query;
-	char a[16];
-	num_to_ip(s->agent_address, a);
+void storage_store_cntr(counter_list_t* list){
+	counter_list_node_t* node = list->data;
 
-	asprintf(&query, 
-			"INSERT INTO counters (\
-			timestamp,agent,if_index,if_type,if_speed,if_direction,if_if_status,\
-			if_in_octets,if_in_ucast_pkts,if_in_mcast_pkts,if_in_bcast_pkts,\
-			if_in_discards,if_in_errors,if_in_unknown_proto,if_out_octets,\
-			if_out_ucast_pkts,if_out_mcast_pkts,if_out_bcast_pkts,if_out_discards,\
-			if_out_errors,if_promisc)\
-			VALUES (%u, '%s', %u, %u, %llu, %u, %u, %llu, %u, %u, %u, %u, %u, %u, \
-					%llu, %u, %u, %u, %u, %u, %u)", 
-			(uint32_t)s->timestamp,
-			a,
-			s->counter_generic_if_index,
-			s->counter_generic_if_type,
-			s->counter_generic_if_speed,
-			s->counter_generic_if_direction,
-			s->counter_generic_if_if_status,
-			s->counter_generic_if_in_octets,
-			s->counter_generic_if_in_ucast_pkts,
-			s->counter_generic_if_in_mcast_pkts,
-			s->counter_generic_if_in_bcast_pkts,
-			s->counter_generic_if_in_discards,
-			s->counter_generic_if_in_errors,
-			s->counter_generic_if_in_unknown_proto,
-			s->counter_generic_if_out_octets,
-			s->counter_generic_if_out_ucast_pkts,
-			s->counter_generic_if_out_mcast_pkts,
-			s->counter_generic_if_out_bcast_pkts,
-			s->counter_generic_if_out_discards,
-			s->counter_generic_if_out_errors,
-			s->counter_generic_if_promisc
-			);
-	mysql_query(&db, query);
-//	logmsg(LOGLEVEL_DEBUG, "%s", query);
-	free(query);
+	while(node){
+		SFCntrSample* s = node->sample;
+
+		char* query;
+		char a[16];
+		num_to_ip(s->agent_address, a);
+
+		asprintf(&query, 
+				"INSERT INTO counters (\
+				timestamp,agent,if_index,if_type,if_speed,if_direction,if_if_status,\
+				if_in_octets,if_in_ucast_pkts,if_in_mcast_pkts,if_in_bcast_pkts,\
+				if_in_discards,if_in_errors,if_in_unknown_proto,if_out_octets,\
+				if_out_ucast_pkts,if_out_mcast_pkts,if_out_bcast_pkts,if_out_discards,\
+				if_out_errors,if_promisc)\
+				VALUES (%u, '%s', %u, %u, %llu, %u, %u, %llu, %u, %u, %u, %u, %u, %u, \
+						%llu, %u, %u, %u, %u, %u, %u)", 
+				(uint32_t)s->timestamp,
+				a,
+				s->counter_generic_if_index,
+				s->counter_generic_if_type,
+				s->counter_generic_if_speed,
+				s->counter_generic_if_direction,
+				s->counter_generic_if_if_status,
+				s->counter_generic_if_in_octets,
+				s->counter_generic_if_in_ucast_pkts,
+				s->counter_generic_if_in_mcast_pkts,
+				s->counter_generic_if_in_bcast_pkts,
+				s->counter_generic_if_in_discards,
+				s->counter_generic_if_in_errors,
+				s->counter_generic_if_in_unknown_proto,
+				s->counter_generic_if_out_octets,
+				s->counter_generic_if_out_ucast_pkts,
+				s->counter_generic_if_out_mcast_pkts,
+				s->counter_generic_if_out_bcast_pkts,
+				s->counter_generic_if_out_discards,
+				s->counter_generic_if_out_errors,
+				s->counter_generic_if_promisc
+				);
+		mysql_query(&db, query);
+		logmsg(LOGLEVEL_DEBUG, "%s", query);
+		free(query);
+
+		node = node->next;
+	}
 }
