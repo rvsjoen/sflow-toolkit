@@ -12,6 +12,8 @@ void process_file_cntr(const char* filename, uint32_t agent, uint32_t timestamp)
 
 	// Create a new linked list to hold the samples
 	counter_list_t list;
+	UNUSED_ARGUMENT(list);
+
 
 	int fd;
 	if((fd = shm_open(filename, O_RDONLY, 0)) != -1){
@@ -92,6 +94,7 @@ void process_sample_flow(SFFlowSample* s){
 }
 
 void process_sample_cntr(SFCntrSample* s){
+	UNUSED_ARGUMENT(s);
 	// Add each counter sample to the list
 }
 
@@ -105,7 +108,6 @@ void get_key_ethernet(SFFlowSample* s, conv_key_ethernet_t* k){
 
 	k->sflow_input_if = s->sample_input_if_value;
 	k->sflow_output_if = s->sample_output_if_value;
-
 }
 
 uint8_t* strip_vlan(const uint8_t* pkt){
@@ -199,35 +201,62 @@ bool is_tcp(const uint8_t* pkt){
 void conv_update_ethernet(conv_ethernet_t* c, const uint8_t* pkt, SFFlowSample* s){
 	c->frames++;
 	c->bytes += s->raw_header_frame_length;
-	UNUSED_ARGUMENT(pkt);
-	UNUSED_ARGUMENT(s);
+	struct ether_header* hdr = (struct ether_header*) pkt;
+
+	uint16_t ethertype = hdr->ether_type;
+	if (ethertype == ETHERTYPE_VLAN){
+		c->protocols.ethertype_802_1q++;
+		hdr = (struct ether_header*) strip_vlan(pkt);
+		ethertype = hdr->ether_type;
+	}
+
+	switch(ethertype){
+		case ETHERTYPE_IP:		c->protocols.ethertype_ip++;		break;
+		case ETHERTYPE_ARP:		c->protocols.ethertype_arp++;		break;
+		case ETHERTYPE_REVARP:	c->protocols.ethertype_rarp++;		break;
+		case ETHERTYPE_IPV6:	c->protocols.ethertype_ipv6++;		break;
+	}
 }
 
 void conv_update_ip(conv_ip_t* c, const uint8_t* pkt, SFFlowSample* s){
-	c->frames++;
-	uint8_t* p = strip_ethernet(pkt);
-	p += sizeof(uint8_t)*2;
-//	c->bytes += ntohs(*((uint16_t*)p));
-	c->bytes += s->raw_header_frame_length;
+	
 	UNUSED_ARGUMENT(s);
+
+	c->frames++;
+	c->bytes += s->raw_header_frame_length;
+
+	uint8_t* p = strip_ethernet(pkt);
+	struct iphdr* hdr = (struct iphdr*) p;
+
+	c->protocol[hdr->protocol]++;
+	c->version[hdr->version]++;
 }
 
 void conv_update_tcp(conv_tcp_t* c, const uint8_t* pkt, SFFlowSample* s){
-	c->frames++;
-	uint8_t* p = strip_ethernet(pkt);
-	p+= sizeof(uint8_t)*2;
-	c->bytes += s->raw_header_frame_length;
-	//c->bytes += ntohs(*((uint16_t*)p));
+	
 	UNUSED_ARGUMENT(s);
+	
+	c->frames++;
+	c->bytes += s->raw_header_frame_length;
+
+	uint8_t* p = strip_ip(strip_ethernet(pkt));
+	struct tcphdr* hdr = (struct tcphdr*) p;
+
+	c->flags[TCP_URG] += hdr->urg;
+	c->flags[TCP_ACK] += hdr->ack;
+	c->flags[TCP_PSH] += hdr->psh;
+	c->flags[TCP_RST] += hdr->rst;
+	c->flags[TCP_SYN] += hdr->syn;
+	c->flags[TCP_FIN] += hdr->fin;
 }
 
 void conv_update_udp(conv_udp_t* c, const uint8_t* pkt, SFFlowSample* s){
-	c->frames++;
-	uint8_t* p = strip_ip(strip_ethernet(pkt));
-	p += sizeof(uint8_t)*4;
-	c->bytes += s->raw_header_frame_length;
-	//c->bytes += ntohs(*((uint16_t*)p));
+
 	UNUSED_ARGUMENT(s);
+	UNUSED_ARGUMENT(pkt);
+
+	c->frames++;
+	c->bytes += s->raw_header_frame_length;
 }
 
 conv_t* conv_list_search(conv_list_t* list, conv_key_t* key){

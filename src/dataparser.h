@@ -42,6 +42,14 @@
 #define ETHERTYPE_IPV6      0x86dd      /* IP protocol version 6 */
 #define ETHERTYPE_LOOPBACK  0x9000      /* used to test interfaces */
 
+// TCP Flags
+#define TCP_URG 0
+#define TCP_ACK 1
+#define TCP_PSH 2
+#define TCP_RST 3
+#define TCP_SYN 4
+#define TCP_FIN 5
+
 typedef struct _conv_key_ethernet {
 	uint32_t sflow_input_if;
 	uint32_t sflow_output_if;
@@ -81,19 +89,31 @@ typedef union _conv_key_t {
 	conv_key_tcp_t key_tcp;
 } conv_key_t;
 
+typedef struct _ethernet_protocols {
+	uint32_t ethertype_ip;
+	uint32_t ethertype_arp;
+	uint32_t ethertype_rarp;
+	uint32_t ethertype_802_1q;
+	uint32_t ethertype_ipv6;
+} ethernet_protocols;
+
 typedef struct _conv_ethernet {
 	uint32_t bytes;
 	uint32_t frames;
+	ethernet_protocols protocols;
 } conv_ethernet_t;
 
 typedef struct _conv_ip {
 	uint32_t frames;
 	uint32_t bytes;
+	uint32_t version[16];
+	uint32_t protocol[256];
 } conv_ip_t;
 
 typedef struct _conv_tcp {
 	uint32_t frames;
 	uint32_t bytes;
+	uint32_t flags[6];
 } conv_tcp_t;
 
 typedef struct _conv_udp {
