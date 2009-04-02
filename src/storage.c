@@ -80,9 +80,6 @@ void storage_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_t agen
 				c->frames
 		   	);
 
-	//		free(k);
-	//		free(c);
-	//		free(tmp);
 			cnt++;
 
 			if(cnt%BULK_INSERT_NUM == 0){
@@ -93,7 +90,6 @@ void storage_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_t agen
 				ptr += sizeof(char) * sprintf(ptr, stmt);
 			}
 		}
-	//	free(l);
 	}
 	*(--ptr) = ' ';
 	mysql_query(&db, query);
@@ -156,9 +152,6 @@ void storage_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agent, uin
 				c->frames
 			);
 
-	//		free(k);
-	//		free(c);
-	//		free(tmp);
 			cnt++;
 
 			if(cnt%BULK_INSERT_NUM == 0){
@@ -169,7 +162,6 @@ void storage_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agent, uin
 				ptr += sizeof(char) * sprintf(ptr, stmt);
 			}
 		}
-	//	free(l);
 	}
 	*(--ptr) = ' ';
 	mysql_query(&db, query);
@@ -240,9 +232,6 @@ void storage_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t agent, ui
 				c->frames
 			);
 
-	//		free(k);
-	//		free(c);
-	//		free(tmp);
 			cnt++;
 
 			if(cnt%BULK_INSERT_NUM == 0){
@@ -253,7 +242,6 @@ void storage_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t agent, ui
 				ptr += sizeof(char) * sprintf(ptr, stmt);
 			}
 		}
-	//	free(l);
 	}
 	*(--ptr) = ' ';
 	mysql_query(&db, query);
@@ -307,10 +295,6 @@ void storage_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t agent, ui
 				c->bytes,
 				c->frames
 			);
-
-	//		free(k);
-	//		free(c);
-	//		free(tmp);
 			cnt++;
 
 			if(cnt%BULK_INSERT_NUM == 0){
@@ -321,7 +305,6 @@ void storage_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t agent, ui
 				ptr += sizeof(char) * sprintf(ptr, stmt);
 			}
 		}
-	//	free(l);
 	}
 	*(--ptr) = ' ';
 	mysql_query(&db, query);
@@ -332,7 +315,7 @@ void storage_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t agent, ui
 void storage_store_cntr(counter_list_t* list){
 	counter_list_node_t* node = list->data;
 
-	while(node){
+	while(node != NULL){
 		SFCntrSample* s = node->sample;
 
 		char* query;

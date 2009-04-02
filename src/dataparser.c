@@ -14,6 +14,8 @@ void process_file_cntr(const char* filename, uint32_t agent, uint32_t timestamp)
 
 	// Create a new linked list to hold the samples
 	cntr_list = (counter_list_t*) malloc(sizeof(counter_list_t));
+	memset(cntr_list, 0, sizeof(counter_list_t));
+
 	int fd;
 	if((fd = shm_open(filename, O_RDONLY, 0)) != -1){
 		SFCntrSample s;
@@ -108,7 +110,7 @@ void process_sample_cntr(SFCntrSample* s){
 	counter_list_node_t* node = (counter_list_node_t*) malloc(sizeof(counter_list_node_t));
 	memset(node, 0, sizeof(counter_list_node_t));
 	node->sample = s;
-	if(cntr_list->data == NULL){
+	if(cntr_list->data != NULL){
 		node->next = cntr_list->data;
 	}
 	cntr_list->data = node;
