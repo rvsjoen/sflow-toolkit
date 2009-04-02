@@ -3,8 +3,8 @@
 #define DB_PASS	"sflow"
 #define DB_NAME "sflow"
 
-#ifndef __storage_h__
-#define __storage_h__
+#ifndef __storage_mysql_h__
+#define __storage_mysql_h__
 
 #include <stdint.h>
 #include "logger.h"

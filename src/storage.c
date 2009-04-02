@@ -11,22 +11,39 @@ void storage_destroy(){
 }
 
 void storage_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
+	UNUSED_ARGUMENT(list);
+	UNUSED_ARGUMENT(num);
+	UNUSED_ARGUMENT(agent);
+	UNUSED_ARGUMENT(timestamp);
 	logmsg(LOGLEVEL_DEBUG, "Generic store ethernet");
 }
 
 void storage_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
+	UNUSED_ARGUMENT(list);
+	UNUSED_ARGUMENT(num);
+	UNUSED_ARGUMENT(agent);
+	UNUSED_ARGUMENT(timestamp);
 	logmsg(LOGLEVEL_DEBUG, "Generic store ip");
 }
 
 void storage_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
+	UNUSED_ARGUMENT(list);
+	UNUSED_ARGUMENT(num);
+	UNUSED_ARGUMENT(agent);
+	UNUSED_ARGUMENT(timestamp);
 	logmsg(LOGLEVEL_DEBUG, "Generic store tcp");
 }
 
 void storage_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
+	UNUSED_ARGUMENT(list);
+	UNUSED_ARGUMENT(num);
+	UNUSED_ARGUMENT(agent);
+	UNUSED_ARGUMENT(timestamp);
 	logmsg(LOGLEVEL_DEBUG, "Generic store udp");
 }
 
 void storage_store_cntr(counter_list_t* list){
+	UNUSED_ARGUMENT(list);
 	logmsg(LOGLEVEL_DEBUG, "Generic store counters");
 }
 
