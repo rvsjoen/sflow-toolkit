@@ -23,7 +23,7 @@ void storage_mysql_init(){
 	logmsg(LOGLEVEL_DEBUG, "storage: connected to database");
 }
 
-void storage_mysqldestroy(){
+void storage_mysql_destroy(){
 	mysql_close(&db);
 	logmsg(LOGLEVEL_DEBUG, "storage: closed database connection");
 }
@@ -316,6 +316,8 @@ void storage_mysql_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t age
 void storage_mysql_store_cntr(counter_list_t* list){
 	counter_list_node_t* node = list->data;
 
+	uint32_t cnt = 0;
+
 	while(node != NULL){
 		SFCntrSample* s = node->sample;
 
@@ -358,18 +360,20 @@ void storage_mysql_store_cntr(counter_list_t* list){
 //		logmsg(LOGLEVEL_DEBUG, "%s", query);
 		free(query);
 		node = node->next;
+		cnt++;
 	}
+	logmsg(LOGLEVEL_DEBUG, "Stored %u counter samples", cnt);
 }
 
 storage_module_t storage_mod_mysql = {
 	.name 					= "mysql",
 	.init 					= storage_mysql_init,
-	.destroy 				= NULL,
-	.store_cntr 			= NULL,
-	.store_conv_ethernet 	= NULL,
-	.store_conv_ip 			= NULL,
-	.store_conv_tcp 		= NULL,
-	.store_conv_udp 		= NULL
+	.destroy 				= storage_mysql_destroy,
+	.store_cntr 			= storage_mysql_store_cntr,
+	.store_conv_ethernet 	= storage_mysql_store_conv_ethernet,
+	.store_conv_ip 			= storage_mysql_store_conv_ip,
+	.store_conv_tcp 		= storage_mysql_store_conv_tcp,
+	.store_conv_udp 		= storage_mysql_store_conv_udp
 };
 
 void storage_mysql_load(){
