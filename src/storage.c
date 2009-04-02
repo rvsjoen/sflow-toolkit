@@ -91,7 +91,7 @@ void storage_modules_destroy(){
 
 void storage_modules_store_cntr(counter_list_t* list){
 	storage_module_list_node_t* node;
-	node = list->data;
+	node = storage_modules->data;
 	while(node){
 		storage_module_t* module = node->module;
 		if(module->store_cntr == NULL)
