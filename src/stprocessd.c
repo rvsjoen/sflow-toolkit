@@ -18,7 +18,9 @@
 #include "util.h"
 #include "dataparser.h"
 #include "configparser.h"
+
 #include "storage.h"
+#include "storage_mysql.h"
 
 #define DEFAULT_CONFIG_FILE     "/etc/sflow-toolkit.conf"
 
@@ -58,7 +60,14 @@ int main(int argc, char** argv){
 
 	time_t start = time(NULL);
 
-	storage_init();
+	// Initialize the storage system
+	storage_system_init();
+	
+	// Load the active storage modules
+	storage_mysql_load();
+
+	// Initialize each loaded storage module
+	storage_modules_init();
 	queue = open_msg_queue(MSG_QUEUE_NAME);
 
 	msg_t m;
@@ -72,6 +81,7 @@ int main(int argc, char** argv){
 	}
 
 	close_msg_queue(queue);
-	storage_destroy();
+	storage_modules_destroy();
+	storage_system_destroy();
 	return EXIT_SUCCESS;
 }

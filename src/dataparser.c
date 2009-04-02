@@ -29,7 +29,7 @@ void process_file_cntr(const char* filename, uint32_t agent, uint32_t timestamp)
 	}
 
 	// Store the counter samples
-	storage_store_cntr(cntr_list);
+	storage_modules_store_cntr(cntr_list);
 
 	// Free the memory
 	counter_list_node_t* node = cntr_list->data;
@@ -64,10 +64,10 @@ void process_file_flow(const char* filename, uint32_t agent, uint32_t timestamp)
 		logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
 	}
 	
-	storage_store_conv_ethernet(hash_ethernet, HASH_RANGE, agent, timestamp);
-	storage_store_conv_ip(hash_ip, HASH_RANGE, agent, timestamp);
-	storage_store_conv_tcp(hash_tcp, HASH_RANGE, agent, timestamp);
-	storage_store_conv_udp(hash_udp, HASH_RANGE, agent, timestamp);
+	storage_modules_store_conv_ethernet(hash_ethernet, HASH_RANGE, agent, timestamp);
+	storage_modules_store_conv_ip(hash_ip, HASH_RANGE, agent, timestamp);
+	storage_modules_store_conv_tcp(hash_tcp, HASH_RANGE, agent, timestamp);
+	storage_modules_store_conv_udp(hash_udp, HASH_RANGE, agent, timestamp);
 
 	//TODO Free memory here instead of the storage module
 	conv_list_free(hash_ethernet);
