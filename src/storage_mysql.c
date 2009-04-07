@@ -316,7 +316,6 @@ void storage_mysql_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t age
 	logmsg(LOGLEVEL_DEBUG, "Stored %u udp conversations", cnt);
 }
 
-
 void storage_mysql_store_cntr(counter_list_t* list){
 	char* query;
 	char* ptr;
@@ -340,12 +339,10 @@ void storage_mysql_store_cntr(counter_list_t* list){
 	while(node != NULL){
 		SFCntrSample* s = node->sample;
 
-		char* query;
 		char a[16];
 		num_to_ip(s->agent_address, a);
 
-		ptr += sizeof(char) * sprintf(ptr,	"(%u, '%s', %u, %u, %llu, %u, %u, %llu, %u, %u, %u, %u, %u, %u, \
-						%llu, %u, %u, %u, %u, %u, %u),", 
+		ptr += sizeof(char) * sprintf(ptr,	"(%u, '%s', %u, %u, %llu, %u, %u, %llu, %u, %u, %u, %u, %u, %u, %llu, %u, %u, %u, %u, %u, %u),",
 				(uint32_t)s->timestamp,
 				a,
 				s->counter_generic_if_index,
@@ -367,7 +364,8 @@ void storage_mysql_store_cntr(counter_list_t* list){
 				s->counter_generic_if_out_discards,
 				s->counter_generic_if_out_errors,
 				s->counter_generic_if_promisc
-				);
+		);
+
 		cnt++;
 
 		if(cnt%BULK_INSERT_NUM == 0){
