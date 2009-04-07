@@ -7,6 +7,7 @@
 #define BULK_INSERT_SIZE_IP 		200
 #define BULK_INSERT_SIZE_TCP 		200
 #define BULK_INSERT_SIZE_UDP 		200
+#define BULK_INSERT_SIZE_CNTR		600
 
 MYSQL db;
 
@@ -21,6 +22,8 @@ void storage_mysql_init(){
 	if(!mysql_real_connect(&db, DB_HOST, DB_USER, DB_PASS, DB_NAME, 0, NULL, 0))
 		storage_mysql_error();
 	logmsg(LOGLEVEL_DEBUG, "storage: connected to database");
+
+
 }
 
 void storage_mysql_destroy(){
@@ -313,7 +316,23 @@ void storage_mysql_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t age
 	logmsg(LOGLEVEL_DEBUG, "Stored %u udp conversations", cnt);
 }
 
+
 void storage_mysql_store_cntr(counter_list_t* list){
+	char* query;
+	char* ptr;
+	query = (char*) malloc(sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE_CNTR);
+
+	char stmt[] = "INSERT INTO counters (\
+				timestamp,agent,if_index,if_type,if_speed,if_direction,if_if_status,\
+				if_in_octets,if_in_ucast_pkts,if_in_mcast_pkts,if_in_bcast_pkts,\
+				if_in_discards,if_in_errors,if_in_unknown_proto,if_out_octets,\
+				if_out_ucast_pkts,if_out_mcast_pkts,if_out_bcast_pkts,if_out_discards,\
+				if_out_errors,if_promisc) VALUES ";
+
+	ptr = query;
+	memset(query, 0, sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE_CNTR);
+	ptr += sizeof(char) * sprintf(ptr, stmt);
+
 	counter_list_node_t* node = list->data;
 
 	uint32_t cnt = 0;
@@ -325,15 +344,8 @@ void storage_mysql_store_cntr(counter_list_t* list){
 		char a[16];
 		num_to_ip(s->agent_address, a);
 
-		asprintf(&query, 
-				"INSERT INTO counters (\
-				timestamp,agent,if_index,if_type,if_speed,if_direction,if_if_status,\
-				if_in_octets,if_in_ucast_pkts,if_in_mcast_pkts,if_in_bcast_pkts,\
-				if_in_discards,if_in_errors,if_in_unknown_proto,if_out_octets,\
-				if_out_ucast_pkts,if_out_mcast_pkts,if_out_bcast_pkts,if_out_discards,\
-				if_out_errors,if_promisc)\
-				VALUES (%u, '%s', %u, %u, %llu, %u, %u, %llu, %u, %u, %u, %u, %u, %u, \
-						%llu, %u, %u, %u, %u, %u, %u)", 
+		ptr += sizeof(char) * sprintf(ptr,	"(%u, '%s', %u, %u, %llu, %u, %u, %llu, %u, %u, %u, %u, %u, %u, \
+						%llu, %u, %u, %u, %u, %u, %u),", 
 				(uint32_t)s->timestamp,
 				a,
 				s->counter_generic_if_index,
@@ -356,12 +368,21 @@ void storage_mysql_store_cntr(counter_list_t* list){
 				s->counter_generic_if_out_errors,
 				s->counter_generic_if_promisc
 				);
-		mysql_query(&db, query);
-//		logmsg(LOGLEVEL_DEBUG, "%s", query);
-		free(query);
-		node = node->next;
 		cnt++;
+
+		if(cnt%BULK_INSERT_NUM == 0){
+			*(--ptr) = ' ';
+			mysql_query(&db, query);
+			ptr = query;
+			memset(query, 0, sizeof(char) * BULK_INSERT_NUM * BULK_INSERT_SIZE_CNTR); 
+			ptr += sizeof(char) * sprintf(ptr, stmt);
+		}
+
+		node = node->next;
 	}
+	*(--ptr) = ' ';
+	mysql_query(&db, query);
+	free(query);
 	logmsg(LOGLEVEL_DEBUG, "Stored %u counter samples", cnt);
 }
 
