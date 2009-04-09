@@ -19,6 +19,9 @@ void storage_mysql_destroy();
 
 // Functions to create new tables on demand
 void storage_mysql_create_conv_ethernet(uint32_t timestamp);
+void storage_mysql_create_conv_ip(uint32_t timestamp);
+void storage_mysql_create_conv_tcp(uint32_t timestamp);
+void storage_mysql_create_conv_udp(uint32_t timestamp);
 
 // Functions to store different kinds of conversations
 void storage_mysql_store_cntr(counter_list_t* list);

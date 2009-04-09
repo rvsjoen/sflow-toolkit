@@ -8,12 +8,19 @@
 #define BULK_INSERT_SIZE_TCP 		200
 #define BULK_INSERT_SIZE_UDP 		200
 #define BULK_INSERT_SIZE_CNTR		600
-#define TABLE_INTERVAL				86400
+#define TABLE_INTERVAL				1440 // Minutes
 
 MYSQL db;
 
 uint32_t table_conv_ethernet;
+uint32_t table_conv_ip;
+uint32_t table_conv_tcp;
+uint32_t table_conv_udp;
+
 char table_conv_ethernet_name[32];
+char table_conv_ip_name[32];
+char table_conv_tcp_name[32];
+char table_conv_udp_name[32];
 
 void storage_mysql_error(){
 		logmsg(LOGLEVEL_ERROR, "storage-mysql: %s", mysql_error(&db));
@@ -26,7 +33,10 @@ void storage_mysql_init(){
 	if(!mysql_real_connect(&db, DB_HOST, DB_USER, DB_PASS, DB_NAME, 0, NULL, 0))
 		storage_mysql_error();
 	logmsg(LOGLEVEL_DEBUG, "storage-mysql: connected to database");
-	storage_mysql_create_conv_ethernet(time(NULL));
+	storage_mysql_create_conv_ethernet(time(NULL)/60);
+	storage_mysql_create_conv_ip(time(NULL)/60);
+	storage_mysql_create_conv_tcp(time(NULL)/60);
+	storage_mysql_create_conv_udp(time(NULL)/60);
 }
 
 void storage_mysql_destroy(){
@@ -37,7 +47,11 @@ void storage_mysql_destroy(){
 void storage_mysql_create_conv_ethernet(uint32_t timestamp){
 	char title[32];
 	struct tm* tmp;
-	tmp = localtime((time_t*)&timestamp);
+
+	time_t t = (time_t) timestamp;
+	t *= 60;
+	tmp = localtime(&t);
+
 	strftime(title, 32, "conv_ethernet_%d%m%y", tmp);
 	char query[512];
 	MYSQL_RES* res;
@@ -46,12 +60,84 @@ void storage_mysql_create_conv_ethernet(uint32_t timestamp){
 		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
 	} else {
 		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
-		sprintf(query,"CREATE TABLE %s( timestamp INTEGER UNSIGNED, agent VARCHAR(16), input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src VARCHAR(18), dst VARCHAR(18), bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT conv_ethernet_pk PRIMARY KEY (timestamp,agent,input_if,output_if,src,dst)) ENGINE=archive",title);
+		sprintf(query,"CREATE TABLE %s ( timestamp INTEGER UNSIGNED, agent VARCHAR(16), input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src VARCHAR(18), dst VARCHAR(18), bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (timestamp,agent,input_if,output_if,src,dst)) ENGINE=archive", title, title);
 		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
 		mysql_query(&db, query);
 	}
 	table_conv_ethernet = timestamp/TABLE_INTERVAL;
 	strncpy(table_conv_ethernet_name, title, 32);
+}
+
+void storage_mysql_create_conv_ip(uint32_t timestamp){
+	char title[32];
+	struct tm* tmp;
+
+	time_t t = (time_t) timestamp;
+	t *= 60;
+	tmp = localtime(&t);
+
+	strftime(title, 32, "conv_ip_%d%m%y", tmp);
+	char query[512];
+	MYSQL_RES* res;
+	res = mysql_list_tables(&db, title);
+	if ( mysql_num_rows(res) > 0 ){
+		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
+	} else {
+		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
+		sprintf(query,"CREATE TABLE %s (timestamp INTEGER UNSIGNED, agent VARCHAR(16), input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src VARCHAR(16), dst VARCHAR(16), bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (timestamp,agent,input_if,output_if,src,dst) ) ENGINE=archive", title, title);
+		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
+		mysql_query(&db, query);
+	}
+	table_conv_ip = timestamp/TABLE_INTERVAL;
+	strncpy(table_conv_ip_name, title, 32);
+}
+
+void storage_mysql_create_conv_tcp(uint32_t timestamp){
+	char title[32];
+	struct tm* tmp;
+
+	time_t t = (time_t) timestamp;
+	t *= 60;
+	tmp = localtime(&t);
+
+	strftime(title, 32, "conv_tcp_%d%m%y", tmp);
+	char query[512];
+	MYSQL_RES* res;
+	res = mysql_list_tables(&db, title);
+	if ( mysql_num_rows(res) > 0 ){
+		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
+	} else {
+		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
+		sprintf(query, "CREATE TABLE %s ( timestamp INTEGER UNSIGNED, agent VARCHAR(16), input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src VARCHAR(16), sport INTEGER UNSIGNED, dst VARCHAR(16), dport INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (timestamp,agent,input_if,output_if,src,sport,dst,dport) ) ENGINE=archive", title, title);
+		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
+		mysql_query(&db, query);
+	}
+	table_conv_tcp = timestamp/TABLE_INTERVAL;
+	strncpy(table_conv_tcp_name, title, 32);
+}
+
+void storage_mysql_create_conv_udp(uint32_t timestamp){
+	char title[32];
+	struct tm* tmp;
+
+	time_t t = (time_t) timestamp;
+	t *= 60;
+	tmp = localtime(&t);
+
+	strftime(title, 32, "conv_udp_%d%m%y", tmp);
+	char query[512];
+	MYSQL_RES* res;
+	res = mysql_list_tables(&db, title);
+	if ( mysql_num_rows(res) > 0 ){
+		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
+	} else {
+		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
+		sprintf(query, "CREATE TABLE %s ( timestamp INTEGER UNSIGNED, agent VARCHAR(16), input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src VARCHAR(16), sport INTEGER UNSIGNED, dst VARCHAR(16), dport INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (timestamp,agent,input_if,output_if,src,sport,dst,dport) ) ENGINE=archive", title, title);
+		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
+		mysql_query(&db, query);
+	}
+	table_conv_udp = timestamp/TABLE_INTERVAL;
+	strncpy(table_conv_udp_name, title, 32);
 }
 
 void storage_mysql_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
@@ -64,7 +150,6 @@ void storage_mysql_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_
 	query = (char*) malloc(sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE_ETHERNET);
 
 	char stmt[] = "INSERT INTO %s (timestamp,agent,input_if,output_if,src,dst,bytes,frames) VALUES ";
-
 
 	ptr = query;
 	memset(query, 0, sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE_ETHERNET); 
@@ -119,7 +204,7 @@ void storage_mysql_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_
 				mysql_query(&db, query);
 				ptr = query;
 				memset(query, 0, sizeof(char) * BULK_INSERT_NUM * BULK_INSERT_SIZE_ETHERNET); 
-				ptr += sizeof(char) * sprintf(ptr, stmt);
+				ptr += sizeof(char) * sprintf(ptr, stmt, table_conv_ethernet_name);
 			}
 		}
 	}
@@ -130,15 +215,19 @@ void storage_mysql_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_
 }
 
 void storage_mysql_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
+
+	if(table_conv_ip < timestamp/TABLE_INTERVAL)
+		 storage_mysql_create_conv_ip(timestamp);
+
 	char* query;
 	char* ptr;
 	query = (char*) malloc(sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE_IP);
 
-	char stmt[] = "INSERT INTO conv_ip (timestamp,agent,input_if,output_if,src,dst,bytes,frames) VALUES ";
+	char stmt[] = "INSERT INTO %s (timestamp,agent,input_if,output_if,src,dst,bytes,frames) VALUES ";
 
 	ptr = query;
 	memset(query, 0, sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE_IP); 
-	ptr += sizeof(char) * sprintf(ptr, stmt);
+	ptr += sizeof(char) * sprintf(ptr, stmt, table_conv_ip_name);
 
 	uint32_t cnt = 0;
 
@@ -191,7 +280,7 @@ void storage_mysql_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agen
 				mysql_query(&db, query);
 				ptr = query;
 				memset(query, 0, sizeof(char) * BULK_INSERT_NUM * BULK_INSERT_SIZE_IP); 
-				ptr += sizeof(char) * sprintf(ptr, stmt);
+				ptr += sizeof(char) * sprintf(ptr, stmt, table_conv_ip_name);
 			}
 		}
 	}
@@ -202,15 +291,19 @@ void storage_mysql_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agen
 }
 
 void storage_mysql_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
+
+	if(table_conv_tcp < timestamp/TABLE_INTERVAL)
+		 storage_mysql_create_conv_tcp(timestamp);
+
 	char* query;
 	char* ptr;
 	query = (char*) malloc(sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE_TCP);
 
-	char stmt[] = "INSERT INTO conv_tcp (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,frames) VALUES ";
+	char stmt[] = "INSERT INTO %s (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,frames) VALUES ";
 
 	ptr = query;
 	memset(query, 0, sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE_TCP); 
-	ptr += sizeof(char) * sprintf(ptr, stmt);
+	ptr += sizeof(char) * sprintf(ptr, stmt, table_conv_tcp_name);
 
 	uint32_t cnt= 0;
 
@@ -271,7 +364,7 @@ void storage_mysql_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t age
 				mysql_query(&db, query);
 				ptr = query;
 				memset(query, 0, sizeof(char) * BULK_INSERT_NUM * BULK_INSERT_SIZE_TCP); 
-				ptr += sizeof(char) * sprintf(ptr, stmt);
+				ptr += sizeof(char) * sprintf(ptr, stmt, table_conv_tcp_name);
 			}
 		}
 	}
@@ -282,15 +375,19 @@ void storage_mysql_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t age
 }
 
 void storage_mysql_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
+
+	if(table_conv_udp < timestamp/TABLE_INTERVAL)
+		 storage_mysql_create_conv_udp(timestamp);
+
 	char* query;
 	char* ptr;
 	query = (char*) malloc(sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE_UDP);
 
-	char stmt[] = "INSERT INTO conv_udp (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,frames) VALUES ";
+	char stmt[] = "INSERT INTO %s (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,frames) VALUES ";
 
 	ptr = query;
 	memset(query, 0, sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE_UDP); 
-	ptr += sizeof(char) * sprintf(ptr, stmt);
+	ptr += sizeof(char) * sprintf(ptr, stmt, table_conv_udp_name);
 
 	uint32_t cnt= 0;
 	uint32_t i;
@@ -334,7 +431,7 @@ void storage_mysql_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t age
 				mysql_query(&db, query);
 				ptr = query;
 				memset(query, 0, sizeof(char) * BULK_INSERT_NUM * BULK_INSERT_SIZE_UDP); 
-				ptr += sizeof(char) * sprintf(ptr, stmt);
+				ptr += sizeof(char) * sprintf(ptr, stmt, table_conv_udp_name);
 			}
 		}
 	}
