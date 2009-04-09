@@ -29,7 +29,7 @@ void process_file_cntr(const char* filename, uint32_t agent, uint32_t timestamp)
 	}
 
 	// Store the counter samples
-	storage_modules_store_cntr(cntr_list);
+	storage_modules_store_cntr(cntr_list, timestamp);
 
 	// Free the memory
 	counter_list_node_t* node = cntr_list->data;

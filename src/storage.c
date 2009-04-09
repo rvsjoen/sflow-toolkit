@@ -42,7 +42,7 @@ void storage_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t agent, ui
 	logmsg(LOGLEVEL_DEBUG, "Generic store udp");
 }
 
-void storage_store_cntr(counter_list_t* list){
+void storage_store_cntr(counter_list_t* list, uint32_t timestamp){
 	UNUSED_ARGUMENT(list);
 	logmsg(LOGLEVEL_DEBUG, "Generic store counters");
 }
@@ -106,15 +106,15 @@ void storage_modules_destroy(){
 	}
 }
 
-void storage_modules_store_cntr(counter_list_t* list){
+void storage_modules_store_cntr(counter_list_t* list, uint32_t timestamp){
 	storage_module_list_node_t* node;
 	node = storage_modules->data;
 	while(node){
 		storage_module_t* module = node->module;
 		if(module->store_cntr == NULL)
-			storage_store_cntr(list);
+			storage_store_cntr(list, timestamp);
 		else
-			module->store_cntr(list);
+			module->store_cntr(list, timestamp);
 		node = node->next;
 	}
 }

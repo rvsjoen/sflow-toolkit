@@ -16,11 +16,13 @@ uint32_t table_conv_ethernet;
 uint32_t table_conv_ip;
 uint32_t table_conv_tcp;
 uint32_t table_conv_udp;
+uint32_t table_counters;
 
 char table_conv_ethernet_name[32];
 char table_conv_ip_name[32];
 char table_conv_tcp_name[32];
 char table_conv_udp_name[32];
+char table_counters_name[32];
 
 void storage_mysql_error(){
 		logmsg(LOGLEVEL_ERROR, "storage-mysql: %s", mysql_error(&db));
@@ -138,6 +140,30 @@ void storage_mysql_create_conv_udp(uint32_t timestamp){
 	}
 	table_conv_udp = timestamp/TABLE_INTERVAL;
 	strncpy(table_conv_udp_name, title, 32);
+}
+
+void storage_mysql_create_counters(uint32_t timestamp){
+	char title[32];
+	struct tm* tmp;
+
+	time_t t = (time_t) timestamp;
+	t *= 60;
+	tmp = localtime(&t);
+
+	strftime(title, 32, "counters_%d%m%y", tmp);
+	char query[512];
+	MYSQL_RES* res;
+	res = mysql_list_tables(&db, title);
+	if ( mysql_num_rows(res) > 0 ){
+		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
+	} else {
+		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
+		sprintf(query, "CREATE TABLE %s (timestamp INTEGER UNSIGNED,agent VARCHAR(16),if_index INTEGER UNSIGNED,if_type	INTEGER UNSIGNED,if_speed BIGINT UNSIGNED,if_direction INTEGER UNSIGNED,if_if_status INTEGER UNSIGNED,if_in_octets BIGINT UNSIGNED,if_in_ucast_pkts INTEGER UNSIGNED,if_in_mcast_pkts INTEGER UNSIGNED,if_in_bcast_pkts INTEGER UNSIGNED,if_in_discards INTEGER UNSIGNED,if_in_errors INTEGER UNSIGNED,if_in_unknown_proto INTEGER UNSIGNED,if_out_octets BIGINT UNSIGNED,if_out_ucast_pkts INTEGER UNSIGNED,if_out_mcast_pkts INTEGER UNSIGNED,if_out_bcast_pkts INTEGER UNSIGNED,if_out_discards INTEGER UNSIGNED,if_out_errors INTEGER UNSIGNED,if_promisc INTEGER UNSIGNED,CONSTRAINT %s_pk PRIMARY KEY (timestamp,agent,if_index)) ENGINE=archive", title, title);
+		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
+		mysql_query(&db, query);
+	}
+	table_counters = timestamp/TABLE_INTERVAL;
+	strncpy(table_counters_name, title, 32);
 }
 
 void storage_mysql_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
@@ -441,12 +467,16 @@ void storage_mysql_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t age
 	logmsg(LOGLEVEL_DEBUG, "Stored %u udp conversations", cnt);
 }
 
-void storage_mysql_store_cntr(counter_list_t* list){
+void storage_mysql_store_cntr(counter_list_t* list, uint32_t timestamp){
+
+	if(table_counters < timestamp/TABLE_INTERVAL)
+		 storage_mysql_create_counters(timestamp);
+
 	char* query;
 	char* ptr;
 	query = (char*) malloc(sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE_CNTR);
 
-	char stmt[] = "INSERT INTO counters (\
+	char stmt[] = "INSERT INTO %s (\
 				timestamp,agent,if_index,if_type,if_speed,if_direction,if_if_status,\
 				if_in_octets,if_in_ucast_pkts,if_in_mcast_pkts,if_in_bcast_pkts,\
 				if_in_discards,if_in_errors,if_in_unknown_proto,if_out_octets,\
@@ -455,7 +485,7 @@ void storage_mysql_store_cntr(counter_list_t* list){
 
 	ptr = query;
 	memset(query, 0, sizeof(char)*BULK_INSERT_NUM*BULK_INSERT_SIZE_CNTR);
-	ptr += sizeof(char) * sprintf(ptr, stmt);
+	ptr += sizeof(char) * sprintf(ptr, stmt, table_counters_name);
 
 	counter_list_node_t* node = list->data;
 
@@ -498,7 +528,7 @@ void storage_mysql_store_cntr(counter_list_t* list){
 			mysql_query(&db, query);
 			ptr = query;
 			memset(query, 0, sizeof(char) * BULK_INSERT_NUM * BULK_INSERT_SIZE_CNTR); 
-			ptr += sizeof(char) * sprintf(ptr, stmt);
+			ptr += sizeof(char) * sprintf(ptr, stmt, table_counters_name);
 		}
 
 		node = node->next;
