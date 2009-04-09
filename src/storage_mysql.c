@@ -151,7 +151,7 @@ void storage_mysql_create_counters(uint32_t timestamp){
 	tmp = localtime(&t);
 
 	strftime(title, 32, "counters_%d%m%y", tmp);
-	char query[512];
+	char* query = (char*) malloc(sizeof(char)*512);
 	MYSQL_RES* res;
 	res = mysql_list_tables(&db, title);
 	if ( mysql_num_rows(res) > 0 ){
@@ -160,10 +160,12 @@ void storage_mysql_create_counters(uint32_t timestamp){
 		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
 		sprintf(query, "CREATE TABLE %s (timestamp INTEGER UNSIGNED,agent VARCHAR(16),if_index INTEGER UNSIGNED,if_type	INTEGER UNSIGNED,if_speed BIGINT UNSIGNED,if_direction INTEGER UNSIGNED,if_if_status INTEGER UNSIGNED,if_in_octets BIGINT UNSIGNED,if_in_ucast_pkts INTEGER UNSIGNED,if_in_mcast_pkts INTEGER UNSIGNED,if_in_bcast_pkts INTEGER UNSIGNED,if_in_discards INTEGER UNSIGNED,if_in_errors INTEGER UNSIGNED,if_in_unknown_proto INTEGER UNSIGNED,if_out_octets BIGINT UNSIGNED,if_out_ucast_pkts INTEGER UNSIGNED,if_out_mcast_pkts INTEGER UNSIGNED,if_out_bcast_pkts INTEGER UNSIGNED,if_out_discards INTEGER UNSIGNED,if_out_errors INTEGER UNSIGNED,if_promisc INTEGER UNSIGNED,CONSTRAINT %s_pk PRIMARY KEY (timestamp,agent,if_index)) ENGINE=archive", title, title);
 		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
-		mysql_query(&db, query);
+		if(!mysql_query(&db, query))
+			storage_mysql_error();
 	}
 	table_counters = timestamp/TABLE_INTERVAL;
 	strncpy(table_counters_name, title, 32);
+	free(query);
 }
 
 void storage_mysql_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
@@ -492,7 +494,7 @@ void storage_mysql_store_cntr(counter_list_t* list, uint32_t timestamp){
 	uint32_t cnt = 0;
 
 	while(node != NULL){
-		SFCntrSample* s = node->sample;
+		SFCntrSample* s = &node->sample;
 
 		char a[16];
 		num_to_ip(s->agent_address, a);

@@ -140,7 +140,7 @@ typedef struct _conv_list {
 } conv_list_t;
 
 typedef struct _counter_list_node {
-	SFCntrSample* sample;
+	SFCntrSample sample;
 	struct _counter_list_node* next;
 } counter_list_node_t;
 

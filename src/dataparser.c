@@ -109,7 +109,7 @@ void process_sample_flow(SFFlowSample* s){
 void process_sample_cntr(SFCntrSample* s){
 	counter_list_node_t* node = (counter_list_node_t*) malloc(sizeof(counter_list_node_t));
 	memset(node, 0, sizeof(counter_list_node_t));
-	node->sample = s;
+	memcpy(&node->sample, s, sizeof(SFCntrSample));
 	if(cntr_list->data != NULL){
 		node->next = cntr_list->data;
 	}
