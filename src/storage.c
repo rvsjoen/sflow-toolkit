@@ -2,51 +2,6 @@
 
 storage_module_list_t* storage_modules;
 
-void storage_init(){
-	logmsg(LOGLEVEL_DEBUG, "Generic init");
-}
-
-void storage_destroy(){
-	logmsg(LOGLEVEL_DEBUG, "Generic destroy");
-}
-
-void storage_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
-	UNUSED_ARGUMENT(list);
-	UNUSED_ARGUMENT(num);
-	UNUSED_ARGUMENT(agent);
-	UNUSED_ARGUMENT(timestamp);
-	logmsg(LOGLEVEL_DEBUG, "Generic store ethernet");
-}
-
-void storage_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
-	UNUSED_ARGUMENT(list);
-	UNUSED_ARGUMENT(num);
-	UNUSED_ARGUMENT(agent);
-	UNUSED_ARGUMENT(timestamp);
-	logmsg(LOGLEVEL_DEBUG, "Generic store ip");
-}
-
-void storage_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
-	UNUSED_ARGUMENT(list);
-	UNUSED_ARGUMENT(num);
-	UNUSED_ARGUMENT(agent);
-	UNUSED_ARGUMENT(timestamp);
-	logmsg(LOGLEVEL_DEBUG, "Generic store tcp");
-}
-
-void storage_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
-	UNUSED_ARGUMENT(list);
-	UNUSED_ARGUMENT(num);
-	UNUSED_ARGUMENT(agent);
-	UNUSED_ARGUMENT(timestamp);
-	logmsg(LOGLEVEL_DEBUG, "Generic store udp");
-}
-
-void storage_store_cntr(counter_list_t* list, uint32_t timestamp){
-	UNUSED_ARGUMENT(list);
-	logmsg(LOGLEVEL_DEBUG, "Generic store counters");
-}
-
 void storage_system_init(){
 	storage_modules = (storage_module_list_t*) malloc(sizeof(storage_module_list_t));
 	memset(storage_modules, 0, sizeof(storage_module_list_t));
@@ -83,9 +38,7 @@ void storage_modules_init(){
 	while(node){
 		storage_module_t* module = node->module;
 		logmsg(LOGLEVEL_INFO, "... %s", module->name);
-		if(module->init == NULL)
-			storage_init();
-		else
+		if(module->init != NULL)
 			module->init();
 		node = node->next;
 	}
@@ -98,9 +51,7 @@ void storage_modules_destroy(){
 	while(node){
 		storage_module_t* module = node->module;
 		logmsg(LOGLEVEL_INFO, "... %s", module->name);
-		if(module->destroy == NULL)
-			storage_destroy();
-		else
+		if(module->destroy != NULL)
 			module->destroy();
 		node = node->next;
 	}
@@ -111,9 +62,7 @@ void storage_modules_store_cntr(counter_list_t* list, uint32_t timestamp){
 	node = storage_modules->data;
 	while(node){
 		storage_module_t* module = node->module;
-		if(module->store_cntr == NULL)
-			storage_store_cntr(list, timestamp);
-		else
+		if(module->store_cntr != NULL)
 			module->store_cntr(list, timestamp);
 		node = node->next;
 	}
@@ -124,9 +73,7 @@ void storage_modules_store_conv_ethernet(conv_list_t** list, uint32_t num, uint3
 	node = storage_modules->data;
 	while(node){
 		storage_module_t* module = node->module;
-		if(module->store_conv_ethernet == NULL)
-			storage_store_conv_ethernet(list, num, agent, timestamp);
-		else
+		if(module->store_conv_ethernet != NULL)
 			module->store_conv_ethernet(list, num, agent, timestamp);
 		node = node->next;
 	}
@@ -137,9 +84,7 @@ void storage_modules_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t ag
 	node = storage_modules->data;
 	while(node){
 		storage_module_t* module = node->module;
-		if(module->store_conv_ip == NULL)
-			storage_store_conv_ip(list, num, agent, timestamp);
-		else
+		if(module->store_conv_ip != NULL)
 			module->store_conv_ip(list, num, agent, timestamp);
 		node = node->next;
 	}
@@ -150,9 +95,7 @@ void storage_modules_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t a
 	node = storage_modules->data;
 	while(node){
 		storage_module_t* module = node->module;
-		if(module->store_conv_tcp == NULL)
-			storage_store_conv_tcp(list, num, agent, timestamp);
-		else
+		if(module->store_conv_tcp != NULL)
 			module->store_conv_tcp(list, num, agent, timestamp);
 		node = node->next;
 	}
@@ -163,9 +106,7 @@ void storage_modules_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t a
 	node = storage_modules->data;
 	while(node){
 		storage_module_t* module = node->module;
-		if(module->store_conv_udp == NULL)
-			storage_store_conv_udp(list, num, agent, timestamp);
-		else
+		if(module->store_conv_udp != NULL)
 			module->store_conv_udp(list, num, agent, timestamp);
 		node = node->next;
 	}
