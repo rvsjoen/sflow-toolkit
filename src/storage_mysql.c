@@ -160,7 +160,7 @@ void storage_mysql_create_counters(uint32_t timestamp){
 		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
 		sprintf(query, "CREATE TABLE %s (timestamp INTEGER UNSIGNED,agent VARCHAR(16),if_index INTEGER UNSIGNED,if_type	INTEGER UNSIGNED,if_speed BIGINT UNSIGNED,if_direction INTEGER UNSIGNED,if_if_status INTEGER UNSIGNED,if_in_octets BIGINT UNSIGNED,if_in_ucast_pkts INTEGER UNSIGNED,if_in_mcast_pkts INTEGER UNSIGNED,if_in_bcast_pkts INTEGER UNSIGNED,if_in_discards INTEGER UNSIGNED,if_in_errors INTEGER UNSIGNED,if_in_unknown_proto INTEGER UNSIGNED,if_out_octets BIGINT UNSIGNED,if_out_ucast_pkts INTEGER UNSIGNED,if_out_mcast_pkts INTEGER UNSIGNED,if_out_bcast_pkts INTEGER UNSIGNED,if_out_discards INTEGER UNSIGNED,if_out_errors INTEGER UNSIGNED,if_promisc INTEGER UNSIGNED,CONSTRAINT %s_pk PRIMARY KEY (timestamp,agent,if_index)) ENGINE=innodb", title, title);
 		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
-		mysql_query(&db, query)
+		mysql_query(&db, query);
 	}
 	table_counters = timestamp/TABLE_INTERVAL;
 	strncpy(table_counters_name, title, 32);
@@ -169,6 +169,7 @@ void storage_mysql_create_counters(uint32_t timestamp){
 
 void storage_mysql_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
 
+	/*
 	if(table_conv_ethernet < timestamp/TABLE_INTERVAL)
 		 storage_mysql_create_conv_ethernet(timestamp);
 
@@ -239,6 +240,66 @@ void storage_mysql_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_
 	mysql_query(&db, query);
 	free(query);
 	logmsg(LOGLEVEL_DEBUG, "Stored %u ethernet conversations (ip:%u, arp:%u, rarp:%u, 802_1q:%u, ipv6:%u)", cnt, ethertype_ip, ethertype_arp, ethertype_rarp, ethertype_802_1q, ethertype_ipv6 );
+	*/
+
+	/////
+
+	if(table_conv_ethernet < timestamp/TABLE_INTERVAL)
+		storage_mysql_create_conv_ethernet(timestamp);
+
+	uint32_t ethertype_ip = 0, ethertype_arp = 0, ethertype_rarp = 0, ethertype_802_1q = 0, ethertype_ipv6 = 0;
+	uint32_t cnt= 0;
+	uint32_t i;
+	
+	int fd = shm_open("ethernet", O_CREAT | O_RDWR, S_IRWXU);
+	
+	char* buf;
+	buf = (char*) malloc(sizeof(char)*1024);
+
+	for(i=0; i<num;i++) {
+		conv_list_t* l = list[i];
+		if(l == NULL)
+			continue;
+		conv_list_node_t* n = l->data;
+		while(n){
+			
+			conv_key_ethernet_t* k = (conv_key_ethernet_t*) n->key;
+			conv_ethernet_t* c = (conv_ethernet_t*) n->conv;
+
+			ethertype_ip 		+= c->protocols.ethertype_ip;
+			ethertype_arp 		+= c->protocols.ethertype_arp;
+			ethertype_rarp 		+= c->protocols.ethertype_rarp;
+			ethertype_802_1q 	+= c->protocols.ethertype_802_1q;
+			ethertype_ipv6 		+= c->protocols.ethertype_ipv6;
+
+			conv_list_node_t* tmp;
+			tmp = n;
+			n = n->next;
+
+			char a[16];
+			char src[18];
+			char dst[18];
+			strncpy(src, ether_ntoa((const struct ether_addr *)k->src), 18);
+			strncpy(dst, ether_ntoa((const struct ether_addr *)k->dst), 18);
+			num_to_ip(agent, a);
+			sprintf(buf, "%u|'%s'|%u|%u|'%s'|'%s'|%u|%u\n",
+				timestamp,
+				a,
+				k->sflow_input_if,
+				k->sflow_output_if,
+				src,
+				dst,
+				c->bytes, 
+				c->frames
+		   	);
+			write(fd, buf, strlen(buf));
+			cnt++;
+		}
+	}
+	//TODO LOAD INFILE...
+
+	free(buf);
+	shm_unlink("ethernet");
 }
 
 void storage_mysql_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
