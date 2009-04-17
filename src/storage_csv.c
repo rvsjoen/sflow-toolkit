@@ -5,20 +5,21 @@ time_t storage_csv_time;
 uint32_t storage_csv_fd = 0;
 
 void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
+	UNUSED_ARGUMENT(timestamp);
 
 	// If we have no file handle
 	if (storage_csv_fd == 0){
 		char filename[32];
-		sprintf(filename, "counters_csv_%u", time(NULL));
+		sprintf(filename, "counters_csv_%u", (uint32_t)time(NULL));
 		storage_csv_fd = shm_open(filename, O_RDWR | O_CREAT, S_IRWXU);
 		storage_csv_time = time(NULL);
 	}
 
 	// If time is expired we need to create a new file handle
-	if( storage_csv_time % (60*5) == 0 ){
+	if( (time(NULL) - storage_csv_time) >= (60*5)){
 		close(storage_csv_fd);
 		char filename[32];
-		sprintf(filename, "counters_csv_%u", time(NULL));
+		sprintf(filename, "counters_csv_%u", (uint32_t)time(NULL));
 		storage_csv_fd = shm_open(filename, O_RDWR | O_CREAT, S_IRWXU);
 		storage_csv_time = time(NULL);
 	}
@@ -29,7 +30,8 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 		SFCntrSample* s = &node->sample;
 		char a[16];
 		num_to_ip(s->agent_address, a);
-		num = sprintf(buf,	"(%u, '%s', %u, %u, %llu, %u, %u, %llu, %u, %u, %u, %u, %u, %u, %llu, %u, %u, %u, %u, %u, %u)\n",
+		uint32_t num;
+		num = sprintf(buf,	"%u,%s,%u,%u,%llu,%u,%u,%llu,%u,%u,%u,%u,%u,%u,%llu,%u,%u,%u,%u,%u,%u\n",
 				(uint32_t)s->timestamp,
 				a,
 				s->counter_generic_if_index,
