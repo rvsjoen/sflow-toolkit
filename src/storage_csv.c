@@ -55,6 +55,7 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 				s->counter_generic_if_promisc
 		);
 		write(storage_csv_fd, buf, num);
+		node = node->next;
 	}
 }
 
