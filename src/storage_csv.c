@@ -31,6 +31,26 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 		char a[16];
 		num_to_ip(s->agent_address, a);
 		uint32_t num;
+
+		num = sprintf(buf, "%s,%u,%u,%u,%u,%u,%u,%u,%u,%u,%llu,%llu,%u",
+					a,
+					s->counter_generic_if_index,
+					(uint32_t)s->timestamp,
+					s->counter_generic_if_out_discards,
+					s->counter_generic_if_out_errors,
+					0, //loadout
+					s->counter_generic_if_in_ucast_pkts + s->counter_generic_if_in_mcast_pkts + s->counter_generic_if_in_bcast_pkts,
+					s->counter_generic_if_out_ucast_pkts + s->counter_generic_if_out_mcast_pkts + s->counter_generic_if_out_bcast_pkts,
+					0, //loadin
+					s->counter_generic_if_in_discards,
+					0, //mbytesout
+					0, //mbytesin
+					s->counter_generic_if_in_errors
+		);
+
+// Device_IP,interface_index,timestamp,ifOutDiscards,ifOutErrors,LoadOut,if
+// InPackets,ifOutPackets,LoadIn,ifInDiscards,MBytesOut,MBytesIn,ifInErrors
+		/*
 		num = sprintf(buf,	"%u,%s,%u,%u,%llu,%u,%u,%llu,%u,%u,%u,%u,%u,%u,%llu,%u,%u,%u,%u,%u,%u\n",
 				(uint32_t)s->timestamp,
 				a,
@@ -54,6 +74,7 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 				s->counter_generic_if_out_errors,
 				s->counter_generic_if_promisc
 		);
+		*/
 		write(storage_csv_fd, buf, num);
 		node = node->next;
 	}
