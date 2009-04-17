@@ -307,7 +307,7 @@ void storage_mysql_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_
 
 	free(buf);
 	close(fd);
-	shm_unlink("ethernet");
+	shm_unlink("mysql_tmp_ethernet");
 	logmsg(LOGLEVEL_DEBUG, "Stored %u ethernet conversations (ip:%u, arp:%u, rarp:%u, 802_1q:%u, ipv6:%u)", cnt, ethertype_ip, ethertype_arp, ethertype_rarp, ethertype_802_1q, ethertype_ipv6 );
 }
 
