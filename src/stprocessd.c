@@ -21,6 +21,7 @@
 
 #include "storage.h"
 #include "storage_mysql.h"
+#include "storage_rrd.h"
 
 #define DEFAULT_CONFIG_FILE     "/etc/sflow-toolkit.conf"
 
@@ -65,6 +66,7 @@ int main(int argc, char** argv){
 	
 	// Load the active storage modules
 	storage_mysql_load();
+	storage_rrd_load();
 
 	// Initialize each loaded storage module
 	storage_modules_init();
