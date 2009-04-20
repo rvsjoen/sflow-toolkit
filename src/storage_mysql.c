@@ -472,7 +472,7 @@ void storage_mysql_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t age
 }
 
 void storage_mysql_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
-
+/*
 	if(table_conv_udp < timestamp/TABLE_INTERVAL)
 		 storage_mysql_create_conv_udp(timestamp);
 
@@ -535,6 +535,66 @@ void storage_mysql_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t age
 	*(--ptr) = ' ';
 	mysql_query(&db, query);
 	free(query);
+	logmsg(LOGLEVEL_DEBUG, "Stored %u udp conversations", cnt);
+*/
+
+	/////
+
+	if(table_conv_udp < timestamp/TABLE_INTERVAL)
+		storage_mysql_create_conv_udp(timestamp);
+
+	uint32_t cnt= 0;
+	uint32_t i;
+	
+	int fd = shm_open("mysql_tmp_udp", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR | S_IROTH);
+	
+	char* buf;
+	buf = (char*) malloc(sizeof(char)*1024);
+
+	for(i=0; i<num;i++) {
+		conv_list_t* l = list[i];
+		if(l == NULL)
+			continue;
+		conv_list_node_t* n = l->data;
+		while(n){
+			conv_key_udp_t* k = (conv_key_udp_t*) n->key;
+			conv_udp_t* c = (conv_udp_t*) n->conv;
+			conv_list_node_t* tmp;
+			tmp = n;
+			n = n->next;
+			char src[16];
+			char dst[16];
+			char a[16];
+			num_to_ip(agent, a);
+			num_to_ip(k->src, src);
+			num_to_ip(k->dst, dst);
+			sprintf(buf, "%u|%s|%u|%u|%s|%u|%s|%u|%u|%u\n",
+				timestamp,
+				a,
+				k->sflow_input_if,
+				k->sflow_output_if,
+				src,
+				k->src_port,
+				dst,
+				k->dst_port,
+				c->bytes,
+				c->frames
+			);
+			write(fd, buf, strlen(buf));
+			cnt++;
+		}
+	}
+
+	char stmt[256];
+	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_udp' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n'", PATH_SHM, table_conv_udp_name);
+	logmsg(LOGLEVEL_DEBUG, "%s", stmt);
+	       
+	if(mysql_query(&db, stmt) != 0)
+		logmsg(LOGLEVEL_DEBUG, "ERROR LOADING INFILE: %s", mysql_error(&db));
+
+	free(buf);
+	close(fd);
+	shm_unlink("mysql_tmp_udp");
 	logmsg(LOGLEVEL_DEBUG, "Stored %u udp conversations", cnt);
 }
 

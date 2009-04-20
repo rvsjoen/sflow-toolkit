@@ -42,9 +42,7 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 		num_to_ip(s->agent_address, a);
 		uint32_t num;
 
-		// Device_IP,interface_index,timestamp,ifOutDiscards,ifOutErrors,LoadOut,if
-		// InPackets,ifOutPackets,LoadIn,ifInDiscards,MBytesOut,MBytesIn,ifInErrors
-		num = sprintf(buf, "%s,%u,%u,%u,%u,%u,%u,%u,%u,%u,%llu,%llu,%u\n",
+		num = sprintf(buf, "%s,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n",
 					a,
 					s->counter_generic_if_index,
 					(uint32_t)s->timestamp,
@@ -60,33 +58,9 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 					s->counter_generic_if_in_errors
 		);
 
-		/*
-		num = sprintf(buf,	"%u,%s,%u,%u,%llu,%u,%u,%llu,%u,%u,%u,%u,%u,%u,%llu,%u,%u,%u,%u,%u,%u\n",
-				(uint32_t)s->timestamp,
-				a,
-				s->counter_generic_if_index,
-				s->counter_generic_if_type,
-				s->counter_generic_if_speed,
-				s->counter_generic_if_direction,
-				s->counter_generic_if_if_status,
-				s->counter_generic_if_in_octets,
-				s->counter_generic_if_in_ucast_pkts,
-				s->counter_generic_if_in_mcast_pkts,
-				s->counter_generic_if_in_bcast_pkts,
-				s->counter_generic_if_in_discards,
-				s->counter_generic_if_in_errors,
-				s->counter_generic_if_in_unknown_proto,
-				s->counter_generic_if_out_octets,
-				s->counter_generic_if_out_ucast_pkts,
-				s->counter_generic_if_out_mcast_pkts,
-				s->counter_generic_if_out_bcast_pkts,
-				s->counter_generic_if_out_discards,
-				s->counter_generic_if_out_errors,
-				s->counter_generic_if_promisc
-			);
-			*/
-			write(storage_csv_fd, buf, num);
-			node = node->next;
+		write(storage_csv_fd, buf, num);
+		node = node->next;
+
 		}
 	}
 
