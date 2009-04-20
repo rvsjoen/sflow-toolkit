@@ -19,7 +19,12 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 	if( (time(NULL) - storage_csv_time) >= (60*5)){
 		close(storage_csv_fd);
 		char filename[32];
-		sprintf(filename, "counters_csv_%u", (uint32_t)time(NULL));
+
+		struct tmp* tmp;
+		time_t t = time(NULL);
+		tmp = localtime(&t);
+		strftime(filename, 32, "SFlow%Y%m%d_%H_%M.log", tmp);
+
 		storage_csv_fd = shm_open(filename, O_RDWR | O_CREAT, S_IRWXU);
 		storage_csv_time = time(NULL);
 	}
@@ -32,7 +37,9 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 		num_to_ip(s->agent_address, a);
 		uint32_t num;
 
-		num = sprintf(buf, "%s,%u,%u,%u,%u,%u,%u,%u,%u,%u,%llu,%llu,%u",
+		// Device_IP,interface_index,timestamp,ifOutDiscards,ifOutErrors,LoadOut,if
+		// InPackets,ifOutPackets,LoadIn,ifInDiscards,MBytesOut,MBytesIn,ifInErrors
+		num = sprintf(buf, "%s,%u,%u,%u,%u,%u,%u,%u,%u,%u,%llu,%llu,%u\n",
 					a,
 					s->counter_generic_if_index,
 					(uint32_t)s->timestamp,
@@ -48,8 +55,6 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 					s->counter_generic_if_in_errors
 		);
 
-// Device_IP,interface_index,timestamp,ifOutDiscards,ifOutErrors,LoadOut,if
-// InPackets,ifOutPackets,LoadIn,ifInDiscards,MBytesOut,MBytesIn,ifInErrors
 		/*
 		num = sprintf(buf,	"%u,%s,%u,%u,%llu,%u,%u,%llu,%u,%u,%u,%u,%u,%u,%llu,%u,%u,%u,%u,%u,%u\n",
 				(uint32_t)s->timestamp,
@@ -73,12 +78,12 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 				s->counter_generic_if_out_discards,
 				s->counter_generic_if_out_errors,
 				s->counter_generic_if_promisc
-		);
-		*/
-		write(storage_csv_fd, buf, num);
-		node = node->next;
+			);
+			*/
+			write(storage_csv_fd, buf, num);
+			node = node->next;
+		}
 	}
-}
 
 storage_module_t storage_mod_csv = {
 	.name 					= "csv",
