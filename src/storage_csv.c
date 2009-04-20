@@ -10,8 +10,13 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 	// If we have no file handle
 	if (storage_csv_fd == 0){
 		char filename[32];
-		sprintf(filename, "counters_csv_%u", (uint32_t)time(NULL));
-		storage_csv_fd = shm_open(filename, O_RDWR | O_CREAT, S_IRWXU);
+
+		struct tm* tmp;
+		time_t t = time(NULL);
+		tmp = localtime(&t);
+		strftime(filename, 32, "SFlow%Y%m%d_%H_%M.log", tmp);
+
+		storage_csv_fd = shm_open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 		storage_csv_time = time(NULL);
 	}
 
@@ -20,12 +25,12 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 		close(storage_csv_fd);
 		char filename[32];
 
-		struct tmp* tmp;
+		struct tm* tmp;
 		time_t t = time(NULL);
 		tmp = localtime(&t);
 		strftime(filename, 32, "SFlow%Y%m%d_%H_%M.log", tmp);
 
-		storage_csv_fd = shm_open(filename, O_RDWR | O_CREAT, S_IRWXU);
+		storage_csv_fd = shm_open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 		storage_csv_time = time(NULL);
 	}
 
