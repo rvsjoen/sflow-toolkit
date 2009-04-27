@@ -27,7 +27,7 @@
 #define CONV_TCP		0x2
 #define CONV_UDP		0x3
 
-#define HASH_RANGE 		1000
+#define HASH_RANGE 		50000
 
 // Ethernet protocol ID's
 #define ETHERTYPE_PUP       0x0200      /* Xerox PUP */

@@ -224,7 +224,6 @@ void storage_mysql_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_
 
 	char stmt[256];
 	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_ethernet' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n'", PATH_SHM, table_conv_ethernet_name);
-	logmsg(LOGLEVEL_DEBUG, "%s", stmt);
 	       
 	if(mysql_query(&db, stmt) != 0)
 		logmsg(LOGLEVEL_DEBUG, "ERROR LOADING INFILE: %s", mysql_error(&db));
@@ -295,7 +294,6 @@ void storage_mysql_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agen
 
 	char stmt[256];
 	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_ip' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n'", PATH_SHM, table_conv_ip_name);
-	logmsg(LOGLEVEL_DEBUG, "%s", stmt);
 	       
 	if(mysql_query(&db, stmt) != 0)
 		logmsg(LOGLEVEL_DEBUG, "ERROR LOADING INFILE: %s", mysql_error(&db));
@@ -375,7 +373,6 @@ void storage_mysql_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t age
 
 	char stmt[256];
 	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_tcp' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n'", PATH_SHM, table_conv_tcp_name);
-	logmsg(LOGLEVEL_DEBUG, "%s", stmt);
 	       
 	if(mysql_query(&db, stmt) != 0)
 		logmsg(LOGLEVEL_DEBUG, "ERROR LOADING INFILE: %s", mysql_error(&db));
@@ -441,7 +438,6 @@ void storage_mysql_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t age
 
 	char stmt[256];
 	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_udp' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n'", PATH_SHM, table_conv_udp_name);
-	logmsg(LOGLEVEL_DEBUG, "%s", stmt);
 	       
 	if(mysql_query(&db, stmt) != 0)
 		logmsg(LOGLEVEL_DEBUG, "ERROR LOADING INFILE: %s", mysql_error(&db));
