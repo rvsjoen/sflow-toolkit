@@ -224,9 +224,18 @@ void storage_mysql_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_
 
 	char stmt[256];
 	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_ethernet' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n'", PATH_SHM, table_conv_ethernet_name);
-	       
+
+	char stmt_alter_enable[32];
+	sprintf(stmt_alter_enable, "ALTER TABLE %s ENABLE KEYS", table_conv_ethernet_name);
+	char stmt_alter_disable[32];
+	sprintf(stmt_alter_enable, "ALTER TABLE %s DISABLE KEYS", table_conv_ethernet_name);
+
+	mysql_query(&db, "FLUSH TABLES");	
+	mysql_query(&db, stmt_alter_disable);
 	if(mysql_query(&db, stmt) != 0)
 		logmsg(LOGLEVEL_DEBUG, "ERROR LOADING INFILE: %s", mysql_error(&db));
+	mysql_query(&db, stmt_alter_enable);
+	mysql_query(&db, "FLUSH TABLES");	
 
 	free(buf);
 	close(fd);
