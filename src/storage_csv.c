@@ -30,6 +30,8 @@ cntr_status_t* hash_lookup(uint32_t agent, uint32_t ifindex){
 
 	// If this hash bucket has no entries from before, create the first one
 	// Else loop through the entries until we find what we want
+	//
+	
 	if(cntr_status_hash[key] == 0){
 		cntr_status_hash[key] = (cntr_status_t*) malloc(sizeof(cntr_status_t));
 		memset(cntr_status_hash[key], 0, sizeof(cntr_status_t));
@@ -38,15 +40,19 @@ cntr_status_t* hash_lookup(uint32_t agent, uint32_t ifindex){
 		s->interface = ifindex;
 	} else {
 		cntr_status_t* ptr = cntr_status_hash[key];
-		while(ptr != 0 && ptr->agent != agent && ptr->interface != ifindex)
+
+		while(ptr != NULL && !(ptr->agent == agent && ptr->interface == ifindex))
 			ptr = ptr->next;
 
-		if (ptr == 0){
+		if (ptr == NULL){
 			ptr = (cntr_status_t*) malloc(sizeof(cntr_status_t));
 			memset(ptr, 0, sizeof(cntr_status_t));
-			s->agent = agent;
-			s->interface = ifindex;
+			ptr->agent = agent;
+			ptr->interface = ifindex;
+			ptr->next = cntr_status_hash[key];
+			cntr_status_hash[key] = ptr;
 		}
+
 		s = ptr;
 	}
 	return s;
@@ -87,7 +93,7 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 	while(node != NULL){
 		SFCntrSample* s = &node->sample;
 
-		cntr_status_t* cstat = hash_lookup(s->agent_address);
+		cntr_status_t* cstat = hash_lookup(s->agent_address, s->counter_generic_if_index);
 
 		char a[16];
 		num_to_ip(s->agent_address, a);
