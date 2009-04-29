@@ -8,6 +8,7 @@ uint32_t storage_csv_fd = 0;
 
 typedef struct _cntr_status {
 	uint32_t agent;
+	uint32_t interface;
 	uint32_t timestamp;
 	uint64_t octets_in;
 	uint64_t octets_out;
@@ -23,7 +24,7 @@ void hash_init(){
 	memset(cntr_status_hash, 0, sizeof(cntr_status_t*)*HASH_SIZE);
 }
 
-cntr_status_t* hash_lookup(uint32_t agent){
+cntr_status_t* hash_lookup(uint32_t agent, uint32_t ifindex){
 	uint32_t key = agent & (HASH_SIZE - 1);
 	cntr_status_t* s;
 
@@ -34,15 +35,17 @@ cntr_status_t* hash_lookup(uint32_t agent){
 		memset(cntr_status_hash[key], 0, sizeof(cntr_status_t));
 		s = cntr_status_hash[key];
 		s->agent = agent;
+		s->interface = ifindex;
 	} else {
 		cntr_status_t* ptr = cntr_status_hash[key];
-		while(ptr != 0 && ptr->agent != agent)
+		while(ptr != 0 && ptr->agent != agent && ptr->interface != ifindex)
 			ptr = ptr->next;
 
 		if (ptr == 0){
 			ptr = (cntr_status_t*) malloc(sizeof(cntr_status_t));
 			memset(ptr, 0, sizeof(cntr_status_t));
 			s->agent = agent;
+			s->interface = ifindex;
 		}
 		s = ptr;
 	}
@@ -91,7 +94,7 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 		uint32_t num;
 
 		// Save these values before we update cstat with the new values
-		uint32_t d_time 		= s->timestamp - cstat->timestamp;
+		uint32_t d_time 		= abs(s->timestamp - cstat->timestamp);
 		uint32_t d_in_octets 	= s->counter_generic_if_in_octets - cstat->octets_in;
 		uint32_t d_out_octets 	= s->counter_generic_if_out_octets - cstat->octets_out;
 		uint32_t d_linespeed 	= cstat->linespeed;
@@ -102,7 +105,7 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 		cstat->linespeed 	=  s->counter_generic_if_speed;
 
 		uint32_t loadin, loadout, mbytesin, mbytesout;
-		if(d_time == s->timestamp){
+		if(d_time != 0){
 			mbytesin	= d_in_octets / (d_time * 1e6);
 			mbytesout	= d_out_octets / (d_time * 1e6);
 			if(d_linespeed != 0){
