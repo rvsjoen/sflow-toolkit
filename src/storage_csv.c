@@ -88,19 +88,35 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 		num_to_ip(s->agent_address, a);
 		uint32_t num;
 
+		// Save these values before we update cstat with the new values
+		uint32_t d_time 		= s->timestamp - cstat->timestamp;
+		uint32_t d_in_octets 	= s->counter_generic_if_in_octets - cstat->octets_in;
+		uint32_t d_out_octets 	= s->counter_generic_if_out_octets - cstat->octets_out;
+		uint32_t d_linespeed 	= cstat->linespeed;
+
+		cstat->timestamp 	= s->timestamp;
+		cstat->octets_in 	= s->counter_generic_if_in_octets;
+		cstat->octets_out 	= s->counter_generic_if_out_octets;
+		cstat->linespeed 	=  s->counter_generic_if_speed;
+
+		uint32_t loadin 	= (d_in_octets * 8 * 100) / (d_time * d_linespeed * 1000000);
+		uint32_t loadout 	= (d_out_octets * 8 * 100) / (d_time * d_linespeed * 1000000);
+		uint32_t mbytesin	= d_in_octets / d_time * 1000000;
+		uint32_t mbytesout	= d_out_octets / d_time * 1000000;
+
 		num = sprintf(buf, "%s,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n",
 					a,
 					s->counter_generic_if_index,
 					(uint32_t)s->timestamp,
 					s->counter_generic_if_out_discards,
 					s->counter_generic_if_out_errors,
-					0, //loadout
+					loadout,
 					s->counter_generic_if_in_ucast_pkts + s->counter_generic_if_in_mcast_pkts + s->counter_generic_if_in_bcast_pkts,
 					s->counter_generic_if_out_ucast_pkts + s->counter_generic_if_out_mcast_pkts + s->counter_generic_if_out_bcast_pkts,
-					0, //loadin
+					loadin,
 					s->counter_generic_if_in_discards,
-					0, //mbytesout
-					0, //mbytesin
+					mbytesout,
+					mbytesin,
 					s->counter_generic_if_in_errors
 		);
 
