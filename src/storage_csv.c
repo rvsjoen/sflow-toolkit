@@ -99,8 +99,14 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 		cstat->octets_out 	= s->counter_generic_if_out_octets;
 		cstat->linespeed 	=  s->counter_generic_if_speed;
 
-		uint32_t loadin 	= (d_in_octets * 8 * 100) / (d_time * d_linespeed * 1000000);
-		uint32_t loadout 	= (d_out_octets * 8 * 100) / (d_time * d_linespeed * 1000000);
+		uint32_t loadin, loadout;
+		if(d_linespeed != 0){
+			loadin 	= (d_in_octets * 8 * 100) / (d_time * d_linespeed * 1000000);
+			loadout 	= (d_out_octets * 8 * 100) / (d_time * d_linespeed * 1000000);
+		} else {
+			loadin = 0;
+			loadout = 0;
+		}
 		uint32_t mbytesin	= d_in_octets / d_time * 1000000;
 		uint32_t mbytesout	= d_out_octets / d_time * 1000000;
 
