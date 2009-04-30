@@ -110,8 +110,8 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 			mbytesin	= d_in_octets / (d_time * 1e6);
 			mbytesout	= d_out_octets / (d_time * 1e6);
 			if(d_linespeed != 0){
-				loadin 	= (d_in_octets * 8 * 100) / (d_time * d_linespeed);
-				loadout = (d_out_octets * 8 * 100) / (d_time * d_linespeed);
+				loadin 	= (d_in_octets  / (d_time * (d_linespeed/8.0))) * 100;
+				loadout = (d_out_octets / (d_time * (d_linespeed/8.0))) * 100;
 			} else {
 				loadin 	= 0;
 				loadout = 0;
@@ -125,7 +125,7 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 			loadout 	= 0;
 		}
 
-		num = sprintf(buf, "%s,%u,%u,%u,%u,%d,%u,%u,%d,%u,%d,%d,%u\n",
+		num = sprintf(buf, "%s,%u,%u,%u,%u,%f,%u,%u,%f,%u,%f,%f,%u,%u\n",
 					a,
 					s->counter_generic_if_index,
 					(uint32_t)s->timestamp,
@@ -138,7 +138,8 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 					s->counter_generic_if_in_discards,
 					mbytesout,
 					mbytesin,
-					s->counter_generic_if_in_errors
+					s->counter_generic_if_in_errors,
+					s->counter_generic_if_speed/1000000
 		);
 
 		cstat->timestamp 	= s->timestamp;
