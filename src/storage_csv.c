@@ -12,7 +12,7 @@ typedef struct _cntr_status {
 	uint32_t timestamp;
 	uint64_t octets_in;
 	uint64_t octets_out;
-	uint32_t linespeed;
+	uint64_t linespeed;
 	struct _cntr_status* next;
 } cntr_status_t;
 
@@ -101,17 +101,17 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 
 		// Save these values before we update cstat with the new values
 		uint32_t d_time 		= abs(s->timestamp - cstat->timestamp);
-		uint32_t d_in_octets 	= s->counter_generic_if_in_octets - cstat->octets_in;
-		uint32_t d_out_octets 	= s->counter_generic_if_out_octets - cstat->octets_out;
-		uint32_t d_linespeed 	= cstat->linespeed;
+		uint64_t d_in_octets 	= (s->counter_generic_if_in_octets - cstat->octets_in);
+		uint64_t d_out_octets 	= (s->counter_generic_if_out_octets - cstat->octets_out);
+		uint64_t d_linespeed 	= cstat->linespeed/8; // Convert to Byte/sec
 
 		double loadin, loadout, mbytesin, mbytesout;
 		if(cstat->timestamp != 0){
 			mbytesin	= d_in_octets / (d_time * 1e6);
 			mbytesout	= d_out_octets / (d_time * 1e6);
 			if(d_linespeed != 0){
-				loadin 	= ((d_in_octets*1000*8.0)  / (d_time * (d_linespeed/1000))) * 100;
-				loadout = ((d_out_octets*1000*8.0) / (d_time * (d_linespeed/1000))) * 100;
+				loadin 	= (d_in_octets*1.0 / (d_time * d_linespeed)) * 100.0;
+				loadout = (d_out_octets*1.0 / (d_time * d_linespeed)) * 100.0;
 			} else {
 				loadin 	= 0;
 				loadout = 0;
