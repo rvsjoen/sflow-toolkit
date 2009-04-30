@@ -105,30 +105,27 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 		uint32_t d_out_octets 	= s->counter_generic_if_out_octets - cstat->octets_out;
 		uint32_t d_linespeed 	= cstat->linespeed;
 
-		cstat->timestamp 	= s->timestamp;
-		cstat->octets_in 	= s->counter_generic_if_in_octets;
-		cstat->octets_out 	= s->counter_generic_if_out_octets;
-		cstat->linespeed 	=  s->counter_generic_if_speed;
-
-		uint32_t loadin, loadout, mbytesin, mbytesout;
-		if(d_time != 0){
+		double loadin, loadout, mbytesin, mbytesout;
+		if(cstat->timestamp != 0){
 			mbytesin	= d_in_octets / (d_time * 1e6);
 			mbytesout	= d_out_octets / (d_time * 1e6);
 			if(d_linespeed != 0){
 				loadin 	= (d_in_octets * 8 * 100) / (d_time * d_linespeed);
 				loadout = (d_out_octets * 8 * 100) / (d_time * d_linespeed);
 			} else {
-				loadin = 0;
+				loadin 	= 0;
 				loadout = 0;
 			}
 		} else {
-			mbytesin = 0;
-			mbytesout = 0;
-			loadin = 0;
-			loadout = 0;
+			// This is the first counter sample, we can't calculate any values
+			// since we also need the previous values, so just use zero
+			mbytesin 	= 0;
+			mbytesout 	= 0;
+			loadin 		= 0;
+			loadout 	= 0;
 		}
 
-		num = sprintf(buf, "%s,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n",
+		num = sprintf(buf, "%s,%u,%u,%u,%u,%d,%u,%u,%d,%u,%d,%d,%u\n",
 					a,
 					s->counter_generic_if_index,
 					(uint32_t)s->timestamp,
@@ -143,6 +140,11 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 					mbytesin,
 					s->counter_generic_if_in_errors
 		);
+
+		cstat->timestamp 	= s->timestamp;
+		cstat->octets_in 	= s->counter_generic_if_in_octets;
+		cstat->octets_out 	= s->counter_generic_if_out_octets;
+		cstat->linespeed 	=  s->counter_generic_if_speed;
 
 		write(storage_csv_fd, buf, num);
 		node = node->next;
