@@ -110,8 +110,8 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 			mbytesin	= d_in_octets / (d_time * 1e6);
 			mbytesout	= d_out_octets / (d_time * 1e6);
 			if(d_linespeed != 0){
-				loadin 	= (d_in_octets  / (d_time * (d_linespeed/8.0))) * 100;
-				loadout = (d_out_octets / (d_time * (d_linespeed/8.0))) * 100;
+				loadin 	= ((d_in_octets*1000*8.0)  / (d_time * (d_linespeed/1000))) * 100;
+				loadout = ((d_out_octets*1000*8.0) / (d_time * (d_linespeed/1000))) * 100;
 			} else {
 				loadin 	= 0;
 				loadout = 0;
