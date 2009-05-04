@@ -53,7 +53,7 @@ void storage_mysql_create_conv_ethernet(uint32_t timestamp){
 
 	time_t t = (time_t) timestamp;
 	t *= 60;
-	tmp = localtime(&t);
+	tmp = gmtime(&t);
 
 	strftime(title, 32, "conv_ethernet_%d%m%y", tmp);
 	char query[512];
@@ -77,7 +77,7 @@ void storage_mysql_create_conv_ip(uint32_t timestamp){
 
 	time_t t = (time_t) timestamp;
 	t *= 60;
-	tmp = localtime(&t);
+	tmp = gmtime(&t);
 
 	strftime(title, 32, "conv_ip_%d%m%y", tmp);
 	char query[512];
@@ -101,7 +101,7 @@ void storage_mysql_create_conv_tcp(uint32_t timestamp){
 
 	time_t t = (time_t) timestamp;
 	t *= 60;
-	tmp = localtime(&t);
+	tmp = gmtime(&t);
 
 	strftime(title, 32, "conv_tcp_%d%m%y", tmp);
 	char query[512];
@@ -125,7 +125,7 @@ void storage_mysql_create_conv_udp(uint32_t timestamp){
 
 	time_t t = (time_t) timestamp;
 	t *= 60;
-	tmp = localtime(&t);
+	tmp = gmtime(&t);
 
 	strftime(title, 32, "conv_udp_%d%m%y", tmp);
 	char query[512];
@@ -149,7 +149,7 @@ void storage_mysql_create_counters(uint32_t timestamp){
 
 	time_t t = (time_t) timestamp;
 	t *= 60;
-	tmp = localtime(&t);
+	tmp = gmtime(&t);
 
 	strftime(title, 32, "counters_%d%m%y", tmp);
 	char* query = (char*) malloc(sizeof(char)*1024);
