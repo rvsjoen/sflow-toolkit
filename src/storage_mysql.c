@@ -87,7 +87,7 @@ void storage_mysql_create_conv_ip(uint32_t timestamp){
 		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
 	} else {
 		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
-		sprintf(query,"CREATE TABLE %s (timestamp INTEGER UNSIGNED, agent VARCHAR(16), input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src VARCHAR(16), dst VARCHAR(16), bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (timestamp,agent,input_if,output_if,src,dst) ) ENGINE=myisam", title, title);
+		sprintf(query,"CREATE TABLE %s (timestamp INTEGER UNSIGNED, agent INTEGER UNSIGNED, input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, INTEGER UNSIGNED, dst INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (timestamp,agent,input_if,output_if,src,dst) ) ENGINE=myisam", title, title);
 		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
 		mysql_query(&db, query);
 	}
@@ -111,7 +111,7 @@ void storage_mysql_create_conv_tcp(uint32_t timestamp){
 		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
 	} else {
 		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
-		sprintf(query, "CREATE TABLE %s ( timestamp INTEGER UNSIGNED, agent VARCHAR(16), input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src VARCHAR(16), sport INTEGER UNSIGNED, dst VARCHAR(16), dport INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (timestamp,agent,input_if,output_if,src,sport,dst,dport) ) ENGINE=myisam", title, title);
+		sprintf(query, "CREATE TABLE %s ( timestamp INTEGER UNSIGNED, agent INTEGER UNSIGNED, input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src INTEGER UNSIGNED, sport INTEGER UNSIGNED, dst INTEGER UNSIGNED, dport INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (timestamp,agent,input_if,output_if,src,sport,dst,dport) ) ENGINE=myisam", title, title);
 		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
 		mysql_query(&db, query);
 	}
@@ -135,7 +135,7 @@ void storage_mysql_create_conv_udp(uint32_t timestamp){
 		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
 	} else {
 		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
-		sprintf(query, "CREATE TABLE %s ( timestamp INTEGER UNSIGNED, agent VARCHAR(16), input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src VARCHAR(16), sport INTEGER UNSIGNED, dst VARCHAR(16), dport INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (timestamp,agent,input_if,output_if,src,sport,dst,dport) ) ENGINE=myisam", title, title);
+		sprintf(query, "CREATE TABLE %s ( timestamp INTEGER UNSIGNED, agent INTEGER UNSIGNED, input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src INTEGER UNSIGNED, sport INTEGER UNSIGNED, dst INTEGER UNSIGNED, dport INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (timestamp,agent,input_if,output_if,src,sport,dst,dport) ) ENGINE=myisam", title, title);
 		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
 		mysql_query(&db, query);
 	}
@@ -159,7 +159,7 @@ void storage_mysql_create_counters(uint32_t timestamp){
 		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
 	} else {
 		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
-		sprintf(query, "CREATE TABLE %s (timestamp INTEGER UNSIGNED,agent VARCHAR(16),if_index INTEGER UNSIGNED,if_type	INTEGER UNSIGNED,if_speed BIGINT UNSIGNED,if_direction INTEGER UNSIGNED,if_if_status INTEGER UNSIGNED,if_in_octets BIGINT UNSIGNED,if_in_ucast_pkts INTEGER UNSIGNED,if_in_mcast_pkts INTEGER UNSIGNED,if_in_bcast_pkts INTEGER UNSIGNED,if_in_discards INTEGER UNSIGNED,if_in_errors INTEGER UNSIGNED,if_in_unknown_proto INTEGER UNSIGNED,if_out_octets BIGINT UNSIGNED,if_out_ucast_pkts INTEGER UNSIGNED,if_out_mcast_pkts INTEGER UNSIGNED,if_out_bcast_pkts INTEGER UNSIGNED,if_out_discards INTEGER UNSIGNED,if_out_errors INTEGER UNSIGNED,if_promisc INTEGER UNSIGNED,CONSTRAINT %s_pk PRIMARY KEY (timestamp,agent,if_index)) ENGINE=myisam", title, title);
+		sprintf(query, "CREATE TABLE %s (timestamp INTEGER UNSIGNED,agent INTEGER UNSIGNED,if_index INTEGER UNSIGNED,if_type	INTEGER UNSIGNED,if_speed BIGINT UNSIGNED,if_direction INTEGER UNSIGNED,if_if_status INTEGER UNSIGNED,if_in_octets BIGINT UNSIGNED,if_in_ucast_pkts INTEGER UNSIGNED,if_in_mcast_pkts INTEGER UNSIGNED,if_in_bcast_pkts INTEGER UNSIGNED,if_in_discards INTEGER UNSIGNED,if_in_errors INTEGER UNSIGNED,if_in_unknown_proto INTEGER UNSIGNED,if_out_octets BIGINT UNSIGNED,if_out_ucast_pkts INTEGER UNSIGNED,if_out_mcast_pkts INTEGER UNSIGNED,if_out_bcast_pkts INTEGER UNSIGNED,if_out_discards INTEGER UNSIGNED,if_out_errors INTEGER UNSIGNED,if_promisc INTEGER UNSIGNED,CONSTRAINT %s_pk PRIMARY KEY (timestamp,agent,if_index)) ENGINE=myisam", title, title);
 		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
 		mysql_query(&db, query);
 	}
@@ -201,15 +201,14 @@ void storage_mysql_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_
 			tmp = n;
 			n = n->next;
 
-			char a[16];
 			char src[18];
 			char dst[18];
 			strncpy(src, ether_ntoa((const struct ether_addr *)k->src), 18);
 			strncpy(dst, ether_ntoa((const struct ether_addr *)k->dst), 18);
-			num_to_ip(agent, a);
-			sprintf(buf, "%u|%s|%u|%u|%s|%s|%u|%u\n",
+
+			sprintf(buf, "%u|%u|%u|%u|%s|%s|%u|%u\n",
 				timestamp,
-				a,
+				agent,
 				k->sflow_input_if,
 				k->sflow_output_if,
 				src,
@@ -279,20 +278,13 @@ void storage_mysql_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agen
 			tmp = n;
 			n = n->next;
 
-			char src[16];
-			char dst[16];
-			char a[16];
-			num_to_ip(agent, a);
-			num_to_ip(k->src, src);
-			num_to_ip(k->dst, dst);
-
-			sprintf(buf, "%u|%s|%u|%u|%s|%s|%u|%u\n", 
+			sprintf(buf, "%u|%u|%u|%u|%u|%u|%u|%u\n", 
 				timestamp,
-				a,
+				agent,
 				k->sflow_input_if,
 				k->sflow_output_if,
-				src,
-				dst,
+				k->src,
+				k->dst,
 				c->bytes,
 				c->frames
 			);
@@ -365,21 +357,14 @@ void storage_mysql_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t age
 			tmp = n;
 			n = n->next;
 
-			char src[16];
-			char dst[16];
-			char a[16];
-			num_to_ip(agent, a);
-			num_to_ip(k->src, src);
-			num_to_ip(k->dst, dst);
-
-			sprintf(buf, "%u|%s|%u|%u|%s|%u|%s|%u|%u|%u\n",
+			sprintf(buf, "%u|%u|%u|%u|%u|%u|%u|%u|%u|%u\n",
 				timestamp,
-				a,
+				agent,
 				k->sflow_input_if,
 				k->sflow_output_if,
-				src,
+				k->src,
 				k->src_port,
-				dst,
+				k->dst,
 				k->dst_port,
 				c->bytes,
 				c->frames
@@ -439,21 +424,14 @@ void storage_mysql_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t age
 			tmp = n;
 			n = n->next;
 
-			char src[16];
-			char dst[16];
-			char a[16];
-			num_to_ip(agent, a);
-			num_to_ip(k->src, src);
-			num_to_ip(k->dst, dst);
-
-			sprintf(buf, "%u|%s|%u|%u|%s|%u|%s|%u|%u|%u\n",
+			sprintf(buf, "%u|%u|%u|%u|%u|%u|%u|%u|%u|%u\n",
 				timestamp,
-				a,
+				agent,
 				k->sflow_input_if,
 				k->sflow_output_if,
-				src,
+				k->src,
 				k->src_port,
-				dst,
+				k->dst,
 				k->dst_port,
 				c->bytes,
 				c->frames
@@ -512,12 +490,9 @@ void storage_mysql_store_cntr(counter_list_t* list, uint32_t timestamp){
 	while(node != NULL){
 		SFCntrSample* s = &node->sample;
 
-		char a[16];
-		num_to_ip(s->agent_address, a);
-
-		ptr += sizeof(char) * sprintf(ptr,	"(%u, '%s', %u, %u, %llu, %u, %u, %llu, %u, %u, %u, %u, %u, %u, %llu, %u, %u, %u, %u, %u, %u),",
+		ptr += sizeof(char) * sprintf(ptr,	"(%u, '%u', %u, %u, %llu, %u, %u, %llu, %u, %u, %u, %u, %u, %u, %llu, %u, %u, %u, %u, %u, %u),",
 				(uint32_t)s->timestamp,
-				a,
+				s->agent_address,
 				s->counter_generic_if_index,
 				s->counter_generic_if_type,
 				s->counter_generic_if_speed,
