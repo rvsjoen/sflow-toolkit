@@ -9,15 +9,11 @@
 
 #define HASH_SIZE 0x01000000
 
-typedef struct _agentlist_t {
-	uint32_t num_agents;
-	struct _agent_t* data;
-} agentlist_t;
-
 typedef struct _agent_t {
 	char  name[32];
 	uint32_t address;
 	uint32_t last_seen;
+	uint32_t uptime;
 	uint32_t sequence;
 	uint64_t datagrams;	
 	uint64_t drops;

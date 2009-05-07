@@ -7,7 +7,6 @@
 #include <stdint.h>
 #include <yaml.h>
 
-
 // Configuration values for stcollectd
 typedef struct stcollectd_config {
 	uint32_t port;
@@ -51,7 +50,7 @@ typedef struct _stprocessd_spectrum_config {
 	char  datadir[256];
 } stprocessd_spectrum_config_t;
 
-void parse_event(const yaml_event_t ev);
-void parse_config_file(char* filename);
+void parse_event(const yaml_event_t ev, char* pname);
+void parse_config_file(char* filename, char* pname);
 
 #endif

@@ -26,6 +26,7 @@
 #define DEFAULT_CONFIG_FILE     "/etc/sflow-toolkit.conf"
 
 extern stprocessd_config_t stprocessd_config;
+extern stcollectd_config_t stcollectd_config;
 
 extern uint32_t log_level;
 extern bool daemonize;
@@ -54,7 +55,7 @@ void process_file(const msg_t* m){
 
 int main(int argc, char** argv){
 	parse_commandline(argc, argv);
-	parse_config_file(DEFAULT_CONFIG_FILE);
+	parse_config_file(DEFAULT_CONFIG_FILE, argv[0]);
 
 	stats_init_stprocessd();
 
@@ -72,7 +73,7 @@ int main(int argc, char** argv){
 
 	// Initialize each loaded storage module
 	storage_modules_init();
-	queue = open_msg_queue(MSG_QUEUE_NAME);
+	queue = open_msg_queue(stcollectd_config.msgqueue);
 
 	msg_t m;
 	while(true){

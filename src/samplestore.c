@@ -1,7 +1,6 @@
 #include "samplestore.h"
 #include "agentlist.h"
 
-extern agentlist_t* agents;
 extern mqd_t queue;
 
 bool fileExists(const char* filename)
@@ -70,24 +69,11 @@ void getFilePath(uint32_t agent_address, time_t timestamp, char* filename)
 
 void addSampleToFile(const void* sample, char* root, SFSample_t type)
 {
-
 	UNUSED_ARGUMENT(root);
 
 	if(type == SFTYPE_FLOW){
 		SFFlowSample* s = (SFFlowSample*) sample;
 		
-		/*
-		char key[16];
-		sprintf(key, "%i.%i.%i.%i",
-				((s->agent_address & 0xff000000) >> 24),
-				((s->agent_address & 0x00ff0000) >> 16),
-				((s->agent_address & 0x0000ff00) >> 8),
-				(s->agent_address & 0x000000ff)
-			   );
-		uint32_t id = cmph_search(h, key, strlen(key));
-		agent_t* a = agent_get(agents, id); 
-		*/
-
 		agent_t* a = agentlist_search(s->agent_address);
 
 		if((uint32_t)s->timestamp/60 != a->fd_min_flow){
@@ -128,18 +114,6 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 	} else if(type == SFTYPE_CNTR){
 
 		SFCntrSample* s = (SFCntrSample*) sample;
-
-		/*
-		char key[16];
-		sprintf(key, "%i.%i.%i.%i",
-				((s->agent_address & 0xff000000) >> 24),
-				((s->agent_address & 0x00ff0000) >> 16),
-				((s->agent_address & 0x0000ff00) >> 8),
-				(s->agent_address & 0x000000ff)
-			   );
-		uint32_t id = cmph_search(h, key, strlen(key));
-		agent_t* a = agent_get(agents, id); 
-		*/
 
 		agent_t* a = agentlist_search(s->agent_address);
 

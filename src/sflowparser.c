@@ -1,8 +1,6 @@
 #include "sflowparser.h"
 #include "bufferqueue.h"
 
-extern char** validagents;
-extern agentlist_t* agents;
 extern buffer_t* buffer_cc_flow;
 extern buffer_t* buffer_cc_cntr;
 extern int32_t log_level;
@@ -382,8 +380,8 @@ void parseDatagram(uint8_t* data, uint32_t n, struct sockaddr_in* addr){
 
 	// Get the rest of the fields in the datagram header
 	hdr.sub_agent_id 		= getData32(&datagram);
-	hdr.sequence_number 	= getData32(&datagram);
-	hdr.uptime 				= getData32(&datagram);
+	hdr.sequence_number 		= getData32(&datagram);
+	hdr.uptime 			= getData32(&datagram);
 	hdr.num_records 		= getData32(&datagram);
 	
 	// We extract the fields we want from our datagram and put it in our template sample
@@ -399,11 +397,13 @@ void parseDatagram(uint8_t* data, uint32_t n, struct sockaddr_in* addr){
 		s_template.agent_address = ntohl(addr->sin_addr.s_addr);
 	
 	agent_t* agent = agentlist_search(s_template.agent_address);
-	if(agent){
+	if(agent != NULL){
 		if(print_parse) printDatagramHeader(&hdr);
 		agent->datagrams++;
 		agent->last_seen = datagram.timestamp;
-		//TODO Populate the rest of the agent fields, seq no, drops, etc
+		agent->uptime = hdr.uptime;
+		agent->drops += hdr.sequence_number - agent->sequence;
+		agent->sequence = hdr.sequence_number;
 
 		uint32_t i;
 		for( i=0; i < hdr.num_records; i++ ){
@@ -411,6 +411,10 @@ void parseDatagram(uint8_t* data, uint32_t n, struct sockaddr_in* addr){
 			parseSample(&datagram, &s_template);
 		}
 	} else {
-		logmsg(LOGLEVEL_WARNING, "Datagram from unknown agent (%u)", s_template.agent_address);
+		// We don't know this agent, tell someone that a bastard is sending us samples
+		// we are no accepting
+		char buf[16];
+		num_to_ip(s_template.agent_address, buf);
+		logmsg(LOGLEVEL_WARNING, "Datagram from unknown agent (%s)", buf);
 	}
 }

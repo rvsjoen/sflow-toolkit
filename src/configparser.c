@@ -94,7 +94,7 @@ bool is_list;
 
 agent_t* agent;
 
-void parse_event(const yaml_event_t ev){
+void parse_event(const yaml_event_t ev, char* pname){
 	yaml_event_type_t ev_type = ev.type;
 	switch(ev_type)
 	{
@@ -113,8 +113,7 @@ void parse_event(const yaml_event_t ev){
 				in_storage_spectrum = true;
 				in_storage_mysql = false;
 			} else {
-
-				if(is_list){
+				if(is_list && strcmp(pname+(strlen(pname)-strlen("stprocessd")),"stprocessd") != 0){
 					// Set this if we are entering the agent list
 					if (strcmp(key, CONFIG_KEY_AGENTS) == 0)
 						in_agent_list = true;
@@ -208,7 +207,6 @@ void parse_event(const yaml_event_t ev){
 								strncpy(stprocessd_config.datadir, val, 256);
 						}
 					}
-					logmsg(LOGLEVEL_DEBUG, "\t%s = %s",key, val);
 					is_value = false;
 				}
 			}
@@ -237,7 +235,7 @@ void parse_event(const yaml_event_t ev){
 	}
 }
 
-void parse_config_file(char* filename){
+void parse_config_file(char* filename, char* pname){
 	agent = NULL;
 	is_list = false;
 	is_value = false;
@@ -259,7 +257,7 @@ void parse_config_file(char* filename){
 				logmsg(LOGLEVEL_ERROR, "Error parsing configuration file");
 				break;
 			}
-			parse_event(event);
+			parse_event(event, pname);
 			done = (event.type == YAML_STREAM_END_EVENT);
 			yaml_event_delete(&event);
 			count++;

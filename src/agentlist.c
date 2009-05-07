@@ -35,17 +35,18 @@ agent_t* agentlist_add_agent(char* name, uint32_t address){
 	memset(agent, 0, sizeof(agent_t));
 	strncpy(agent->name, name, 32);
 	agent->address = address;
-
-	logmsg(LOGLEVEL_DEBUG, "Added agent %s, address: %u", name, address);
-
 	return agent;
 }
 
 void agentlist_add_address(uint32_t address, agent_t* agent){
 	uint32_t key = address & (HASH_SIZE - 1);
-	agent_address_t* agent_addr = (agent_address_t*) malloc(sizeof(agent_address_t));
-	agent_addr->address = agent->address;
 
+	agent_address_t* agent_addr = (agent_address_t*) malloc(sizeof(agent_address_t));
+	memset(agent_addr, 0, sizeof(agent_address_t));
+	agent_addr->address = address;
+	agent_addr->agent = agent;
+
+	// Insert a new element at the head of the list if it's not empty
 	if(agenthash[key] != NULL){
 		agent_address_t* tmp = agenthash[key];
 		tmp->next = agent_addr;

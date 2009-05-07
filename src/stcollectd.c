@@ -190,8 +190,8 @@ void freeMemory(){
 
 	// When we get here, the writing thread is dead and the write queue is empty
 	// so we dont need any more buffers
-	bqueue_destroy(buffers_free_flow);
-	bqueue_destroy(buffers_free_cntr);
+///	bqueue_destroy(buffers_free_flow);
+//	bqueue_destroy(buffers_free_cntr);
 }
 
 /* 
@@ -438,7 +438,7 @@ int main(int argc, char** argv){
 
 	initLogger();
 	agentlist_init();
-	parse_config_file(DEFAULT_CONFIG_FILE);
+	parse_config_file(DEFAULT_CONFIG_FILE, argv[0]);
 	printConfig();
 
 	logmsg(LOGLEVEL_DEBUG, "Trapping signals...");
