@@ -7,33 +7,51 @@
 #include <stdint.h>
 #include <yaml.h>
 
-#define CONFIG_KEY_FLUSH_INTERVAL	"flush interval"
-#define CONFIG_KEY_PRINT_INTERVAL	"print interval"
-#define CONFIG_KEY_INTERFACE		"interface"
-#define CONFIG_KEY_PORT				"port"
-#define CONFIG_KEY_DATA_DIR			"data directory"
-#define CONFIG_KEY_AGENTS			"agents"
-#define CONFIG_KEY_BUFFER_SIZE		"buffer size"
-#define CONFIG_KEY_BUFFER_COUNT		"buffer count"
-#define CONFIG_KEY_STATS_INTERVAL	"stats interval"
 
-typedef struct _agent_node {
-	char agent[16];
-	struct _agent_node* next;
-} agent_node;
+// Configuration values for stcollectd
+typedef struct stcollectd_config {
+	uint32_t port;
+	uint32_t loglevel;
+	uint32_t hashbits;
+	uint32_t print_interval;
+	uint32_t flush_interval;
+	uint32_t stats_interval;
+	uint32_t buffer_size;
+	uint32_t buffer_num;
+	char  	 interface[16];
+	char  	 datadir[256];
+	char  	 tmpdir[256];
+	char  	 msgqueue[256];
+} stcollectd_config_t;
 
-void get_agents();
+// Configuration values for stprocessd
+typedef struct _stprocessd_config {
+	uint32_t loglevel;
+	uint32_t hashsize;
+	uint32_t stats_interval;
+	char  datadir[256];
+} stprocessd_config_t;
+
+// Configuration values for storage_mysql
+typedef struct _stprocessd_mysql_config {
+	bool enabled;
+	uint32_t interval;
+	char  username[256];
+	char  password[256];
+	char  database[256];
+	char  hostname[256];
+	char  tmpdir[256];
+} stprocessd_mysql_config_t;
+
+// Configuration values for storage_spectrum
+typedef struct _stprocessd_spectrum_config {
+	bool enabled;
+	uint32_t interval;
+	uint32_t hashbits;
+	char  datadir[256];
+} stprocessd_spectrum_config_t;
+
 void parse_event(const yaml_event_t ev);
 void parse_config_file(char* filename);
-char* config_get_datadir();
-char* config_get_interface();
-uint32_t config_get_print_interval();
-uint32_t config_get_flush_interval();
-uint32_t config_get_buffer_size();
-uint32_t config_get_num_buffers();
-uint32_t config_get_num_agents();
-uint32_t config_get_port();
-uint32_t config_get_stats_interval();
-char** config_get_validagents();
 
 #endif

@@ -102,3 +102,9 @@ void num_to_ip(uint32_t num, char* buf){
 		(num & 0x000000ff)
 	);
 }
+
+uint32_t ip_to_num(char* buf){
+	uint32_t a,b,c,d;
+	sscanf(buf, "%u.%u.%u.%u", &a, &b, &c, &d);
+	return (a<<24) + (b<<16) + (c<<8) + d;
+}

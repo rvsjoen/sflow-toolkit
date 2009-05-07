@@ -25,6 +25,8 @@
 
 #define DEFAULT_CONFIG_FILE     "/etc/sflow-toolkit.conf"
 
+extern stprocessd_config_t stprocessd_config;
+
 extern uint32_t log_level;
 extern bool daemonize;
 mqd_t queue;
@@ -75,7 +77,7 @@ int main(int argc, char** argv){
 	msg_t m;
 	while(true){
 		time_t now = time(NULL);
-		if((now-start)%config_get_stats_interval() == 0)
+		if((now-start)%stprocessd_config.stats_interval == 0)
 			stats_update_stprocessd(now-start, queue);
 		memset(&m, 0, sizeof(msg_t));
 		recv_msg(queue, &m);

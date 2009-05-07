@@ -76,6 +76,7 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 	if(type == SFTYPE_FLOW){
 		SFFlowSample* s = (SFFlowSample*) sample;
 		
+		/*
 		char key[16];
 		sprintf(key, "%i.%i.%i.%i",
 				((s->agent_address & 0xff000000) >> 24),
@@ -85,9 +86,12 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 			   );
 		uint32_t id = cmph_search(h, key, strlen(key));
 		agent_t* a = agent_get(agents, id); 
+		*/
+
+		agent_t* a = agentlist_search(s->agent_address);
 
 		if((uint32_t)s->timestamp/60 != a->fd_min_flow){
-			logmsg(LOGLEVEL_DEBUG, "Updating flow file descriptor for %s", key);
+			//logmsg(LOGLEVEL_DEBUG, "Updating flow file descriptor for %s", key);
 			a->fd_min_flow = s->timestamp/60;
 
 			// Generate the path to the next file
@@ -103,7 +107,7 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 				close(a->fd_flow);
 				msg_t m;
 				memset(&m, 0, sizeof(msg_t));
-				m.agent = a->agent;
+				m.agent = a->address;
 				m.type = SFTYPE_FLOW;
 				m.timestamp = ((uint32_t)s->timestamp/60)-1;
 				strncpy(m.filename, a->fn_flow, 256);
@@ -117,7 +121,7 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 
 			a->fd_flow = f;
 			strncpy(a->fn_flow, filename, 256);
-			a->agent = s->agent_address;
+			a->address = s->agent_address;
 		}
 		write(a->fd_flow, sample, sizeof(SFFlowSample));
 
@@ -125,6 +129,7 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 
 		SFCntrSample* s = (SFCntrSample*) sample;
 
+		/*
 		char key[16];
 		sprintf(key, "%i.%i.%i.%i",
 				((s->agent_address & 0xff000000) >> 24),
@@ -134,9 +139,12 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 			   );
 		uint32_t id = cmph_search(h, key, strlen(key));
 		agent_t* a = agent_get(agents, id); 
+		*/
+
+		agent_t* a = agentlist_search(s->agent_address);
 
 		if((uint32_t)s->timestamp/60 != a->fd_min_cntr){
-			logmsg(LOGLEVEL_DEBUG, "Updating counter file descriptor for %s", key);
+			//logmsg(LOGLEVEL_DEBUG, "Updating counter file descriptor for %s", key);
 			a->fd_min_cntr = s->timestamp/60;
 
 			// Generate the path to the next file
@@ -151,7 +159,7 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 				close(a->fd_cntr);
 				msg_t m;	
 				memset(&m, 0, sizeof(msg_t));
-				m.agent = a->agent;
+				m.agent = a->address;
 				m.type = SFTYPE_CNTR;
 				m.timestamp = ((uint32_t)s->timestamp/60)-1;
 				strncpy(m.filename, a->fn_cntr, 256);
@@ -165,7 +173,7 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 
 			a->fd_cntr = f;
 			strncpy(a->fn_cntr, filename, 256);
-			a->agent = s->agent_address;
+			a->address = s->agent_address;
 		}
 		write(a->fd_cntr, sample, sizeof(SFCntrSample));
 	}

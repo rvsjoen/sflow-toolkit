@@ -8,8 +8,8 @@ stcollectd_SOURCES = stcollectd.c 					\
 					 sflowparser.c sflowparser.h 	\
 					 sflow.h 						\
 					 statistics.c statistics.h		\
-					 configparser.c configparser.h	\
 					 agentlist.c agentlist.h		\
+					 configparser.c configparser.h	\
 					 bufferqueue.c bufferqueue.h	\
 					 messaging.c messaging.h
 stcollectd_LDFLAGS = -lcmph -lpthread -lrrd -lyaml -lrt
@@ -24,5 +24,6 @@ stprocessd_SOURCES = stprocessd.c					\
 					 storage_rrd.c storage_rrd.h\
 					 storage_csv.c storage_csv.h	\
 					 configparser.c configparser.h	\
+					 agentlist.c agentlist.h		\
 					 statistics.c statistics.h
 stprocessd_LDFLAGS = -lrt -lmysqlclient

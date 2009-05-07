@@ -1,28 +1,46 @@
 #include "agentlist.h"
 
-agentlist_t* agentlist_init(uint32_t num){
-	agentlist_t* list = (agentlist_t*) malloc(sizeof(agentlist_t));
-	memset(list, 0, sizeof(agentlist_t));
-	list->num_agents = num;
-	list->data = (agent_t*) malloc(num*sizeof(agent_t));
-	memset(list->data, 0, num * sizeof(agent_t));
-	return list;
+agent_address_t** agenthash;
+
+void agentlist_init()
+{
+	agenthash = (agent_address_t**) malloc(sizeof(agent_address_t*) * HASH_SIZE);
+	memset(agenthash, 0, sizeof(agent_address_t*) * HASH_SIZE);
 }
 
-void agentlist_destroy(agentlist_t* list){
-	free(list->data);
-}
-
-agent_t* agent_get(agentlist_t* list, uint32_t index){
-	return &(list->data[index]);
-}
-
-void agentlist_print_stats(agentlist_t* list){
-	uint32_t i;
-	logmsg(LOGLEVEL_DEBUG, "Agent Stats (%u agents):", list->num_agents);
-	for( i=0; i<list->num_agents; i++ )
-	{
-		agent_t* as = agent_get(list, i);
-		logmsg(LOGLEVEL_DEBUG, "agent[%u] %s received %u datagrams ", as->index, as->address, as->datagrams);
+agent_t* agentlist_search(uint32_t addr)
+{
+	agent_t* result = NULL;
+	uint32_t key = addr & (HASH_SIZE - 1);
+	agent_address_t* agent_addr = agenthash[key];
+	if(agent_addr != NULL){
+		while(agent_addr->next != NULL && agent_addr->address != addr){
+			agent_addr = agent_addr->next;
+		}
 	}
+	return result;
+}
+
+agent_t* agentlist_add_agent(char* name, uint32_t address){
+	agent_t* agent = (agent_t*) malloc(sizeof(agent_t));
+	memset(agent, 0, sizeof(agent_t));
+	strncpy(agent->name, name, 32);
+	agent->address = address;
+	return agent;
+}
+
+void agentlist_add_address(uint32_t address, agent_t* agent){
+	uint32_t key = address & (HASH_SIZE - 1);
+	agent_address_t* agent_addr = (agent_address_t*) malloc(sizeof(agent_address_t));
+	agent_addr->address = agent->address;
+	if(agenthash[key] != NULL){
+		agent_address_t* tmp = agenthash[key];
+		tmp->next = agent_addr;
+	}
+	agenthash[key] = agent_addr;
+}
+
+void agentlist_destroy(){
+	free(agenthash);
+	//TODO MORE CLEANUP HERE
 }

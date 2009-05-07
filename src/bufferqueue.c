@@ -1,6 +1,7 @@
 #include "bufferqueue.h"
+#include "configparser.h"
 
-extern uint32_t num_buffers;
+extern stcollectd_config_t stcollectd_config;
 
 bqueue_t* bqueue_init(uint32_t num, uint32_t buffersize, uint32_t itemsize){
 	logmsg(LOGLEVEL_DEBUG, "Initializing buffer queue");
@@ -94,7 +95,7 @@ buffer_t* bqueue_pop(bqueue_t* queue){
 				}
 			}
 		}
-	} else if(queue->num > num_buffers){
+	} else if(queue->num > stcollectd_config.buffer_num){
 		logmsg(LOGLEVEL_INFO, "Too many free buffers, freeing one");
 		bqueue_free(queue);
 	}

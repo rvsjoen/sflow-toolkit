@@ -1,138 +1,252 @@
 #include "configparser.h"
+#include "agentlist.h"
+#include "util.h"
 #include "logger.h"
 
-// Internal variables
-static uint32_t config_print_interval;
-static uint32_t config_num_buffers;
-static uint32_t config_port;
-static uint32_t config_flush_interval;
-static uint32_t config_buffer_size;
-static char* 	 config_interface;
-static char* 	 config_datadir;
-static char** 	 config_validagents;
-static uint32_t config_num_agents;
-static uint32_t config_stats_interval;
+#define CONFIG_KEY_STCOLLECTD 					"stcollectd"
+#define CONFIG_KEY_STPROCESSD 					"stprocessd"
+#define CONFIG_KEY_STPROCESSD_STORAGE_SPECTRUM 	"storage_spectrum"
+#define CONFIG_KEY_STPROCESSD_STORAGE_MYSQL 	"storage_mysql"
+#define CONFIG_KEY_AGENTS						"agents"
 
+#define CONFIG_KEY_STCOLLECTD_LOGLEVEL			"loglevel"
+#define CONFIG_KEY_STCOLLECTD_PORT				"port"
+#define CONFIG_KEY_STCOLLECTD_HASHBITS			"hash bits"
+#define CONFIG_KEY_STCOLLECTD_PRINT_INTERVAL	"print interval"
+#define CONFIG_KEY_STCOLLECTD_FLUSH_INTERVAL	"flush interval"
+#define CONFIG_KEY_STCOLLECTD_BUFFER_SIZE		"buffer size"
+#define CONFIG_KEY_STCOLLECTD_BUFFER_NUM		"buffer num"
+#define CONFIG_KEY_STCOLLECTD_INTERFACE			"interface"
+#define CONFIG_KEY_STCOLLECTD_DATADIR			"datadir"
+#define CONFIG_KEY_STCOLLECTD_TMPDIR			"tmpdir"
+#define CONFIG_KEY_STCOLLECTD_MSGQUEUE			"msgqueue"
+#define CONFIG_KEY_STCOLLECTD_STATS_INTERVAL	"stats interval"
+
+#define CONFIG_KEY_STPROCESSD_LOGLEVEL			"loglevel"
+#define CONFIG_KEY_STPROCESSD_HASHSIZE			"hash size"
+#define CONFIG_KEY_STPROCESSD_DATADIR			"datadir"
+#define CONFIG_KEY_STPROCESSD_STATS_INTERVAL	"stats interval"
+
+#define CONFIG_KEY_STORAGE_MYSQL_ENABLED		"enabled"
+#define CONFIG_KEY_STORAGE_MYSQL_INTERVAL		"interval"
+#define CONFIG_KEY_STORAGE_MYSQL_USERNAME		"username"
+#define CONFIG_KEY_STORAGE_MYSQL_PASSWORD		"password"
+#define CONFIG_KEY_STORAGE_MYSQL_DATABASE		"database"
+#define CONFIG_KEY_STORAGE_MYSQL_HOSTNAME		"hostname"
+#define CONFIG_KEY_STORAGE_MYSQL_TMPDIR			"tmpdir"
+
+#define CONFIG_KEY_STORAGE_SPECTRUM_ENABLED		"enabled"
+#define CONFIG_KEY_STORAGE_SPECTRUM_INTERVAL	"interval"
+#define CONFIG_KEY_STORAGE_SPECTRUM_DATADIR		"datadir"
+#define CONFIG_KEY_STORAGE_SPECTRUM_HASHBITS	"hash bits"
+
+// Structures with default values to contain the configuration values once the configuration 
+// file is parsed
+stcollectd_config_t	stcollectd_config = {
+	.port			= 6343,
+	.loglevel 		= 0,
+	.hashbits 		= 24,
+	.print_interval = 10000,
+	.flush_interval	= 10,
+	.stats_interval = 30,
+	.buffer_size	= 10000,
+	.buffer_num		= 2,
+	.interface 		= "127.0.0.1",
+	.datadir		= "data/",
+	.tmpdir			= "tmp/",
+	.msgqueue		= "/sflow"
+};
+
+stprocessd_config_t stprocessd_config = {
+	.loglevel 		= 0,
+	.hashsize 		= 10000,
+	.stats_interval = 30,
+	.datadir		= "data/",
+};
+
+stprocessd_mysql_config_t storage_mysql_config = {
+	.enabled 		= false,
+	.interval 		= 1440,
+	.username		= "sflow",
+	.password		= "sflow",
+	.database		= "sflow",
+	.hostname		= "localhost",
+	.tmpdir			= "tmp/"
+};
+
+stprocessd_spectrum_config_t storage_spectrum_config = {
+	.enabled 		= false,
+	.interval		= 300,
+	.hashbits		= 24,
+	.datadir		= "data/"
+};
+
+// Helper variables used while parsing
+char key[256];
+bool in_stcollectd;
+bool in_stprocessd;
+bool in_storage_spectrum;
+bool in_storage_mysql;
+bool in_agent_list;
+bool in_agent;
 bool is_value;
 bool is_list;
-char key[256];
-agent_node* agent_list;
 
-void get_agents(){
-	// First we just count the elements in the linked list to allocate some memory
-	uint32_t num = 0;
-	agent_node* start = agent_list;
-	while(start != NULL){
-		num++;
-		start = start->next;
-	}
-
-	// If we are re-reading the list free the old list first
-	if (config_validagents != NULL)
-	{
-		uint32_t j;
-		for(j=0;j<config_num_agents;j++)
-			free(config_validagents[j]);
-		free(config_validagents);
-		config_validagents = NULL;
-	}
-
-	char** result = NULL;
-	result = malloc(sizeof(char*)*num);
-	memset(result, 0, sizeof(char*)*num);
-	
-	// Now we allocate memory for each agent and free the memory allocated for the struct
-	start = agent_list;
-	int i = 0;
-
-	while(start != NULL){
-		result[i] = malloc(sizeof(char)*strlen(start->agent)+1);
-		memset(result[i], 0, sizeof(char)*strlen(start->agent)+1);
-		strncpy(result[i], start->agent, strlen(start->agent));
-		agent_node* tmp = start;
-		start = start->next;
-		free(tmp);
-		i++;
-	}
-
-	// Update these values so the getters can get to the data
-	config_num_agents = num;
-	config_validagents = result;
-}
+agent_t* agent;
 
 void parse_event(const yaml_event_t ev){
 	yaml_event_type_t ev_type = ev.type;
 	switch(ev_type)
 	{
-		case YAML_SCALAR_EVENT: 
-			if(!is_value){
-				strncpy(key, (char*) ev.data.scalar.value, ev.data.scalar.length);
-				key[ev.data.scalar.length] = '\0';
-				is_value = !is_value;
-			} else if(is_list) {
-				if (strcmp(key, CONFIG_KEY_AGENTS) == 0){
-					if(agent_list == 0) {
-						agent_node* tmp = (agent_node*)malloc(sizeof(agent_node));
-						tmp->next = 0;
-						strncpy(tmp->agent, (char*) ev.data.scalar.value, ev.data.scalar.length);
-						agent_list = tmp;
-					} else {
-						agent_node* tmp = malloc(sizeof(agent_node));
-						tmp->next = agent_list;
-						strncpy(tmp->agent, (char*) ev.data.scalar.value, ev.data.scalar.length);
-						agent_list = tmp;	
-					}
-				}
+		case YAML_SCALAR_EVENT: {
+			char* val = (char*) ev.data.scalar.value;
+			if(strcmp(val, CONFIG_KEY_STCOLLECTD) == 0){
+				in_stcollectd = true;
+				in_stprocessd = false;
+			} else if (strcmp(val, CONFIG_KEY_STPROCESSD) == 0) {
+				in_stcollectd = false;
+				in_stprocessd = true;
+			} else if (in_stprocessd && strcmp(val, CONFIG_KEY_STPROCESSD_STORAGE_MYSQL) == 0 ){
+				in_storage_spectrum = false;
+				in_storage_mysql = true;
+			} else if (in_stprocessd && strcmp(val, CONFIG_KEY_STPROCESSD_STORAGE_SPECTRUM) == 0 ){
+				in_storage_spectrum = true;
+				in_storage_mysql = false;
 			} else {
-				char* val = (char*) ev.data.scalar.value;
-				if(strcmp(key, CONFIG_KEY_FLUSH_INTERVAL)==0) {
-					config_flush_interval = atoi(val);
-				} else if (strcmp(key, CONFIG_KEY_PRINT_INTERVAL) == 0) {
-					config_print_interval = atoi(val);
-				} else if (strcmp(key, CONFIG_KEY_INTERFACE) == 0){
-					if(config_interface != NULL)
-						free(config_interface);
-					config_interface = malloc(sizeof(char)*strlen(val)+1);
-					strncpy(config_interface, val, strlen(val));
-				} else if (strcmp(key, CONFIG_KEY_PORT) == 0) {
-					config_port = atoi(val);
-				} else if (strcmp(key, CONFIG_KEY_DATA_DIR) == 0) {
-					if(config_datadir != NULL)
-						free(config_datadir);
-					config_datadir = malloc(sizeof(char)*strlen(val)+1);
-					strncpy(config_datadir, val, strlen(val));
-				} else if (strcmp(key, CONFIG_KEY_BUFFER_SIZE) == 0) {
-					config_buffer_size = atoi(val);
-				} else if (strcmp(key, CONFIG_KEY_BUFFER_COUNT) == 0) {
-					config_num_buffers = atoi(val);
-				} else if (strcmp(key, CONFIG_KEY_STATS_INTERVAL) == 0) {
-					config_stats_interval = atoi(val);
-				} 
-				is_value = !is_value;
+
+				if(is_list){
+					// Set this if we are entering the agent list
+					if (strcmp(key, CONFIG_KEY_AGENTS) == 0)
+						in_agent_list = true;
+				
+					// If we are currently not parsing an agent we copy
+					// the name of the next agent into the key, if we are already
+					// parsing an agents we just grab the next address
+					if (!in_agent){
+						logmsg(LOGLEVEL_DEBUG, "\tParsing agent: %s", val);
+						in_agent = true;
+						strncpy(key, (char*) ev.data.scalar.value, ev.data.scalar.length);
+						key[ev.data.scalar.length] = '\0';
+						agentlist_add_address(ip_to_num(val), agent);
+
+					} else {
+						logmsg(LOGLEVEL_DEBUG, "\t\taddress: %s, %s", key, val);
+						agent = agentlist_add_agent(key, ip_to_num(val));
+					}
+
+				} else if (!is_value){
+					strncpy(key, (char*) ev.data.scalar.value, ev.data.scalar.length);
+					key[ev.data.scalar.length] = '\0';
+					is_value = true;
+				} else {
+
+					if(in_stcollectd) {
+
+						if(strcmp(key, CONFIG_KEY_STCOLLECTD_LOGLEVEL) == 0)
+							stcollectd_config.loglevel = atoi(val);
+						else if (strcmp(key, CONFIG_KEY_STCOLLECTD_PORT) == 0)
+							stcollectd_config.port = atoi(val);
+						else if (strcmp(key, CONFIG_KEY_STCOLLECTD_HASHBITS) == 0)
+							stcollectd_config.hashbits = atoi(val);
+						else if (strcmp(key, CONFIG_KEY_STCOLLECTD_PRINT_INTERVAL) == 0)
+							stcollectd_config.print_interval = atoi(val);
+						else if (strcmp(key, CONFIG_KEY_STCOLLECTD_FLUSH_INTERVAL) == 0)
+							stcollectd_config.flush_interval = atoi(val);
+						else if (strcmp(key, CONFIG_KEY_STCOLLECTD_BUFFER_SIZE) == 0)
+							stcollectd_config.buffer_size = atoi(val);
+						else if (strcmp(key, CONFIG_KEY_STCOLLECTD_BUFFER_NUM) == 0)
+							stcollectd_config.buffer_num = atoi(val);
+						else if (strcmp(key, CONFIG_KEY_STCOLLECTD_STATS_INTERVAL) == 0)
+							stcollectd_config.stats_interval = atoi(val);
+						else if (strcmp(key, CONFIG_KEY_STCOLLECTD_INTERFACE) == 0)
+							strncpy(stcollectd_config.interface, val, 16);
+						else if (strcmp(key, CONFIG_KEY_STCOLLECTD_DATADIR) == 0)
+							strncpy(stcollectd_config.datadir, val, 256);
+						else if (strcmp(key, CONFIG_KEY_STCOLLECTD_TMPDIR) == 0)
+							strncpy(stcollectd_config.tmpdir, val, 256);
+						else if (strcmp(key, CONFIG_KEY_STCOLLECTD_MSGQUEUE) == 0)
+							strncpy(stcollectd_config.msgqueue, val, 256);
+
+					} else if (in_stprocessd) {
+
+						if(in_storage_spectrum){
+							if(strcmp(key, CONFIG_KEY_STORAGE_SPECTRUM_ENABLED) == 0)
+								storage_spectrum_config.enabled = (atoi(val) == 1);
+							else if(strcmp(key, CONFIG_KEY_STORAGE_SPECTRUM_INTERVAL) == 0)
+								storage_spectrum_config.interval = atoi(val);
+							else if(strcmp(key, CONFIG_KEY_STORAGE_SPECTRUM_HASHBITS) == 0)
+								storage_spectrum_config.hashbits = atoi(val);
+							else if (strcmp(key, CONFIG_KEY_STORAGE_SPECTRUM_DATADIR) == 0)
+								strncpy(storage_spectrum_config.datadir, val, 256);
+
+						} else if (in_storage_mysql){
+
+							if(strcmp(key, CONFIG_KEY_STORAGE_MYSQL_ENABLED) == 0)
+								storage_mysql_config.enabled = (atoi(val) == 1);
+							else if(strcmp(key, CONFIG_KEY_STORAGE_MYSQL_INTERVAL) == 0)
+								storage_mysql_config.interval = atoi(val);
+							else if (strcmp(key, CONFIG_KEY_STORAGE_MYSQL_USERNAME) == 0)
+								strncpy(storage_mysql_config.username, val, 256);
+							else if (strcmp(key, CONFIG_KEY_STORAGE_MYSQL_PASSWORD) == 0)
+								strncpy(storage_mysql_config.password, val, 256);
+							else if (strcmp(key, CONFIG_KEY_STORAGE_MYSQL_DATABASE) == 0)
+								strncpy(storage_mysql_config.database, val, 256);
+							else if (strcmp(key, CONFIG_KEY_STORAGE_MYSQL_HOSTNAME) == 0)
+								strncpy(storage_mysql_config.hostname, val, 256);
+							else if (strcmp(key, CONFIG_KEY_STORAGE_MYSQL_TMPDIR) == 0)
+								strncpy(storage_mysql_config.tmpdir, val, 256);
+
+						} else {
+
+							if(strcmp(key, CONFIG_KEY_STPROCESSD_LOGLEVEL) == 0)
+								stprocessd_config.loglevel = atoi(val);
+							else if(strcmp(key, CONFIG_KEY_STPROCESSD_HASHSIZE) == 0)
+								stprocessd_config.hashsize = atoi(val);
+							else if(strcmp(key, CONFIG_KEY_STPROCESSD_STATS_INTERVAL) == 0)
+								stprocessd_config.stats_interval = atoi(val);
+							else if (strcmp(key, CONFIG_KEY_STPROCESSD_DATADIR) == 0)
+								strncpy(stprocessd_config.datadir, val, 256);
+						}
+					}
+					logmsg(LOGLEVEL_DEBUG, "\t%s = %s",key, val);
+					is_value = false;
+				}
 			}
-			break;
-		case YAML_SEQUENCE_START_EVENT:
+		} break;
+
+		case YAML_SEQUENCE_START_EVENT: {
 			is_list = true;
-			break;
-		case YAML_SEQUENCE_END_EVENT:
-			is_list = false;
-			is_value = false;
-			break;
+		} break;
+
+		case YAML_SEQUENCE_END_EVENT: {
+			if(in_agent) {
+				logmsg(LOGLEVEL_DEBUG, "\tDone parsing agent: %s", key);
+				agent = NULL;
+				in_agent = false;
+				is_value = false;
+			} else if(in_agent_list){
+				in_agent_list = false;
+				is_list = false;
+			} else {
+				is_value = false;
+			}
+		} break;
+
 		default:
 			break;
 	}
 }
 
 void parse_config_file(char* filename){
-	agent_list = NULL;
+	agent = NULL;
 	is_list = false;
 	is_value = false;
 	FILE *file = NULL;
 	yaml_parser_t parser;
 	yaml_event_t event;
-	int done = 0;
-	int count = 0;
-	int error = 0;
+	uint32_t done = 0;
+	uint32_t count = 0;
+	uint32_t error = 0;
 	file = fopen(filename, "r");
 	if(file != NULL){
 		logmsg(LOGLEVEL_INFO, "Reading configuration from file: %s", filename);
@@ -148,53 +262,12 @@ void parse_config_file(char* filename){
 			parse_event(event);
 			done = (event.type == YAML_STREAM_END_EVENT);
 			yaml_event_delete(&event);
-			count ++;
+			count++;
 		}
 		yaml_parser_delete(&parser);
 		fclose(file);
-		get_agents();
 		logmsg(LOGLEVEL_DEBUG, "Parsing complete: %s (%d events)", (error ? "FAILURE" : "SUCCESS"), count);
 	} else {
 		logmsg(LOGLEVEL_ERROR, "Error reading configuration file %s", filename);
 	}
-}
-
-char* config_get_datadir(){
-	return config_datadir;
-}
-
-char* config_get_interface(){
-	return config_interface;
-}
-
-uint32_t config_get_print_interval(){ 
-	return config_print_interval; 
-}
-
-uint32_t config_get_flush_interval(){ 
-	return config_flush_interval;
-}
-
-uint32_t config_get_buffer_size(){ 
-	return config_buffer_size; 
-}
-
-uint32_t config_get_num_buffers(){ 
-	return config_num_buffers; 
-}
-
-uint32_t config_get_num_agents(){ 
-	return config_num_agents; 
-}
-
-uint32_t config_get_port(){ 
-	return config_port; 
-}
-
-char** config_get_validagents(){
-	return config_validagents;
-}
-
-uint32_t config_get_stats_interval(){
-	return config_stats_interval;
 }
