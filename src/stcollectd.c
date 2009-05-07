@@ -177,17 +177,6 @@ uint32_t createAndBindSocket(){
 
 /* 
  * ===  FUNCTION  ======================================================================
- *         Name:  destroyHash
- *  Description:  Free the memory allocated to the hash and the agent list
- * =====================================================================================
- */
-void destroyHash(){
-	//cmph_destroy(h);
-//	agentlist_destroy(agents);
-}
-
-/* 
- * ===  FUNCTION  ======================================================================
  *         Name:  freeMemory
  *  Description:  Release the memory held by the buffer queues
  * =====================================================================================
@@ -199,8 +188,8 @@ void freeMemory(){
 		sleep(1);
 	}
 
-	// When we get here, the writing thread is dead
-	// We dont need any more new buffers
+	// When we get here, the writing thread is dead and the write queue is empty
+	// so we dont need any more buffers
 	bqueue_destroy(buffers_free_flow);
 	bqueue_destroy(buffers_free_cntr);
 }
@@ -236,31 +225,7 @@ void flushLists(){
  */
 void* writeBufferToDisk(){
 
-	bool time_to_shutdown = false;
-
 	while(true){
-		if(exit_writer_thread && !time_to_shutdown){
-			logmsg(LOGLEVEL_DEBUG, "Starting to shut down writing thread");
-			time_to_shutdown = true;
-		}
-		
-		if(exit_writer_thread && time_to_shutdown){
-//			logmsg(LOGLEVEL_DEBUG, "Final flush of buffer %u", buffer_current_flush);
-	//		if(pthread_mutex_trylock(&locks[buffer_current_flush])==0)
-				break;
-		} else {
-//			logmsg(LOGLEVEL_DEBUG, "Waiting for buffer %u to be ready to flush", buffer_current_flush);
-//			if (pthread_mutex_lock(&locks[buffer_current_flush])==0)
-//				logmsg(LOGLEVEL_DEBUG, "Write buffer thread flushing buffer %u ", buffer_current_flush);
-
-		}
-
-		/*
-		if(exit_writer_thread && time_to_shutdown){
-			logmsg(LOGLEVEL_DEBUG, "Final flush of buffers flow[%u] and cntr[%u]", buffer_cw_flow->index, buffer_cw_cntr->index);
-			if(pthread_mutex_trylock(&(buffer_cw_flow->lock)) == 0 && pthread_mutex_trylock(&(buffer_cw_cntr->lock)) == 0)
-				break;
-		}*/
 
 		// This will wait until there is something to flush
 		logmsg(LOGLEVEL_DEBUG, "Waiting for next buffers to flush");
@@ -289,6 +254,7 @@ void* writeBufferToDisk(){
 			}
 			buffer_cw_cntr->count = 0;
 		}
+
 		logmsg(LOGLEVEL_DEBUG, "Done writing to disk");
 
 		// Push these buffers back on the free queue and NULL'ify the flush buffer pointers
@@ -361,7 +327,6 @@ void* collect(){
 		time_end = time_current; // We stopped collecting here, used to calculate the total average sampling rate
 	}
 	logmsg(LOGLEVEL_DEBUG, "Collecting thread exiting");
-	exit_writer_thread = true;
 	void* p; p=NULL; return p;
 }
 
@@ -379,6 +344,7 @@ void hook_exit(int signal){
 	close(sock_fd);
 
 	// Wait for the writing thread
+	exit_writer_thread = true;
 	logmsg(LOGLEVEL_DEBUG, "Waiting for writing thread to finish");
 	pthread_join(write_thread, NULL);
 
@@ -389,7 +355,6 @@ void hook_exit(int signal){
 	logmsg(LOGLEVEL_DEBUG, "Exiting with signal %u", signal);
 	
 	freeMemory();
-//	destroyHash();
 	destroyLogger();
 	close_msg_queue(queue);
 
@@ -419,8 +384,11 @@ void handle_signal(int sig){
  */
 void allocateMemory(){
 	// Initialize the buffer queues
+	logmsg(LOGLEVEL_DEBUG, "Initializing buffer queue with %u buffers for each sample type", stcollectd_config.buffer_num);
 	buffers_free_flow 	= bqueue_init(stcollectd_config.buffer_num, stcollectd_config.buffer_size, sizeof(SFFlowSample));
 	buffers_free_cntr 	= bqueue_init(stcollectd_config.buffer_num, stcollectd_config.buffer_size,sizeof(SFCntrSample));
+
+	logmsg(LOGLEVEL_DEBUG, "Initializing empty buffer queue");
 	buffers_flush_flow 	= bqueue_init(0, stcollectd_config.buffer_size, sizeof(SFFlowSample));
 	buffers_flush_cntr 	= bqueue_init(0, stcollectd_config.buffer_size, sizeof(SFCntrSample));
 
@@ -428,35 +396,6 @@ void allocateMemory(){
 	buffer_cc_flow = bqueue_pop(buffers_free_flow);
 	buffer_cc_cntr = bqueue_pop(buffers_free_cntr);
 }
-
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  initHash
- *  Description:  Initialize the agent hash and agent list
- * =====================================================================================
- */
-/*
-void initHash(){
-	if(validagents != NULL){
-		cmph_io_adapter_t *source = cmph_io_vector_adapter(validagents, num_agents);
-		cmph_config_t *config = cmph_config_new(source);
-		cmph_config_set_algo(config, CMPH_CHM);
-		h = cmph_new(config);
-		cmph_config_destroy(config);
-	
-		//Destroy hash
-		cmph_io_vector_adapter_destroy(source);
-
-		agents = agentlist_init(num_agents);
-		uint32_t i;
-		for(i=0;i<num_agents;i++){
-			agent_t* a = agent_get(agents, i);
-			a->index = i;
-			strncpy(a->address, validagents[i], strlen(validagents[i]));
-		}
-	}
-}
-*/
 
 /* 
  * ===  FUNCTION  ======================================================================
@@ -515,8 +454,6 @@ int main(int argc, char** argv){
 	// Allocate the buffer queues and initial buffers
 	allocateMemory();
 
-
-/*
 	logmsg(LOGLEVEL_DEBUG, "Initializing message queue: %s", stcollectd_config.msgqueue);
 	queue = create_msg_queue(stcollectd_config.msgqueue);
 
@@ -533,5 +470,4 @@ int main(int argc, char** argv){
 
 	// Perform the exit routine, this includes waiting for threads
 	handle_signal(0);
-*/
 }

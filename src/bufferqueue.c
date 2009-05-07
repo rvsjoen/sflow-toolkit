@@ -4,7 +4,6 @@
 extern stcollectd_config_t stcollectd_config;
 
 bqueue_t* bqueue_init(uint32_t num, uint32_t buffersize, uint32_t itemsize){
-	logmsg(LOGLEVEL_DEBUG, "Initializing buffer queue with %u buffers", num);
 	bqueue_t* b = (bqueue_t*) malloc(sizeof(bqueue_t));
 	memset(b, 0, sizeof(bqueue_t));
 
@@ -14,11 +13,9 @@ bqueue_t* bqueue_init(uint32_t num, uint32_t buffersize, uint32_t itemsize){
 	b->buffersize = buffersize;
 	b->itemsize = itemsize;
 
-	logmsg(LOGLEVEL_DEBUG, "Pushing initial free buffers");
-
-//	uint32_t i;
-//	for( i=0; i<num; i++)
-//		bqueue_push_new(b);
+	uint32_t i;
+	for( i=0; i<num; i++)
+		bqueue_push_new(b);
 	return b;
 }
 
@@ -156,7 +153,7 @@ buffer_t* bqueue_pop_wait(bqueue_t* queue){
 }
 
 int bqueue_push_new(bqueue_t* queue){
-	logmsg(LOGLEVEL_DEBUG, "Allocating new buffer");
+	logmsg(LOGLEVEL_DEBUG, "\tAllocating new buffer");
 	buffer_t* buf = (buffer_t*) malloc(sizeof(buffer_t));
 
 	if(buf == NULL)
