@@ -41,11 +41,4 @@ agent_t* agentlist_add_agent(char* name, uint32_t address);
 void agentlist_add_address(uint32_t address, agent_t* agent);
 void agentlist_destroy();
 
-/*
-agentlist_t* agentlist_init(uint32_t num);
-void agentlist_destroy(agentlist_t* list);
-void agentlist_print_stats(agentlist_t* list);
-agent_t* agent_get(agentlist_t* list, uint32_t index);
-*/
-
 #endif

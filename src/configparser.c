@@ -127,11 +127,11 @@ void parse_event(const yaml_event_t ev){
 						in_agent = true;
 						strncpy(key, (char*) ev.data.scalar.value, ev.data.scalar.length);
 						key[ev.data.scalar.length] = '\0';
-						agentlist_add_address(ip_to_num(val), agent);
-
 					} else {
 						logmsg(LOGLEVEL_DEBUG, "\t\taddress: %s, %s", key, val);
-						agent = agentlist_add_agent(key, ip_to_num(val));
+						if(agent == NULL)
+							agent = agentlist_add_agent(key, ip_to_num(val));
+						agentlist_add_address(ip_to_num(val), agent);
 					}
 
 				} else if (!is_value){

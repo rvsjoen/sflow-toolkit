@@ -13,9 +13,18 @@ agent_t* agentlist_search(uint32_t addr)
 	agent_t* result = NULL;
 	uint32_t key = addr & (HASH_SIZE - 1);
 	agent_address_t* agent_addr = agenthash[key];
+
+	// If this hash lookup has elements and the first one does not match, 
+	// try to find the correct agent by doing a linear search
 	if(agent_addr != NULL){
-		while(agent_addr->next != NULL && agent_addr->address != addr){
-			agent_addr = agent_addr->next;
+		if(agent_addr->address == addr)
+			result = agent_addr->agent;
+		else {
+			while(agent_addr->next != NULL && result != NULL){
+				agent_addr = agent_addr->next;
+				if(agent_addr->address == addr)
+					result = agent_addr->agent;
+			}
 		}
 	}
 	return result;
@@ -26,6 +35,9 @@ agent_t* agentlist_add_agent(char* name, uint32_t address){
 	memset(agent, 0, sizeof(agent_t));
 	strncpy(agent->name, name, 32);
 	agent->address = address;
+
+	logmsg(LOGLEVEL_DEBUG, "Added agent %s, address: %u", name, address);
+
 	return agent;
 }
 
@@ -33,6 +45,7 @@ void agentlist_add_address(uint32_t address, agent_t* agent){
 	uint32_t key = address & (HASH_SIZE - 1);
 	agent_address_t* agent_addr = (agent_address_t*) malloc(sizeof(agent_address_t));
 	agent_addr->address = agent->address;
+
 	if(agenthash[key] != NULL){
 		agent_address_t* tmp = agenthash[key];
 		tmp->next = agent_addr;

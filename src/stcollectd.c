@@ -498,6 +498,7 @@ int main(int argc, char** argv){
 	}
 
 	initLogger();
+	agentlist_init();
 	parse_config_file(DEFAULT_CONFIG_FILE);
 	printConfig();
 
@@ -514,12 +515,8 @@ int main(int argc, char** argv){
 	// Allocate the buffer queues and initial buffers
 	allocateMemory();
 
-	/*
-	logmsg(LOGLEVEL_DEBUG, "Initializing agents hash");
-//	initHash();
-	agentlist_init();
-	*/
 
+/*
 	logmsg(LOGLEVEL_DEBUG, "Initializing message queue: %s", stcollectd_config.msgqueue);
 	queue = create_msg_queue(stcollectd_config.msgqueue);
 
@@ -536,4 +533,5 @@ int main(int argc, char** argv){
 
 	// Perform the exit routine, this includes waiting for threads
 	handle_signal(0);
+*/
 }
