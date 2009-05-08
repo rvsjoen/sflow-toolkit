@@ -6,6 +6,7 @@ conv_list_t* hash_ip[HASH_RANGE];
 conv_list_t* hash_tcp[HASH_RANGE];
 conv_list_t* hash_udp[HASH_RANGE];
 counter_list_t* cntr_list;
+counter_list_node_t* cntr_list_end;
 
 void process_file_cntr(const char* filename, uint32_t agent, uint32_t timestamp){
 
@@ -111,9 +112,11 @@ void process_sample_cntr(SFCntrSample* s){
 	memset(node, 0, sizeof(counter_list_node_t));
 	memcpy(&node->sample, s, sizeof(SFCntrSample));
 	if(cntr_list->data != NULL){
-		node->next = cntr_list->data;
+		cntr_list_end->next = node;
+	} else {
+		cntr_list->data = node;
 	}
-	cntr_list->data = node;
+	cntr_list_end = node;
 	cntr_list->num++;
 }
 

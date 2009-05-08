@@ -7,6 +7,9 @@
 #define STAT_STIME 	15
 #define STAT_VMEM 	23
 
+extern stcollectd_config_t stcollectd_config;
+extern stprocessd_config_t stprocessd_config;
+
 uint32_t utime_prev;
 uint32_t stime_prev;
 uint32_t hz;
@@ -25,7 +28,7 @@ void get_HZ(){
 void stats_init_stprocessd(){
 	get_HZ();
 	memset(stats_stprocessd_file, 0, 256);
-	sprintf(stats_stprocessd_file, "%s/statistics_stprocessd.rrd", config_get_datadir());
+	sprintf(stats_stprocessd_file, "%s/statistics_stprocessd.rrd", stprocessd_config.datadir);
 	int fd;
 	if ((fd = open(stats_stprocessd_file, O_RDONLY)) == -1){
 		char *createparams[] = {
@@ -55,8 +58,8 @@ void stats_init_stcollectd(){
 	get_HZ();
 	memset(stats_stcollectd_file, 0, 256);
 	memset(stats_stcollectd_realtime_file, 0, 256);
-	sprintf(stats_stcollectd_file, "%s/statistics_stcollectd.rrd", config_get_datadir());
-	sprintf(stats_stcollectd_realtime_file, "%s/statistics_stcollectd_realtime", config_get_datadir());
+	sprintf(stats_stcollectd_file, "%s/statistics_stcollectd.rrd", stcollectd_config.datadir);
+	sprintf(stats_stcollectd_realtime_file, "%s/statistics_stcollectd_realtime", stcollectd_config.datadir);
 	int fd;
 	if ((fd = open(stats_stcollectd_file, O_RDONLY)) == -1){
 		char *createparams[] = {

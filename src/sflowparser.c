@@ -1,8 +1,6 @@
 #include "sflowparser.h"
 #include "bufferqueue.h"
 
-extern char** validagents;
-extern agentlist_t* agents;
 extern buffer_t* buffer_cc_flow;
 extern buffer_t* buffer_cc_cntr;
 extern int32_t log_level;
@@ -382,49 +380,44 @@ void parseDatagram(uint8_t* data, uint32_t n, struct sockaddr_in* addr){
 
 	// Get the rest of the fields in the datagram header
 	hdr.sub_agent_id 		= getData32(&datagram);
-	hdr.sequence_number 	= getData32(&datagram);
-	hdr.uptime 				= getData32(&datagram);
+	hdr.sequence_number 		= getData32(&datagram);
+	hdr.uptime 			= getData32(&datagram);
 	hdr.num_records 		= getData32(&datagram);
-	
+
 	// We extract the fields we want from our datagram and put it in our template sample
 	// This is the information we want in all the samples from the datagram
 	SFSample s_template;
-	s_template.timestamp 		= datagram.timestamp;
+	
 	s_template.agent_address 	= ntohl(hdr.agent_address.address.ip_v4.s_addr);
-	s_template.sub_agent_id		= hdr.sub_agent_id;
-
+	// If the agent address is 127.0.0.1, replace it with the src ip address of the datagram,
+	// some buggy agents do this
 	if(s_template.agent_address == 0x7f000001) // If agent address equals 127.0.0.1
 		s_template.agent_address = ntohl(addr->sin_addr.s_addr);
-	
-	// Do some stats here (there might be a better way of doing this
-	char key[16];
-	sprintf(
-			key,
-			"%i.%i.%i.%i",
-			((s_template.agent_address & 0xff000000) >> 24),
-			((s_template.agent_address & 0x00ff0000) >> 16),
-			((s_template.agent_address & 0x0000ff00) >> 8),
-			(s_template.agent_address & 0x000000ff)
-		   );
 
-	// Search for this agent in the hash of agents
-	//
-	
-	unsigned int id = cmph_search(h, key, strlen(key));
+	agent_t* agent = agentlist_search(s_template.agent_address);
 
-	
-	// If the agent address is valid process the datagram, if not just skip it
-	if(key != NULL && strcmp(key, validagents[id]) == 0)
-	{
+	s_template.timestamp 		= datagram.timestamp;
+	s_template.agent_address 	= agent->address;
+	s_template.sub_agent_id		= hdr.sub_agent_id;
+
+	if(agent != NULL){
 		if(print_parse) printDatagramHeader(&hdr);
-		agent_t* agent = agent_get(agents, id);
 		agent->datagrams++;
 		agent->last_seen = datagram.timestamp;
+		agent->uptime = hdr.uptime;
+		agent->drops += hdr.sequence_number - agent->sequence;
+		agent->sequence = hdr.sequence_number;
+
 		uint32_t i;
 		for( i=0; i < hdr.num_records; i++ ){
-			parseSample(&datagram, &s_template); 				// Populate the sample using the datagram
+			// Populate the sample using the datagram
+			parseSample(&datagram, &s_template);
 		}
 	} else {
-		logmsg(LOGLEVEL_WARNING, "Datagram from unknown agent (%s)", key);
+		// We don't know this agent, tell someone that a bastard is sending us samples
+		// we are no accepting
+		char buf[16];
+		num_to_ip(s_template.agent_address, buf);
+		logmsg(LOGLEVEL_WARNING, "Datagram from unknown agent (%s)", buf);
 	}
 }

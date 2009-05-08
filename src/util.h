@@ -61,4 +61,5 @@ void printInHex(unsigned char* pkt, uint32_t len);
 void printSingleLineHex(unsigned char* pkt, uint32_t len);
 
 void num_to_ip(uint32_t num, char* buf);
+uint32_t ip_to_num(char* buf);
 #endif
