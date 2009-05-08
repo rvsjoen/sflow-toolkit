@@ -127,9 +127,12 @@ void parse_event(const yaml_event_t ev, char* pname){
 						strncpy(key, (char*) ev.data.scalar.value, ev.data.scalar.length);
 						key[ev.data.scalar.length] = '\0';
 					} else {
-						logmsg(LOGLEVEL_DEBUG, "\t\taddress: %s, %s", key, val);
-						if(agent == NULL)
+						if(agent == NULL){
 							agent = agentlist_add_agent(key, ip_to_num(val));
+							logmsg(LOGLEVEL_DEBUG, "\t\taddress (pri): %s, %s", key, val);
+						} else {
+							logmsg(LOGLEVEL_DEBUG, "\t\taddress (sec): %s, %s", key, val);
+						}
 						agentlist_add_address(ip_to_num(val), agent);
 					}
 

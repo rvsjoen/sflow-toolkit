@@ -83,7 +83,7 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 			// Generate the path to the next file
 			char filename[256];
 			memset(filename, 0, 256);
-			getFilePath(s->agent_address, s->timestamp, filename);
+			getFilePath(a->address, s->timestamp, filename);
 
 			// filename is the name of next data segment
 			sprintf(filename+strlen(filename), "flow");
@@ -107,7 +107,6 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 
 			a->fd_flow = f;
 			strncpy(a->fn_flow, filename, 256);
-			a->address = s->agent_address;
 		}
 		write(a->fd_flow, sample, sizeof(SFFlowSample));
 
@@ -124,7 +123,7 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 			// Generate the path to the next file
 			char filename[256];
 			memset(filename, 0, 256);
-			getFilePath(s->agent_address, s->timestamp, filename);
+			getFilePath(a->address, s->timestamp, filename);
 
 			// filename is the name of next data segment
 			sprintf(filename+strlen(filename), "cntr");
@@ -147,7 +146,6 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 
 			a->fd_cntr = f;
 			strncpy(a->fn_cntr, filename, 256);
-			a->address = s->agent_address;
 		}
 		write(a->fd_cntr, sample, sizeof(SFCntrSample));
 	}

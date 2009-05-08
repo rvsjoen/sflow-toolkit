@@ -46,6 +46,8 @@ void agentlist_add_address(uint32_t address, agent_t* agent){
 	agent_addr->address = address;
 	agent_addr->agent = agent;
 
+	logmsg(LOGLEVEL_DEBUG, "\t\tAdding %u to %x", address, agent);
+
 	// Insert a new element at the head of the list if it's not empty
 	if(agenthash[key] != NULL){
 		agent_address_t* tmp = agenthash[key];

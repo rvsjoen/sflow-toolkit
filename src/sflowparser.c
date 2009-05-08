@@ -383,20 +383,23 @@ void parseDatagram(uint8_t* data, uint32_t n, struct sockaddr_in* addr){
 	hdr.sequence_number 		= getData32(&datagram);
 	hdr.uptime 			= getData32(&datagram);
 	hdr.num_records 		= getData32(&datagram);
-	
+
 	// We extract the fields we want from our datagram and put it in our template sample
 	// This is the information we want in all the samples from the datagram
 	SFSample s_template;
-	s_template.timestamp 		= datagram.timestamp;
+	
 	s_template.agent_address 	= ntohl(hdr.agent_address.address.ip_v4.s_addr);
-	s_template.sub_agent_id		= hdr.sub_agent_id;
-
 	// If the agent address is 127.0.0.1, replace it with the src ip address of the datagram,
 	// some buggy agents do this
 	if(s_template.agent_address == 0x7f000001) // If agent address equals 127.0.0.1
 		s_template.agent_address = ntohl(addr->sin_addr.s_addr);
-	
+
 	agent_t* agent = agentlist_search(s_template.agent_address);
+
+	s_template.timestamp 		= datagram.timestamp;
+	s_template.agent_address 	= agent->address;
+	s_template.sub_agent_id		= hdr.sub_agent_id;
+
 	if(agent != NULL){
 		if(print_parse) printDatagramHeader(&hdr);
 		agent->datagrams++;

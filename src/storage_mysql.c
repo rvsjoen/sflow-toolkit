@@ -87,7 +87,7 @@ void storage_mysql_create_conv_ip(uint32_t timestamp){
 		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
 	} else {
 		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
-		sprintf(query,"CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED, agent INTEGER UNSIGNED, input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, INTEGER UNSIGNED, dst INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (id) ) ENGINE=myisam", title, title);
+		sprintf(query,"CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED, agent INTEGER UNSIGNED, input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src INTEGER UNSIGNED, dst INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (id) ) ENGINE=myisam", title, title);
 		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
 		mysql_query(&db, query);
 	}
