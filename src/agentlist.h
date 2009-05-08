@@ -27,7 +27,7 @@ typedef struct _agent_t {
 
 typedef struct _agent_address_t {
 	uint32_t address;
-	struct agent_t* agent;
+	agent_t* agent;
 	struct _agent_address_t* next;
 } agent_address_t;
 

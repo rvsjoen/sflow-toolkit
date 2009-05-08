@@ -128,7 +128,7 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 		num = sprintf(buf, "%s,%u,%u,%u,%u,%f,%u,%u,%f,%u,%f,%f,%u,%u\n",
 					a,
 					s->counter_generic_if_index,
-					(uint32_t)s->timestamp,
+					(uint32_t) s->timestamp,
 					s->counter_generic_if_out_discards,
 					s->counter_generic_if_out_errors,
 					loadout,
@@ -139,7 +139,7 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 					mbytesout,
 					mbytesin,
 					s->counter_generic_if_in_errors,
-					s->counter_generic_if_speed/1000000
+					(uint32_t) s->counter_generic_if_speed/1000000
 		);
 
 		cstat->timestamp 	= s->timestamp;
