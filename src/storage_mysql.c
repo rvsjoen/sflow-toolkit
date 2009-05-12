@@ -1,4 +1,5 @@
 #include <mysql/mysql.h>
+#include "configparser.h"
 #include "storage.h"
 #include "storage_mysql.h"
 
@@ -8,8 +9,8 @@
 #define BULK_INSERT_SIZE_TCP 		200
 #define BULK_INSERT_SIZE_UDP 		200
 #define BULK_INSERT_SIZE_CNTR		600
-#define TABLE_INTERVAL				1440 // Minutes TODO Configuration parameter
-#define PATH_SHM					"/dev/shm" // TODO Configuration parameter
+
+extern stprocessd_mysql_config_t storage_mysql_config;
 
 MYSQL db;
 
@@ -33,7 +34,11 @@ void storage_mysql_error(){
 void storage_mysql_init(){
 	if(!mysql_init(&db))
 		storage_mysql_error();
-	if(!mysql_real_connect(&db, DB_HOST, DB_USER, DB_PASS, DB_NAME, 0, NULL, 0))
+	if(!mysql_real_connect(&db, 
+				storage_mysql_config.hostname,
+				storage_mysql_config.username,
+				storage_mysql_config.password,
+				storage_mysql_config.database, 0, NULL, 0))
 		storage_mysql_error();
 	logmsg(LOGLEVEL_DEBUG, "storage-mysql: connected to database");
 	storage_mysql_create_conv_ethernet(time(NULL)/60);
@@ -67,7 +72,7 @@ void storage_mysql_create_conv_ethernet(uint32_t timestamp){
 		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
 		mysql_query(&db, query);
 	}
-	table_conv_ethernet = timestamp/TABLE_INTERVAL;
+	table_conv_ethernet = timestamp/storage_mysql_config.interval;
 	strncpy(table_conv_ethernet_name, title, 32);
 }
 
@@ -91,7 +96,7 @@ void storage_mysql_create_conv_ip(uint32_t timestamp){
 		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
 		mysql_query(&db, query);
 	}
-	table_conv_ip = timestamp/TABLE_INTERVAL;
+	table_conv_ip = timestamp/storage_mysql_config.interval;
 	strncpy(table_conv_ip_name, title, 32);
 }
 
@@ -115,7 +120,7 @@ void storage_mysql_create_conv_tcp(uint32_t timestamp){
 		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
 		mysql_query(&db, query);
 	}
-	table_conv_tcp = timestamp/TABLE_INTERVAL;
+	table_conv_tcp = timestamp/storage_mysql_config.interval;
 	strncpy(table_conv_tcp_name, title, 32);
 }
 
@@ -139,7 +144,7 @@ void storage_mysql_create_conv_udp(uint32_t timestamp){
 		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
 		mysql_query(&db, query);
 	}
-	table_conv_udp = timestamp/TABLE_INTERVAL;
+	table_conv_udp = timestamp/storage_mysql_config.interval;
 	strncpy(table_conv_udp_name, title, 32);
 }
 
@@ -163,13 +168,13 @@ void storage_mysql_create_counters(uint32_t timestamp){
 		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
 		mysql_query(&db, query);
 	}
-	table_counters = timestamp/TABLE_INTERVAL;
+	table_counters = timestamp/storage_mysql_config.interval;
 	strncpy(table_counters_name, title, 32);
 	free(query);
 }
 
 void storage_mysql_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
-	if(table_conv_ethernet < timestamp/TABLE_INTERVAL)
+	if(table_conv_ethernet < timestamp/storage_mysql_config.interval)
 		storage_mysql_create_conv_ethernet(timestamp);
 
 	uint32_t ethertype_ip = 0, ethertype_arp = 0, ethertype_rarp = 0, ethertype_802_1q = 0, ethertype_ipv6 = 0;
@@ -222,7 +227,7 @@ void storage_mysql_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_
 	}
 
 	char stmt[256];
-	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_ethernet' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n' (timestamp,agent,input_if,output_if,src,dst,bytes,frames)", PATH_SHM, table_conv_ethernet_name);
+	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_ethernet' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n' (timestamp,agent,input_if,output_if,src,dst,bytes,frames)", storage_mysql_config.tmpdir, table_conv_ethernet_name);
 
 	char stmt_alter_enable[64];
 	sprintf(stmt_alter_enable, "ALTER TABLE %s ENABLE KEYS", table_conv_ethernet_name);
@@ -244,7 +249,7 @@ void storage_mysql_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_
 
 void storage_mysql_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
 
-	if(table_conv_ip < timestamp/TABLE_INTERVAL)
+	if(table_conv_ip < timestamp/storage_mysql_config.interval)
 		 storage_mysql_create_conv_ip(timestamp);
 
 	uint32_t cnt = 0;
@@ -294,7 +299,7 @@ void storage_mysql_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agen
 	}
 
 	char stmt[256];
-	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_ip' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n' (timestamp,agent,input_if,output_if,src,dst,bytes,frames)", PATH_SHM, table_conv_ip_name);
+	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_ip' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n' (timestamp,agent,input_if,output_if,src,dst,bytes,frames)", storage_mysql_config.tmpdir, table_conv_ip_name);
 
 	char stmt_alter_enable[64];
 	sprintf(stmt_alter_enable, "ALTER TABLE %s ENABLE KEYS", table_conv_ip_name);
@@ -317,7 +322,7 @@ void storage_mysql_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agen
 
 void storage_mysql_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
 
-	if(table_conv_tcp < timestamp/TABLE_INTERVAL)
+	if(table_conv_tcp < timestamp/storage_mysql_config.interval)
 		 storage_mysql_create_conv_tcp(timestamp);
 
 	uint32_t cnt= 0;
@@ -375,7 +380,7 @@ void storage_mysql_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t age
 	}
 
 	char stmt[256];
-	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_tcp' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n' (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,frames)", PATH_SHM, table_conv_tcp_name);
+	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_tcp' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n' (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,frames)", storage_mysql_config.tmpdir, table_conv_tcp_name);
 
 	char stmt_alter_enable[64];
 	sprintf(stmt_alter_enable, "ALTER TABLE %s ENABLE KEYS", table_conv_tcp_name);
@@ -398,7 +403,7 @@ void storage_mysql_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t age
 
 void storage_mysql_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t agent, uint32_t timestamp){
 
-	if(table_conv_udp < timestamp/TABLE_INTERVAL)
+	if(table_conv_udp < timestamp/storage_mysql_config.interval)
 		storage_mysql_create_conv_udp(timestamp);
 
 	uint32_t cnt= 0;
@@ -442,7 +447,7 @@ void storage_mysql_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t age
 	}
 
 	char stmt[256];
-	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_udp' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n' (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,frames)", PATH_SHM, table_conv_udp_name);
+	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_udp' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n' (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,frames)", storage_mysql_config.tmpdir, table_conv_udp_name);
 
 	char stmt_alter_enable[64];
 	sprintf(stmt_alter_enable, "ALTER TABLE %s ENABLE KEYS", table_conv_udp_name);
@@ -465,7 +470,7 @@ void storage_mysql_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t age
 
 void storage_mysql_store_cntr(counter_list_t* list, uint32_t timestamp){
 
-	if(table_counters < timestamp/TABLE_INTERVAL)
+	if(table_counters < timestamp/storage_mysql_config.interval)
 		 storage_mysql_create_counters(timestamp);
 
 	char* query;
