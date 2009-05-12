@@ -29,6 +29,7 @@
 
 #define CONFIG_KEY_STORAGE_MYSQL_ENABLED		"enabled"
 #define CONFIG_KEY_STORAGE_MYSQL_INTERVAL		"interval"
+#define CONFIG_KEY_STORAGE_MYSQL_NUM_INTERVAL	"number of intervals"
 #define CONFIG_KEY_STORAGE_MYSQL_USERNAME		"username"
 #define CONFIG_KEY_STORAGE_MYSQL_PASSWORD		"password"
 #define CONFIG_KEY_STORAGE_MYSQL_DATABASE		"database"
@@ -67,6 +68,7 @@ stprocessd_config_t stprocessd_config = {
 stprocessd_mysql_config_t storage_mysql_config = {
 	.enabled 		= false,
 	.interval 		= 1440,
+	.num_intervals	= 7,
 	.username		= "sflow",
 	.password		= "sflow",
 	.database		= "sflow",
@@ -184,6 +186,8 @@ void parse_event(const yaml_event_t ev, char* pname){
 								storage_mysql_config.enabled = (atoi(val) == 1);
 							else if(strcmp(key, CONFIG_KEY_STORAGE_MYSQL_INTERVAL) == 0)
 								storage_mysql_config.interval = atoi(val);
+							else if(strcmp(key, CONFIG_KEY_STORAGE_MYSQL_NUM_INTERVAL) == 0)
+								storage_mysql_config.num_interval = atoi(val);
 							else if (strcmp(key, CONFIG_KEY_STORAGE_MYSQL_USERNAME) == 0)
 								strncpy(storage_mysql_config.username, val, 256);
 							else if (strcmp(key, CONFIG_KEY_STORAGE_MYSQL_PASSWORD) == 0)
