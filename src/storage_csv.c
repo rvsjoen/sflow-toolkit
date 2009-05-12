@@ -139,7 +139,7 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 					mbytesout,
 					mbytesin,
 					s->counter_generic_if_in_errors,
-					s->counter_generic_if_speed/1000000
+					(uint32_t) s->counter_generic_if_speed/1000000
 		);
 
 		cstat->timestamp 	= s->timestamp;

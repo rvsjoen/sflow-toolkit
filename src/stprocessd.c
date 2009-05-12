@@ -21,7 +21,7 @@
 
 #include "storage.h"
 #include "storage_mysql.h"
-#include "storage_rrd.h"
+#include "storage_csv.h"
 
 #define DEFAULT_CONFIG_FILE     "/etc/sflow-toolkit.conf"
 
