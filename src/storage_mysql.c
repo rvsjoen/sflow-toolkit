@@ -74,6 +74,15 @@ void storage_mysql_create_conv_ethernet(uint32_t timestamp){
 	}
 	table_conv_ethernet = timestamp/storage_mysql_config.interval;
 	strncpy(table_conv_ethernet_name, title, 32);
+
+	time_t t_old = (time_t) timestamp - (storage_mysql_config.interval*storage_mysql_config.num_intervals);
+	t_old *= 60;
+	tmp = gmtime(&t_old);
+	strftime(title, 32, "conv_ethernet_%d%m%y", tmp);
+	sprintf(query, "DROP TABLE %s", title);
+	if(mysql_query(&db, query) == 0){
+		logmsg(LOGLEVEL_DEBUG, "table %s has expired, dropping table", title);
+	}
 }
 
 void storage_mysql_create_conv_ip(uint32_t timestamp){
@@ -98,6 +107,15 @@ void storage_mysql_create_conv_ip(uint32_t timestamp){
 	}
 	table_conv_ip = timestamp/storage_mysql_config.interval;
 	strncpy(table_conv_ip_name, title, 32);
+
+	time_t t_old = (time_t) timestamp - (storage_mysql_config.interval*storage_mysql_config.num_intervals);
+	t_old *= 60;
+	tmp = gmtime(&t_old);
+	strftime(title, 32, "conv_ip_%d%m%y", tmp);
+	sprintf(query, "DROP TABLE %s", title);
+	if(mysql_query(&db, query) == 0){
+		logmsg(LOGLEVEL_DEBUG, "table %s has expired, dropping table", title);
+	}
 }
 
 void storage_mysql_create_conv_tcp(uint32_t timestamp){
@@ -122,6 +140,15 @@ void storage_mysql_create_conv_tcp(uint32_t timestamp){
 	}
 	table_conv_tcp = timestamp/storage_mysql_config.interval;
 	strncpy(table_conv_tcp_name, title, 32);
+
+	time_t t_old = (time_t) timestamp - (storage_mysql_config.interval*storage_mysql_config.num_intervals);
+	t_old *= 60;
+	tmp = gmtime(&t_old);
+	strftime(title, 32, "conv_tcp_%d%m%y", tmp);
+	sprintf(query, "DROP TABLE %s", title);
+	if(mysql_query(&db, query) == 0){
+		logmsg(LOGLEVEL_DEBUG, "table %s has expired, dropping table", title);
+	}
 }
 
 void storage_mysql_create_conv_udp(uint32_t timestamp){
@@ -146,6 +173,15 @@ void storage_mysql_create_conv_udp(uint32_t timestamp){
 	}
 	table_conv_udp = timestamp/storage_mysql_config.interval;
 	strncpy(table_conv_udp_name, title, 32);
+
+	time_t t_old = (time_t) timestamp - (storage_mysql_config.interval*storage_mysql_config.num_intervals);
+	t_old *= 60;
+	tmp = gmtime(&t_old);
+	strftime(title, 32, "conv_udp_%d%m%y", tmp);
+	sprintf(query, "DROP TABLE %s", title);
+	if(mysql_query(&db, query) == 0){
+		logmsg(LOGLEVEL_DEBUG, "table %s has expired, dropping table", title);
+	}
 }
 
 void storage_mysql_create_counters(uint32_t timestamp){
@@ -170,6 +206,16 @@ void storage_mysql_create_counters(uint32_t timestamp){
 	}
 	table_counters = timestamp/storage_mysql_config.interval;
 	strncpy(table_counters_name, title, 32);
+
+	time_t t_old = (time_t) timestamp - (storage_mysql_config.interval*storage_mysql_config.num_intervals);
+	t_old *= 60;
+	tmp = gmtime(&t_old);
+	strftime(title, 32, "counters_%d%m%y", tmp);
+	sprintf(query, "DROP TABLE %s", title);
+	if(mysql_query(&db, query) == 0){
+		logmsg(LOGLEVEL_DEBUG, "table %s has expired, dropping table", title);
+	}
+
 	free(query);
 }
 
