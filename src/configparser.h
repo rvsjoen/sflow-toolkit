@@ -35,6 +35,7 @@ typedef struct _stprocessd_config {
 typedef struct _stprocessd_mysql_config {
 	bool enabled;
 	uint32_t interval;
+	uint32_t num_intervals;
 	char  username[256];
 	char  password[256];
 	char  database[256];
