@@ -187,7 +187,7 @@ void parse_event(const yaml_event_t ev, char* pname){
 							else if(strcmp(key, CONFIG_KEY_STORAGE_MYSQL_INTERVAL) == 0)
 								storage_mysql_config.interval = atoi(val);
 							else if(strcmp(key, CONFIG_KEY_STORAGE_MYSQL_NUM_INTERVAL) == 0)
-								storage_mysql_config.num_interval = atoi(val);
+								storage_mysql_config.num_intervals = atoi(val);
 							else if (strcmp(key, CONFIG_KEY_STORAGE_MYSQL_USERNAME) == 0)
 								strncpy(storage_mysql_config.username, val, 256);
 							else if (strcmp(key, CONFIG_KEY_STORAGE_MYSQL_PASSWORD) == 0)
@@ -240,6 +240,8 @@ void parse_event(const yaml_event_t ev, char* pname){
 }
 
 void parse_config_file(char* filename, char* pname){
+	if(filename == NULL)
+		filename = DEFAULT_CONFIG_FILE;
 	agent = NULL;
 	is_list = false;
 	is_value = false;

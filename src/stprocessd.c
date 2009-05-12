@@ -23,8 +23,6 @@
 #include "storage_mysql.h"
 #include "storage_rrd.h"
 
-#define DEFAULT_CONFIG_FILE     "/etc/sflow-toolkit.conf"
-
 extern stprocessd_config_t stprocessd_config;
 extern stcollectd_config_t stcollectd_config;
 
@@ -55,7 +53,7 @@ void process_file(const msg_t* m){
 
 int main(int argc, char** argv){
 	parse_commandline(argc, argv);
-	parse_config_file(DEFAULT_CONFIG_FILE, argv[0]);
+	parse_config_file(NULL, argv[0]);
 
 	stats_init_stprocessd();
 
