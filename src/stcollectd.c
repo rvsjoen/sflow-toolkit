@@ -436,7 +436,7 @@ int main(int argc, char** argv){
 		disable_echo(false);
 	}
 
-	initLogger();
+	initLogger("stcollectd");
 	agentlist_init();
 	parse_config_file(DEFAULT_CONFIG_FILE, argv[0]);
 	printConfig();

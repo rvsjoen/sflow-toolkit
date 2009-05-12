@@ -54,6 +54,9 @@ void process_file(const msg_t* m){
 }
 
 int main(int argc, char** argv){
+
+	initLogger("stprocessd");
+
 	parse_commandline(argc, argv);
 	parse_config_file(DEFAULT_CONFIG_FILE, argv[0]);
 
@@ -88,5 +91,6 @@ int main(int argc, char** argv){
 	close_msg_queue(queue);
 	storage_modules_destroy();
 	storage_system_destroy();
+	destroyLogger();
 	return EXIT_SUCCESS;
 }

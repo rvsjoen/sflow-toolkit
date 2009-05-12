@@ -3,9 +3,9 @@
 
 uint32_t log_level = 0;
 
-void initLogger()
+void initLogger(char* name)
 {
-	openlog("stcollectd", LOG_NDELAY, LOG_DAEMON);
+	openlog(name, LOG_NDELAY, LOG_DAEMON);
 }
 
 void destroyLogger()
