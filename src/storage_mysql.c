@@ -74,6 +74,12 @@ void storage_mysql_create_conv_ethernet(uint32_t timestamp){
 	}
 	table_conv_ethernet = timestamp/storage_mysql_config.interval;
 	strncpy(table_conv_ethernet_name, title, 32);
+
+	time_t t_old = (time_t) timestamp - (storage_mysql_config.interval*storage_mysql_config.num_intervals);
+	t_old *= 60;
+	tmp = gmtime(&t_old);
+	strftime(title, 32, "conv_ethernet_%d%m%y", tmp);
+	logmsg(LOGLEVEL_DEBUG, "Checking to see if I need to DROP %s", title);
 }
 
 void storage_mysql_create_conv_ip(uint32_t timestamp){
