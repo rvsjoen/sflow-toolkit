@@ -17,13 +17,13 @@ stcollectd_LDFLAGS = -lcmph -lpthread -lrrd -lyaml -lrt
 stprocessd_SOURCES = stprocessd.c					\
 					 logger.c logger.h              \
 					 util.c util.h                  \
+					 configparser.c configparser.h	\
 					 messaging.c messaging.h		\
 					 dataparser.c dataparser.h		\
 					 storage.c storage.h			\
 					 storage_mysql.c storage_mysql.h\
 					 storage_rrd.c storage_rrd.h\
 					 storage_csv.c storage_csv.h	\
-					 configparser.c configparser.h	\
 					 agentlist.c agentlist.h		\
 					 statistics.c statistics.h
 stprocessd_LDFLAGS = -lrt -lmysqlclient

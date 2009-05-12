@@ -1,8 +1,3 @@
-#define DB_HOST "localhost"
-#define DB_USER	"sflow"
-#define DB_PASS	"sflow"
-#define DB_NAME "sflow"
-
 #ifndef __storage_mysql_h__
 #define __storage_mysql_h__
 
