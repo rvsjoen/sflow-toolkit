@@ -30,31 +30,10 @@
 #include "configparser.h"
 #include "messaging.h"
 
-// Default configuration parameters
-//#define DEFAULT_FLUSH_INTERVAL 	30
-//#define DEFAULT_BUFFER_SIZE		1000
-//#define DEFAULT_PORT 			6343
 #define RECEIVE_BUFFER_SIZE 	1500
 #define MAX_DATAGRAM_SAMPLES 	10
-#define DEFAULT_CONFIG_FILE		"/etc/sflow-toolkit.conf"
-//#define NUM_BUFFERS 			10
-//#define PRINT_INTERVAL			1000
-//#define MSG_QUEUE_NAME 			"/sflow"
 
 extern stcollectd_config_t stcollectd_config;
-
-// configurable options
-/*
-uint32_t print_interval	= PRINT_INTERVAL;
-uint32_t num_buffers	= NUM_BUFFERS;
-uint32_t port 			= DEFAULT_PORT;
-uint32_t flush_interval = DEFAULT_FLUSH_INTERVAL;
-uint32_t buffer_size	= DEFAULT_BUFFER_SIZE;
-
-char* interface 		= NULL;
-char* cwd				= NULL;
-char* file_config 		= DEFAULT_CONFIG_FILE;
-*/
 
 buffer_t* buffer_cw_flow 	= NULL;	// Current write flow
 buffer_t* buffer_cw_cntr 	= NULL; // Current write counter
@@ -65,13 +44,6 @@ bqueue_t* buffers_free_cntr 	= NULL;
 bqueue_t* buffers_free_flow 	= NULL;
 bqueue_t* buffers_flush_cntr 	= NULL;
 bqueue_t* buffers_flush_flow 	= NULL;
-
-/*
-agentlist_t* agents				= NULL;
-cmph_t *h 						= NULL;
-char** validagents				= NULL;
-uint32_t num_agents 			= 0;
-*/
 
 uint64_t total_datagrams		= 0;
 uint64_t total_samples_flow		= 0;
@@ -430,15 +402,14 @@ int main(int argc, char** argv){
 
 	parseCommandLine(argc, argv);
 
-	if(daemonize){
+	if(daemonize)
 		daemonize_me();
-	} else {
+	else
 		disable_echo(false);
-	}
 
 	initLogger("stcollectd");
 	agentlist_init();
-	parse_config_file(DEFAULT_CONFIG_FILE, argv[0]);
+	parse_config_file(NULL, argv[0]);
 	printConfig();
 
 	logmsg(LOGLEVEL_DEBUG, "Trapping signals...");

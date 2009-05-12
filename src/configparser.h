@@ -7,6 +7,8 @@
 #include <stdint.h>
 #include <yaml.h>
 
+#define DEFAULT_CONFIG_FILE "/etc/sflow-toolkit.conf"
+
 // Configuration values for stcollectd
 typedef struct stcollectd_config {
 	uint32_t port;

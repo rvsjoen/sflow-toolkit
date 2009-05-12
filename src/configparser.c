@@ -243,6 +243,8 @@ void parse_event(const yaml_event_t ev, char* pname){
 }
 
 void parse_config_file(char* filename, char* pname){
+	if(filename == NULL)
+		filename = DEFAULT_CONFIG_FILE;
 	agent = NULL;
 	is_list = false;
 	is_value = false;
