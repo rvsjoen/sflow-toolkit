@@ -1,0 +1,173 @@
+.TH "sflow-toolkit.conf" 5
+.SH NAME
+sflow-toolkit.conf \- Configuration file for the sFlow toolkit
+.SH DESCRIPTION
+This is the description of the configuration file for the sFlow toolkit.
+By default, this file is located in /etc/sflow-toolkit.conf
+
+.SH SECTION "stcollectd"
+
+.TP
+.B loglevel: <value>
+This option is used to set the verbosity as an alternative to the individual command
+line switches. 0 = Errors, 1 = Warnings, 2 = Information, 3 = Debug
+
+.TP
+.B interface: <A.B.C.D>
+IP address to bind to, in dotted 4-decimal format.
+
+.TP
+.B port: <value>
+Service port number to listen on
+
+.TP
+.B datadir: <path>
+Data directory path, will be used for data files exported by the collector
+
+.TP
+.B tmpdir: <path>
+This is where the temporary sample files will be created, must be a path to the
+temporary file system, (default: /dev/shm)
+
+.TP
+.B msgqueue: <name>
+The name of the POSIX message queue to used for messaging (default: /sflow)
+
+.TP
+.B agents: <list>
+This is a list of agents to receive datagrams from, each entry in the list
+contains a name and a list of IP addresses this device can send datagrams from.
+The first IP address in the list will be treated as the primary agent address
+and this is the identifier that will be used when storing the samples.
+.IP 
+Entries in the agent list are in the format of:
+.br
+- <name> : [<primary>, <secondary1>, <secondary2>, ...]
+.IP
+Example: "- sw-test : [192.168.0.1, 192.168.1.2]"
+
+.TP
+.B hash bits: <value>
+Specifies the number of bits to used for the agentlist hash in the range 0-32.
+For optimal results, we try to provide a unique hash bucket for each agent we
+are monitoring. The memory consumed by the hash table is dictated by this
+option. For small systems monitoring few agent only a small amount of memory is
+required. (default: 8)
+.IP
+Some common values:
+.IP
+Monitoring a class A network: 24 
+.br
+(consumes ~64 MB of memory)
+.IP
+Monitoring a class A network: 16 
+.br
+(consumes ~256 KB of memory)
+.IP
+Monitoring a class C network: 8 
+.br
+(consumes ~1 KB of memory)
+
+.TP
+.B print interval: <value>
+Print a short status message every time <value> samples has been collected
+(default: 10000)
+
+.TP
+.B flush interval: <seconds>
+This is the maximum time to wait for a buffer to fill up before writing it's
+contents to disk. If the buffer fills up before this interval expires, it will
+be written and the interval will be reset. (default: 10)
+
+.TP
+.B buffer size: <value>
+The size of the buffer to collect samples into, a bigger buffer size results in
+bigger chunks of memory being allocated when needed, for high rate sampling,
+using large buffers reduce some of the resources consumed by buffer allocation.
+(default: 50000)
+
+.TP
+.B num buffers: <value>
+How many buffers to allocate initially during collector startup, and the
+minimum number of buffers to have allocated at any time. If extra buffers are
+allocated they will be freed when no longer needed as long as the number of
+buffers do not fall below this number. (default: 2)
+
+.SH SECTION "stprocessd"
+.TP
+.B loglevel: <value>
+This option is used to set the verbosity as an alternative to the individual command
+line switches. 0 = Errors, 1 = Warnings, 2 = Information, 3 = Debug
+
+.TP
+.B hash size: <value>
+The number of entries in the hash table used for classifying conversations, if
+the processor spends a lot of time processing a large number of conversations,
+try increasing this value at the cost of system memory.
+
+.SH SECTION "stprocessd storage_mysql"
+.TP
+.B enabled: < 0 or 1 >
+Option to enable or disable this storage module from being loaded
+
+.TP
+.B username: <value>
+MySQL username (default: sflow)
+
+.TP
+.B password: <value>
+MySQL password (default: sflow)
+
+.TP
+.B database: <value>
+MySQL database (default: sflow)
+
+.TP
+.B hostname: <value>
+MySQL hostname (default: localhost)
+
+.TP
+.B interval: <minutes>
+How often we partition the MySQL tables, (default: 1440, one day)
+
+.TP
+.B number of intervals: <value>
+How many partition slices we keep in the database (default: 7, with the default
+interval this keeps one week of data)
+
+.TP
+.B tmpdir: <path>
+This is the directory to use when writing the temporary files that will be
+loaded into the database.  This path should preferably be on a temporary file
+system in memory to reduce disk IO.
+
+.SH SECTION "stprocessd storage_spectrum"
+.TP
+.B enabled: < 0 or 1 >
+Option to enable or disable this storage module from being loaded
+
+.TP
+.B interval: <seconds>
+How many minutes to write into each log file, a larger value results in less
+frequent updates but fewer log files.
+
+.TP
+.B datadir: <path>
+This is the location to write the log files
+
+.TP
+.B hash bits: <value>
+Specifies the number of bits to used for the agentlist hash in the range 0-32.
+For optimal results, we try to provide a unique hash bucket for each agent we
+are monitoring. The memory consumed by the hash table is dictated by this
+option. For small systems monitoring few agent only a small amount of memory is
+required. This is slightly different from the hash table used in the collector
+as this table contains not only agents, but also the individual interfaces,
+requiring a linear search for the correct interface once the correct agent is
+found.  (default: 8)
+
+
+.SH "SEE ALSO"
+stprocessd(1), stcollectd(1)
+.SH BUGS
+None

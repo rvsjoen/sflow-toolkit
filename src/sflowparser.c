@@ -405,7 +405,9 @@ void parseDatagram(uint8_t* data, uint32_t n, struct sockaddr_in* addr){
 		agent->datagrams++;
 		agent->last_seen = datagram.timestamp;
 		agent->uptime = hdr.uptime;
-		agent->drops += hdr.sequence_number - agent->sequence;
+		if(agent->sequence != 0){
+			agent->drops += hdr.sequence_number - agent->sequence;
+		}
 		agent->sequence = hdr.sequence_number;
 
 		uint32_t i;

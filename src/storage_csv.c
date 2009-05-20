@@ -125,21 +125,28 @@ void storage_csv_store_cntr(counter_list_t* list, uint32_t timestamp){
 			loadout 	= 0;
 		}
 
-		num = sprintf(buf, "%s,%u,%u,%u,%u,%f,%u,%u,%f,%u,%f,%f,%u,%u\n",
+		num = sprintf(buf, "%s,%u,%u,%f,%f,%f,%f,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n",
 					a,
 					s->counter_generic_if_index,
 					(uint32_t) s->timestamp,
-					s->counter_generic_if_out_discards,
-					s->counter_generic_if_out_errors,
+					loadin,
 					loadout,
+					mbytesin,
+					mbytesout,
+					s->counter_generic_if_in_errors,
+					s->counter_generic_if_out_errors,
+					s->counter_generic_if_in_discards,
+					s->counter_generic_if_out_discards,
 					s->counter_generic_if_in_ucast_pkts + s->counter_generic_if_in_mcast_pkts + s->counter_generic_if_in_bcast_pkts,
 					s->counter_generic_if_out_ucast_pkts + s->counter_generic_if_out_mcast_pkts + s->counter_generic_if_out_bcast_pkts,
-					loadin,
-					s->counter_generic_if_in_discards,
-					mbytesout,
-					mbytesin,
-					s->counter_generic_if_in_errors,
-					(uint32_t) s->counter_generic_if_speed/1000000
+					s->counter_generic_if_in_ucast_pkts,
+					s->counter_generic_if_out_ucast_pkts,
+					s->counter_generic_if_in_mcast_pkts,
+					s->counter_generic_if_out_mcast_pkts,
+					s->counter_generic_if_in_bcast_pkts,
+					s->counter_generic_if_out_bcast_pkts,
+					(uint32_t) s->counter_generic_if_speed/1000000,
+					s->counter_generic_if_if_status
 		);
 
 		cstat->timestamp 	= s->timestamp;

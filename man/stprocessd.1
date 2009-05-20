@@ -1,0 +1,26 @@
+.TH "stprocessd" 1
+.SH NAME
+stprocessd \- sFlow processing daemon
+.SH SYNOPSIS
+.B stprocessd
+[options]
+.SH DESCRIPTION
+This daemon processes sFlow samples
+.SH OPTIONS
+.TP
+.B \-d
+Do not daemonize, but keep the daemon running in the foreground, log messages
+will be written both to the system log and to stdout
+.TP
+.B \-v
+Print info messages
+.TP
+.B \-vv
+Print both info and debug messages
+.TP
+.B \-h
+Show the help
+.SH "SEE ALSO"
+stcollectd(1) sflow-toolkit.conf(5)
+.SH BUGS
+None

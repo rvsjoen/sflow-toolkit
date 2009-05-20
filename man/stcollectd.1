@@ -8,35 +8,9 @@ stcollectd \- sFlow collector daemon
 This daemon collects sFlow samples
 .SH OPTIONS
 .TP
-.B \-b <value>
-Set the number of buffers to initialize (default 10)
-.TP
-.B \-c <filename>
-Use another configuration file (default is /etc/stcollectd.conf)
-.TP
 .B \-d
-Do not daemonize
-.TP
-.B \-f <value>
-Set the flushing interval in seconds, the collector will flush data to disk when <value> seconds have elapsed or when the buffer is full
-.TP
-.B \-i <ip address>
-Address to listen on, if no address is specified the collector will choose the first it finds
-.TP
-.B \-n <value>
-Define the number of packets to capture before exiting, if this is not specified it will capture until told otherwise
-.TP
-.B \-o <path>
-Define the directory to save data in, in this directory the collector will create a data folder, no trailing slash!
-.TP
-.B \-p <port>
-Port to listen on, if no port is specified the default (6343) will be used
-.TP
-.B \-P <value>
-Print out a notice every <value> packets for monitoring
-.TP
-.B \-s <value>
-Set the buffer size, how many samples to fit in a single buffer, <value> samples for flow and <value>/4 samples for counter samples
+Do not daemonize, but keep the daemon running in the foreground, log messages
+will be written both to the system log and to stdout
 .TP
 .B \-v
 Print info messages
@@ -45,14 +19,15 @@ Print info messages
 Print both info and debug messages
 .TP
 .B \-x
-Print out the parsed samples
+Print out information about each sample as it is parsed, used to debug the parsing processs.
 .TP
 .B \-X
-Print out the samples in HEX
+Print out the samples in HEX for debugging purposes.
+This is not advised under high sampling rates as it will generate a huge amount of output
 .TP
 .B \-h
 Show the help
 .SH "SEE ALSO"
-stexport(1)
+stprocessd(1) sflow-toolkit.conf(5)
 .SH BUGS
 None
