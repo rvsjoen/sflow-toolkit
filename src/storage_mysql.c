@@ -68,7 +68,7 @@ void storage_mysql_create_conv_ethernet(uint32_t timestamp){
 		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
 	} else {
 		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
-		sprintf(query,"CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED, agent VARCHAR(16), input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src VARCHAR(18), dst VARCHAR(18), bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (id), INDEX idx_%s (timestamp, agent, input_if, output_if, src, dst, bytes) ) ENGINE=myisam", title, title, title);
+		sprintf(query,"CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED, agent VARCHAR(16), input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src VARCHAR(18), dst VARCHAR(18), bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (id) ) ENGINE=myisam", title, title);
 		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
 		mysql_query(&db, query);
 	}
@@ -101,7 +101,7 @@ void storage_mysql_create_conv_ip(uint32_t timestamp){
 		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
 	} else {
 		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
-		sprintf(query,"CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED, agent INTEGER UNSIGNED, input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src INTEGER UNSIGNED, dst INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (id), INDEX idx_%s (timestamp, agent, input_if, output_if, src, dst, bytes) ) ENGINE=myisam", title, title, title);
+		sprintf(query,"CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED, agent INTEGER UNSIGNED, input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src INTEGER UNSIGNED, dst INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (id) ) ENGINE=myisam", title, title);
 		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
 		mysql_query(&db, query);
 	}
@@ -134,7 +134,7 @@ void storage_mysql_create_conv_tcp(uint32_t timestamp){
 		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
 	} else {
 		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
-		sprintf(query, "CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED, agent INTEGER UNSIGNED, input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src INTEGER UNSIGNED, sport INTEGER UNSIGNED, dst INTEGER UNSIGNED, dport INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (id), INDEX idx_%s (timestamp, agent, input_if, output_if, src, dst, bytes) ) ENGINE=myisam", title, title, title);
+		sprintf(query, "CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED, agent INTEGER UNSIGNED, input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src INTEGER UNSIGNED, sport INTEGER UNSIGNED, dst INTEGER UNSIGNED, dport INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (id) ) ENGINE=myisam", title, title);
 		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
 		mysql_query(&db, query);
 	}
@@ -167,7 +167,7 @@ void storage_mysql_create_conv_udp(uint32_t timestamp){
 		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
 	} else {
 		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
-		sprintf(query, "CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED, agent INTEGER UNSIGNED, input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src INTEGER UNSIGNED, sport INTEGER UNSIGNED, dst INTEGER UNSIGNED, dport INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (id), INDEX idx_%s (timestamp, agent, input_if, output_if, src, dst, bytes) ) ENGINE=myisam", title, title, title);
+		sprintf(query, "CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED, agent INTEGER UNSIGNED, input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src INTEGER UNSIGNED, sport INTEGER UNSIGNED, dst INTEGER UNSIGNED, dport INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (id) ) ENGINE=myisam", title, title);
 		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
 		mysql_query(&db, query);
 	}
@@ -200,7 +200,7 @@ void storage_mysql_create_counters(uint32_t timestamp){
 		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
 	} else {
 		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
-		sprintf(query, "CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED,agent INTEGER UNSIGNED,if_index INTEGER UNSIGNED, if_type INTEGER UNSIGNED,if_speed BIGINT UNSIGNED,if_direction INTEGER UNSIGNED,if_if_status INTEGER UNSIGNED,if_in_octets BIGINT UNSIGNED,if_in_ucast_pkts INTEGER UNSIGNED,if_in_mcast_pkts INTEGER UNSIGNED,if_in_bcast_pkts INTEGER UNSIGNED,if_in_discards INTEGER UNSIGNED,if_in_errors INTEGER UNSIGNED,if_in_unknown_proto INTEGER UNSIGNED,if_out_octets BIGINT UNSIGNED,if_out_ucast_pkts INTEGER UNSIGNED,if_out_mcast_pkts INTEGER UNSIGNED,if_out_bcast_pkts INTEGER UNSIGNED,if_out_discards INTEGER UNSIGNED,if_out_errors INTEGER UNSIGNED,if_promisc INTEGER UNSIGNED,CONSTRAINT %s_pk PRIMARY KEY (id), INDEX idx_%s (timestamp, agent, if_index) ) ENGINE=myisam", title, title, title);
+		sprintf(query, "CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED,agent INTEGER UNSIGNED,if_index INTEGER UNSIGNED, if_type INTEGER UNSIGNED,if_speed BIGINT UNSIGNED,if_direction INTEGER UNSIGNED,if_if_status INTEGER UNSIGNED,if_in_octets BIGINT UNSIGNED,if_in_ucast_pkts INTEGER UNSIGNED,if_in_mcast_pkts INTEGER UNSIGNED,if_in_bcast_pkts INTEGER UNSIGNED,if_in_discards INTEGER UNSIGNED,if_in_errors INTEGER UNSIGNED,if_in_unknown_proto INTEGER UNSIGNED,if_out_octets BIGINT UNSIGNED,if_out_ucast_pkts INTEGER UNSIGNED,if_out_mcast_pkts INTEGER UNSIGNED,if_out_bcast_pkts INTEGER UNSIGNED,if_out_discards INTEGER UNSIGNED,if_out_errors INTEGER UNSIGNED,if_promisc INTEGER UNSIGNED,CONSTRAINT %s_pk PRIMARY KEY (id)) ENGINE=myisam", title, title);
 		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
 		mysql_query(&db, query);
 	}
@@ -280,12 +280,12 @@ void storage_mysql_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_
 	char stmt_alter_disable[64];
 	sprintf(stmt_alter_disable, "ALTER TABLE %s DISABLE KEYS", table_conv_ethernet_name);
 
-	// commented by Dan Savu on 2 jul 2009 //  mysql_query(&db, "FLUSH TABLES");	
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, stmt_alter_disable);
+	mysql_query(&db, "FLUSH TABLES");	
+	mysql_query(&db, stmt_alter_disable);
 	if(mysql_query(&db, stmt) != 0)
 		logmsg(LOGLEVEL_DEBUG, "ERROR LOADING INFILE: %s", mysql_error(&db));
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, stmt_alter_enable);
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, "FLUSH TABLES");	
+	mysql_query(&db, stmt_alter_enable);
+	mysql_query(&db, "FLUSH TABLES");	
 
 	free(buf);
 	close(fd);
@@ -352,12 +352,12 @@ void storage_mysql_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agen
 	char stmt_alter_disable[64];
 	sprintf(stmt_alter_disable, "ALTER TABLE %s DISABLE KEYS", table_conv_ip_name);
 
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, "FLUSH TABLES");	
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, stmt_alter_disable);
+	mysql_query(&db, "FLUSH TABLES");	
+	mysql_query(&db, stmt_alter_disable);
 	if(mysql_query(&db, stmt) != 0)
 		logmsg(LOGLEVEL_DEBUG, "ERROR LOADING INFILE: %s", mysql_error(&db));
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, stmt_alter_enable);
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, "FLUSH TABLES");	
+	mysql_query(&db, stmt_alter_enable);
+	mysql_query(&db, "FLUSH TABLES");	
 	       
 	free(buf);
 	close(fd);
@@ -433,12 +433,12 @@ void storage_mysql_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t age
 	char stmt_alter_disable[64];
 	sprintf(stmt_alter_disable, "ALTER TABLE %s DISABLE KEYS", table_conv_tcp_name);
 
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, "FLUSH TABLES");	
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, stmt_alter_disable);
+	mysql_query(&db, "FLUSH TABLES");	
+	mysql_query(&db, stmt_alter_disable);
 	if(mysql_query(&db, stmt) != 0)
 		logmsg(LOGLEVEL_DEBUG, "ERROR LOADING INFILE: %s", mysql_error(&db));
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, stmt_alter_enable);
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, "FLUSH TABLES");	
+	mysql_query(&db, stmt_alter_enable);
+	mysql_query(&db, "FLUSH TABLES");	
 	       
 	free(buf);
 	close(fd);
@@ -500,12 +500,12 @@ void storage_mysql_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t age
 	char stmt_alter_disable[64];
 	sprintf(stmt_alter_disable, "ALTER TABLE %s DISABLE KEYS", table_conv_udp_name);
 
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, "FLUSH TABLES");	
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, stmt_alter_disable);
+	mysql_query(&db, "FLUSH TABLES");	
+	mysql_query(&db, stmt_alter_disable);
 	if(mysql_query(&db, stmt) != 0)
 		logmsg(LOGLEVEL_DEBUG, "ERROR LOADING INFILE: %s", mysql_error(&db));
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, stmt_alter_enable);
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, "FLUSH TABLES");	
+	mysql_query(&db, stmt_alter_enable);
+	mysql_query(&db, "FLUSH TABLES");	
 	       
 	free(buf);
 	close(fd);
