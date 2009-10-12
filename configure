@@ -3914,53 +3914,6 @@ else
   echo "Error: You need to have the rrd library installed"; exit -1
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for cmph_config_new in -lcmph" >&5
-$as_echo_n "checking for cmph_config_new in -lcmph... " >&6; }
-if test "${ac_cv_lib_cmph_cmph_config_new+set}" = set; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lcmph  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char cmph_config_new ();
-int
-main ()
-{
-return cmph_config_new ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_cmph_cmph_config_new=yes
-else
-  ac_cv_lib_cmph_cmph_config_new=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_cmph_cmph_config_new" >&5
-$as_echo "$ac_cv_lib_cmph_cmph_config_new" >&6; }
-if test "x$ac_cv_lib_cmph_cmph_config_new" = x""yes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBCMPH 1
-_ACEOF
-
-  LIBS="-lcmph $LIBS"
-
-else
-  echo "Error: You need to have the cpmh library installed"; exit -1
-fi
-
 
 # Checks for header files.
 ac_header_dirent=no
@@ -4525,7 +4478,7 @@ for ac_header in \
 		netinet/ether.h netinet/in.h netinet/ip.h netinet/tcp.h netinet/udp.h \
 		pthread.h signal.h stdarg.h stdbool.h stdint.h stdio.h stdlib.h string.h \
 		syslog.h sys/mman.h sys/resource.h sys/socket.h sys/stat.h sys/time.h \
-		sys/types.h termios.h time.h unistd.h util.h yaml.h rrd.h cmph.h mysql/mysql.h
+		sys/types.h termios.h time.h unistd.h util.h yaml.h rrd.h mysql/mysql.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"

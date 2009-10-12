@@ -12,7 +12,7 @@ stcollectd_SOURCES = stcollectd.c 					\
 					 configparser.c configparser.h	\
 					 bufferqueue.c bufferqueue.h	\
 					 messaging.c messaging.h
-stcollectd_LDFLAGS = -lcmph -lpthread -lrrd -lyaml -lrt
+stcollectd_LDFLAGS = -lpthread -lrrd -lyaml -lrt
 
 stprocessd_SOURCES = stprocessd.c					\
 					 logger.c logger.h              \

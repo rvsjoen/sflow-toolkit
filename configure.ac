@@ -25,7 +25,6 @@ fi
 AC_CHECK_LIB(yaml, yaml_parser_initialize, [], [echo "Error: You need to have the yaml library installed"; exit -1 ])
 AC_CHECK_LIB(pthread, pthread_create, [], [echo "Error: You need to have the pthread library installed"; exit -1 ])
 AC_CHECK_LIB(rrd, rrd_create, [], [echo "Error: You need to have the rrd library installed"; exit -1 ])
-AC_CHECK_LIB(cmph, cmph_config_new, [], [echo "Error: You need to have the cpmh library installed"; exit -1 ])
 
 # Checks for header files.
 AC_HEADER_DIRENT
@@ -35,7 +34,7 @@ AC_CHECK_HEADERS([\
 		netinet/ether.h netinet/in.h netinet/ip.h netinet/tcp.h netinet/udp.h \
 		pthread.h signal.h stdarg.h stdbool.h stdint.h stdio.h stdlib.h string.h \
 		syslog.h sys/mman.h sys/resource.h sys/socket.h sys/stat.h sys/time.h \
-		sys/types.h termios.h time.h unistd.h util.h yaml.h rrd.h cmph.h mysql/mysql.h])
+		sys/types.h termios.h time.h unistd.h util.h yaml.h rrd.h mysql/mysql.h])
 
 
 # Checks for typedefs, structures, and compiler characteristics.
