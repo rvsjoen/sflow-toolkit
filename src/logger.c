@@ -26,39 +26,55 @@ void logmsg(uint32_t severity, const char* format, ...)
 		va_start( args, format );
 
 		if (severity == LOGLEVEL_ERROR) {
+			va_list args2;
+			va_copy(args2, args);
 			fprintf(stderr, "[%s] (ERR) ", c);
-			vfprintf(stderr, format, args);
+			vfprintf(stderr, format, args2);
 			fprintf(stderr, "\n");
 			fflush(stderr);
 
-			vsyslog(LOG_ERR, format, args);
+			va_copy(args2, args);
+			vsyslog(LOG_ERR, format, args2);
+			va_end(args2);
 		} 
 
 		if (severity == LOGLEVEL_WARNING && log_level >= LOGLEVEL_WARNING){
+			va_list args2;
+			va_copy(args2, args);
 			fprintf(stdout, "[%s] (WRN) ", c);
-			vfprintf(stdout, format, args);
+			vfprintf(stdout, format, args2);
 			fprintf(stdout, "\n");
 			fflush(stdout);
 
-			vsyslog(LOG_WARNING, format, args);
+			va_copy(args2, args);
+			vsyslog(LOG_WARNING, format, args2);
+			va_end(args2);
 		} 
 
 		if (severity == LOGLEVEL_INFO && log_level >= LOGLEVEL_INFO){
+			va_list args2;
+			va_copy(args2, args);
 			fprintf(stdout, "[%s] (INF) ", c);
-			vfprintf(stdout, format, args);
+			vfprintf(stdout, format, args2);
 			fprintf(stdout, "\n");
 			fflush(stdout);
 
-			vsyslog(LOG_INFO, format, args);
+			va_copy(args2, args);
+			vsyslog(LOG_INFO, format, args2);
+			va_end(args2);
 		} 
 
 		if (severity == LOGLEVEL_DEBUG && log_level >= LOGLEVEL_DEBUG){
+			va_list args2;
+			va_copy(args2, args);
 			fprintf(stdout, "[%s] (DBG) ", c);
-			vfprintf(stdout, format, args);
+			vfprintf(stdout, format, args2);
 			fprintf(stdout, "\n");
 			fflush(stdout);
 			
-			vsyslog(LOG_DEBUG, format, args);
+			va_copy(args2, args);
+			vsyslog(LOG_DEBUG, format, args2);
+			va_end(args2);
 		}
 
 		va_end( args );
