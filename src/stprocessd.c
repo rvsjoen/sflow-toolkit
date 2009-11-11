@@ -83,7 +83,7 @@ int main(int argc, char** argv){
 	time_t start = time(NULL);
 
 	// Initialize the datasource hash
-	datasource_hash_init(datasource_hash);
+	datasource_hash_init(&datasource_hash);
 
 	// Initialize the storage system
 	storage_system_init();

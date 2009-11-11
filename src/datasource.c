@@ -4,14 +4,14 @@
 
 #define HASH_SIZE 0x01000000 // 24 bit
 
-void datasource_hash_init(ds_status_t** hash){
+void datasource_hash_init(ds_status_t*** hash){
 	// Allocate a pointer for each entry in the hash, initialize it to 0
-	hash = (ds_status_t**) malloc(sizeof(ds_status_t*)*HASH_SIZE);
-	memset(hash, 0, sizeof(ds_status_t*)*HASH_SIZE);
+	*hash = (ds_status_t**) malloc(sizeof(ds_status_t*)*HASH_SIZE);
+	memset(*hash, 0, sizeof(ds_status_t*)*HASH_SIZE);
 }
 
 void datasource_hash_destroy(ds_status_t** hash){
-	hash = hash;
+	free(hash);
 	//TODO Cleanup
 }
 

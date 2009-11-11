@@ -15,7 +15,7 @@ typedef struct _ds_status {
 	struct _ds_status* next;
 } ds_status_t;
 
-void datasource_hash_init(ds_status_t** hash);
+void datasource_hash_init(ds_status_t*** hash);
 void datasource_hash_destroy(ds_status_t** hash);
 ds_status_t* datasource_hash_lookup(ds_status_t** hash, uint32_t agent, uint32_t ifindex);
 
