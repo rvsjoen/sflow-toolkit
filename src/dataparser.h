@@ -22,10 +22,11 @@
 #include "sflowparser.h"
 #include "util.h"
 
-#define CONV_ETHERNET	0x0
-#define CONV_IP			0x1
-#define CONV_TCP		0x2
-#define CONV_UDP		0x3
+#define CONV_ETHERNET 0x0
+#define CONV_IP 0x1
+#define CONV_TCP 0x2
+#define CONV_UDP 0x3
+#define COUNTERS 0x4
 
 #define HASH_RANGE 		50000
 
