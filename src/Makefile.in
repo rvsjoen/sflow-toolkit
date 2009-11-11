@@ -58,7 +58,8 @@ am_stprocessd_OBJECTS = stprocessd.$(OBJEXT) logger.$(OBJEXT) \
 	util.$(OBJEXT) configparser.$(OBJEXT) messaging.$(OBJEXT) \
 	dataparser.$(OBJEXT) storage.$(OBJEXT) storage_mysql.$(OBJEXT) \
 	storage_rrd.$(OBJEXT) storage_csv.$(OBJEXT) \
-	agentlist.$(OBJEXT) statistics.$(OBJEXT)
+	storage_dummy.$(OBJEXT) agentlist.$(OBJEXT) \
+	statistics.$(OBJEXT)
 stprocessd_OBJECTS = $(am_stprocessd_OBJECTS)
 stprocessd_LDADD = $(LDADD)
 stprocessd_LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(stprocessd_LDFLAGS) \
@@ -188,6 +189,7 @@ stprocessd_SOURCES = stprocessd.c					\
 					 storage_mysql.c storage_mysql.h\
 					 storage_rrd.c storage_rrd.h\
 					 storage_csv.c storage_csv.h	\
+					 storage_dummy.c storage_dummy.h	\
 					 agentlist.c agentlist.h		\
 					 statistics.c statistics.h
 
@@ -288,6 +290,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stcollectd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/storage.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/storage_csv.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/storage_dummy.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/storage_mysql.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/storage_rrd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stprocessd.Po@am__quote@

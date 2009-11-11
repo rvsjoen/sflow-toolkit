@@ -24,6 +24,7 @@ stprocessd_SOURCES = stprocessd.c					\
 					 storage_mysql.c storage_mysql.h\
 					 storage_rrd.c storage_rrd.h\
 					 storage_csv.c storage_csv.h	\
+					 storage_dummy.c storage_dummy.h	\
 					 agentlist.c agentlist.h		\
 					 statistics.c statistics.h
 stprocessd_LDFLAGS = -lrt -lmysqlclient

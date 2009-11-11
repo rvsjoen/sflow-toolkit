@@ -1,1 +1,11 @@
 autom4te.cache
+*.o
+Makefile
+config.h
+config.log
+config.status
+src/.deps/
+src/stcollectd
+src/stprocessd
+stamp-h1
+
