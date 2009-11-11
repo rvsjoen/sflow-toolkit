@@ -9,3 +9,4 @@ src/stcollectd
 src/stprocessd
 stamp-h1
 *.swp
+cscope.out
