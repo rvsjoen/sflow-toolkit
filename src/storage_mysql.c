@@ -68,7 +68,7 @@ void storage_mysql_create_conv_ethernet(uint32_t timestamp){
 		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
 	} else {
 		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
-		sprintf(query,"CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED, agent VARCHAR(16), input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src VARCHAR(18), dst VARCHAR(18), bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (id), INDEX idx_%s (timestamp, agent, input_if, output_if, src, dst, bytes) ) ENGINE=myisam", title, title, title);
+		sprintf(query,"CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED, agent VARCHAR(16), input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src VARCHAR(18), dst VARCHAR(18), bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, srate INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (id), INDEX idx_%s (timestamp, agent, input_if, output_if, src, dst, bytes) ) ENGINE=myisam", title, title, title);
 		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
 		mysql_query(&db, query);
 	}
@@ -101,7 +101,7 @@ void storage_mysql_create_conv_ip(uint32_t timestamp){
 		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
 	} else {
 		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
-		sprintf(query,"CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED, agent INTEGER UNSIGNED, input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src INTEGER UNSIGNED, dst INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (id), INDEX idx_%s (timestamp, agent, input_if, output_if, src, dst, bytes) ) ENGINE=myisam", title, title, title);
+		sprintf(query,"CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED, agent INTEGER UNSIGNED, input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src INTEGER UNSIGNED, dst INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, srate INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (id), INDEX idx_%s (timestamp, agent, input_if, output_if, src, dst, bytes) ) ENGINE=myisam", title, title, title);
 		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
 		mysql_query(&db, query);
 	}
@@ -134,7 +134,7 @@ void storage_mysql_create_conv_tcp(uint32_t timestamp){
 		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
 	} else {
 		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
-		sprintf(query, "CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED, agent INTEGER UNSIGNED, input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src INTEGER UNSIGNED, sport INTEGER UNSIGNED, dst INTEGER UNSIGNED, dport INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (id), INDEX idx_%s (timestamp, agent, input_if, output_if, src, dst, bytes) ) ENGINE=myisam", title, title, title);
+		sprintf(query, "CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED, agent INTEGER UNSIGNED, input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src INTEGER UNSIGNED, sport INTEGER UNSIGNED, dst INTEGER UNSIGNED, dport INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, srate INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (id), INDEX idx_%s (timestamp, agent, input_if, output_if, src, dst, bytes) ) ENGINE=myisam", title, title, title);
 		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
 		mysql_query(&db, query);
 	}
@@ -167,7 +167,7 @@ void storage_mysql_create_conv_udp(uint32_t timestamp){
 		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
 	} else {
 		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
-		sprintf(query, "CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED, agent INTEGER UNSIGNED, input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src INTEGER UNSIGNED, sport INTEGER UNSIGNED, dst INTEGER UNSIGNED, dport INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (id), INDEX idx_%s (timestamp, agent, input_if, output_if, src, dst, bytes) ) ENGINE=myisam", title, title, title);
+		sprintf(query, "CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED, agent INTEGER UNSIGNED, input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src INTEGER UNSIGNED, sport INTEGER UNSIGNED, dst INTEGER UNSIGNED, dport INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, srate INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (id), INDEX idx_%s (timestamp, agent, input_if, output_if, src, dst, bytes) ) ENGINE=myisam", title, title, title);
 		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
 		mysql_query(&db, query);
 	}
@@ -257,7 +257,7 @@ void storage_mysql_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_
 			strncpy(src, ether_ntoa((const struct ether_addr *)k->src), 18);
 			strncpy(dst, ether_ntoa((const struct ether_addr *)k->dst), 18);
 
-			sprintf(buf, "%u|%u|%u|%u|%s|%s|%u|%u\n",
+			sprintf(buf, "%u|%u|%u|%u|%s|%s|%u|%u|%u\n",
 				timestamp,
 				agent,
 				k->sflow_input_if,
@@ -265,7 +265,8 @@ void storage_mysql_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_
 				src,
 				dst,
 				c->bytes, 
-				c->frames
+				c->frames,
+				c->srate
 		   	);
 			write(fd, buf, strlen(buf));
 			cnt++;
@@ -273,7 +274,7 @@ void storage_mysql_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_
 	}
 
 	char stmt[256];
-	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_ethernet' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n' (timestamp,agent,input_if,output_if,src,dst,bytes,frames)", storage_mysql_config.tmpdir, table_conv_ethernet_name);
+	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_ethernet' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n' (timestamp,agent,input_if,output_if,src,dst,bytes,frames,srate)", storage_mysql_config.tmpdir, table_conv_ethernet_name);
 
 	char stmt_alter_enable[64];
 	sprintf(stmt_alter_enable, "ALTER TABLE %s ENABLE KEYS", table_conv_ethernet_name);
@@ -329,7 +330,7 @@ void storage_mysql_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agen
 			tmp = n;
 			n = n->next;
 
-			sprintf(buf, "%u|%u|%u|%u|%u|%u|%u|%u\n", 
+			sprintf(buf, "%u|%u|%u|%u|%u|%u|%u|%u|%u\n", 
 				timestamp,
 				agent,
 				k->sflow_input_if,
@@ -337,7 +338,8 @@ void storage_mysql_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agen
 				k->src,
 				k->dst,
 				c->bytes,
-				c->frames
+				c->frames,
+				c->srate
 			);
 			write(fd, buf, strlen(buf));
 			cnt++;
@@ -345,7 +347,7 @@ void storage_mysql_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agen
 	}
 
 	char stmt[256];
-	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_ip' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n' (timestamp,agent,input_if,output_if,src,dst,bytes,frames)", storage_mysql_config.tmpdir, table_conv_ip_name);
+	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_ip' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n' (timestamp,agent,input_if,output_if,src,dst,bytes,frames,srate)", storage_mysql_config.tmpdir, table_conv_ip_name);
 
 	char stmt_alter_enable[64];
 	sprintf(stmt_alter_enable, "ALTER TABLE %s ENABLE KEYS", table_conv_ip_name);
@@ -408,7 +410,7 @@ void storage_mysql_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t age
 			tmp = n;
 			n = n->next;
 
-			sprintf(buf, "%u|%u|%u|%u|%u|%u|%u|%u|%u|%u\n",
+			sprintf(buf, "%u|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u\n",
 				timestamp,
 				agent,
 				k->sflow_input_if,
@@ -418,7 +420,8 @@ void storage_mysql_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t age
 				k->dst,
 				k->dst_port,
 				c->bytes,
-				c->frames
+				c->frames,
+				c->srate
 			);
 			write(fd, buf, strlen(buf));
 			cnt++;
@@ -426,7 +429,7 @@ void storage_mysql_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t age
 	}
 
 	char stmt[256];
-	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_tcp' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n' (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,frames)", storage_mysql_config.tmpdir, table_conv_tcp_name);
+	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_tcp' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n' (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,frames,srate)", storage_mysql_config.tmpdir, table_conv_tcp_name);
 
 	char stmt_alter_enable[64];
 	sprintf(stmt_alter_enable, "ALTER TABLE %s ENABLE KEYS", table_conv_tcp_name);
@@ -475,7 +478,7 @@ void storage_mysql_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t age
 			tmp = n;
 			n = n->next;
 
-			sprintf(buf, "%u|%u|%u|%u|%u|%u|%u|%u|%u|%u\n",
+			sprintf(buf, "%u|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u\n",
 				timestamp,
 				agent,
 				k->sflow_input_if,
@@ -485,7 +488,8 @@ void storage_mysql_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t age
 				k->dst,
 				k->dst_port,
 				c->bytes,
-				c->frames
+				c->frames,
+				c->srate
 			);
 			write(fd, buf, strlen(buf));
 			cnt++;
@@ -493,7 +497,7 @@ void storage_mysql_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t age
 	}
 
 	char stmt[256];
-	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_udp' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n' (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,frames)", storage_mysql_config.tmpdir, table_conv_udp_name);
+	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_udp' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n' (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,frames,srate)", storage_mysql_config.tmpdir, table_conv_udp_name);
 
 	char stmt_alter_enable[64];
 	sprintf(stmt_alter_enable, "ALTER TABLE %s ENABLE KEYS", table_conv_udp_name);
