@@ -101,6 +101,7 @@ typedef struct _conv_ethernet {
 	uint32_t bytes;
 	uint32_t frames;
 	ethernet_protocols protocols;
+	uint32_t srate;
 } conv_ethernet_t;
 
 typedef struct _conv_ip {
@@ -108,17 +109,20 @@ typedef struct _conv_ip {
 	uint32_t bytes;
 	uint32_t version[16];
 	uint32_t protocol[256];
+	uint32_t srate;
 } conv_ip_t;
 
 typedef struct _conv_tcp {
 	uint32_t frames;
 	uint32_t bytes;
 	uint32_t flags[6];
+	uint32_t srate;
 } conv_tcp_t;
 
 typedef struct _conv_udp {
 	uint32_t frames;
 	uint32_t bytes;
+	uint32_t srate;
 } conv_udp_t;
 
 typedef union _conv {

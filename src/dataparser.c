@@ -223,6 +223,13 @@ bool is_tcp(const uint8_t* pkt){
 void conv_update_ethernet(conv_ethernet_t* c, const uint8_t* pkt, SFFlowSample* s){
 	c->frames++;
 	c->bytes += s->raw_header_frame_length;
+
+	// Calculate the running average
+	if(c->srate > 0)
+		c->srate += (s->sample_sampling_rate - c->srate) / c->frames;
+	else
+		c->srate = s->sample_sampling_rate;
+
 	struct ether_header* hdr = (struct ether_header*) pkt;
 
 	uint16_t ethertype = htons(hdr->ether_type);
@@ -248,6 +255,12 @@ void conv_update_ip(conv_ip_t* c, const uint8_t* pkt, SFFlowSample* s){
 	c->frames++;
 	c->bytes += s->raw_header_frame_length;
 
+	// Calculate the running average
+	if(c->srate > 0)
+		c->srate += (s->sample_sampling_rate - c->srate) / c->frames;
+	else
+		c->srate = s->sample_sampling_rate;
+
 	uint8_t* p = strip_ethernet(pkt);
 	struct iphdr* hdr = (struct iphdr*) p;
 
@@ -261,6 +274,12 @@ void conv_update_tcp(conv_tcp_t* c, const uint8_t* pkt, SFFlowSample* s){
 	
 	c->frames++;
 	c->bytes += s->raw_header_frame_length;
+
+	// Calculate the running average
+	if(c->srate > 0)
+		c->srate += (s->sample_sampling_rate - c->srate) / c->frames;
+	else
+		c->srate = s->sample_sampling_rate;
 
 	uint8_t* p = strip_ip(strip_ethernet(pkt));
 	struct tcphdr* hdr = (struct tcphdr*) p;
@@ -277,6 +296,12 @@ void conv_update_udp(conv_udp_t* c, const uint8_t* pkt, SFFlowSample* s){
 
 	UNUSED_ARGUMENT(s);
 	UNUSED_ARGUMENT(pkt);
+
+	// Calculate the running average
+	if(c->srate > 0)
+		c->srate += (s->sample_sampling_rate - c->srate) / c->frames;
+	else
+		c->srate = s->sample_sampling_rate;
 
 	c->frames++;
 	c->bytes += s->raw_header_frame_length;
