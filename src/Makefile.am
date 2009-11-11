@@ -19,6 +19,7 @@ stprocessd_SOURCES = stprocessd.c					\
 					 configparser.c configparser.h	\
 					 messaging.c messaging.h		\
 					 dataparser.c dataparser.h		\
+					 datasource.c datasource.h		\
 					 storage.c storage.h			\
 					 storage_mysql.c storage_mysql.h\
 					 storage_rrd.c storage_rrd.h\

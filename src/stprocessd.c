@@ -17,6 +17,7 @@
 #include "logger.h"
 #include "util.h"
 #include "dataparser.h"
+#include "datasource.h"
 #include "configparser.h"
 
 #include "storage.h"
@@ -33,6 +34,8 @@ bool daemonize 		= true;
 bool debug_nostore 	= false;
 
 mqd_t queue;
+
+ds_status_t** datasource_hash;
 
 void print_config(){
 	logmsg(LOGLEVEL_DEBUG, "Configuration: stprocessd:");
@@ -79,6 +82,9 @@ int main(int argc, char** argv){
 
 	time_t start = time(NULL);
 
+	// Initialize the datasource hash
+	datasource_hash_init(datasource_hash);
+
 	// Initialize the storage system
 	storage_system_init();
 	
@@ -115,6 +121,7 @@ int main(int argc, char** argv){
 	}
 
 	storage_system_destroy();
+	datasource_hash_destroy(datasource_hash);
 	destroyLogger();
 	return EXIT_SUCCESS;
 }

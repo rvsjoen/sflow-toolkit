@@ -1,5 +1,8 @@
 #include "storage.h"
 #include "dataparser.h"
+#include "datasource.h"
+
+extern ds_status_t** datasource_hash;
 
 conv_list_t* hash_ethernet[HASH_RANGE];
 conv_list_t* hash_ip[HASH_RANGE];
@@ -109,6 +112,13 @@ void process_sample_flow(SFFlowSample* s){
 			conv_list_add(pkt, (conv_key_t*) &key_udp, CONV_UDP, s);
 		}
 	}
+
+	// Update the data source structure for the datasource this sample belongs to
+	ds_status_t* ds = datasource_hash_lookup(datasource_hash, s->agent_address, s->sample_source_id_index);
+	ds->last_seen 	= s->timestamp;
+	ds->sample_rate = s->sample_sampling_rate;
+	ds->sequence	= s->sample_sequence_number;
+	ds->drops		= s->sample_drops;
 }
 
 void process_sample_cntr(SFCntrSample* s){
