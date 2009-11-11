@@ -96,7 +96,7 @@
 
 #define LOAD_INFILE_ETHERNET_SCHEMA "										\
 	LOAD DATA INFILE '%s/mysql_tmp_ethernet' 								\
-	INTO TABLE '%s' FIELDS TERMINATED BY #| LINES TERMINATED BY '\\n' 		\
+	INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n' 		\
 	(timestamp,agent,input_if,output_if,src,dst,bytes,frames,srate)"
 
 #define LOAD_INFILE_IP_SCHEMA "												\
