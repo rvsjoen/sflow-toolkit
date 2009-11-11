@@ -1,14 +1,12 @@
 #include <mysql/mysql.h>
 #include "configparser.h"
 #include "storage.h"
+#include "storage_mysql_schema.h"
 #include "storage_mysql.h"
 
-#define BULK_INSERT_NUM  			500
-#define BULK_INSERT_SIZE_ETHERNET 	200
-#define BULK_INSERT_SIZE_IP 		200
-#define BULK_INSERT_SIZE_TCP 		200
-#define BULK_INSERT_SIZE_UDP 		200
-#define BULK_INSERT_SIZE_CNTR		600
+#define QUERY_SIZE				8192
+#define BULK_INSERT_NUM       	500
+#define BULK_INSERT_SIZE_CNTR 	600
 
 extern stprocessd_mysql_config_t storage_mysql_config;
 
@@ -61,16 +59,16 @@ void storage_mysql_create_conv_ethernet(uint32_t timestamp){
 	tmp = gmtime(&t);
 
 	strftime(title, 32, "conv_ethernet_%d%m%y", tmp);
-	char query[512];
+	char query[QUERY_SIZE];
 	MYSQL_RES* res;
 	res = mysql_list_tables(&db, title);
 	if ( mysql_num_rows(res) > 0 ){
 		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
 	} else {
 		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
-		sprintf(query,"CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED, agent VARCHAR(16), input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src VARCHAR(18), dst VARCHAR(18), bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, srate INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (id), INDEX idx_%s (timestamp, agent, input_if, output_if, src, dst, bytes) ) ENGINE=myisam", title, title, title);
-		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
-		mysql_query(&db, query);
+		sprintf(query, CREATE_CONV_ETHERNET_SCHEMA, title, title, title);
+		if(mysql_query(&db, query) != 0)
+			logmsg(LOGLEVEL_DEBUG, "ERROR CREATING TABLE: %s", mysql_error(&db));
 	}
 	table_conv_ethernet = timestamp/storage_mysql_config.interval;
 	strncpy(table_conv_ethernet_name, title, 32);
@@ -94,16 +92,16 @@ void storage_mysql_create_conv_ip(uint32_t timestamp){
 	tmp = gmtime(&t);
 
 	strftime(title, 32, "conv_ip_%d%m%y", tmp);
-	char query[512];
+	char query[QUERY_SIZE];
 	MYSQL_RES* res;
 	res = mysql_list_tables(&db, title);
 	if ( mysql_num_rows(res) > 0 ){
 		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
 	} else {
 		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
-		sprintf(query,"CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED, agent INTEGER UNSIGNED, input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src INTEGER UNSIGNED, dst INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, srate INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (id), INDEX idx_%s (timestamp, agent, input_if, output_if, src, dst, bytes) ) ENGINE=myisam", title, title, title);
-		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
-		mysql_query(&db, query);
+		sprintf(query, CREATE_CONV_IP_SCHEMA, title, title, title);
+		if(mysql_query(&db, query) != 0)
+			logmsg(LOGLEVEL_DEBUG, "ERROR CREATING TABLE: %s", mysql_error(&db));
 	}
 	table_conv_ip = timestamp/storage_mysql_config.interval;
 	strncpy(table_conv_ip_name, title, 32);
@@ -127,16 +125,16 @@ void storage_mysql_create_conv_tcp(uint32_t timestamp){
 	tmp = gmtime(&t);
 
 	strftime(title, 32, "conv_tcp_%d%m%y", tmp);
-	char query[512];
+	char query[QUERY_SIZE];
 	MYSQL_RES* res;
 	res = mysql_list_tables(&db, title);
 	if ( mysql_num_rows(res) > 0 ){
 		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
 	} else {
 		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
-		sprintf(query, "CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED, agent INTEGER UNSIGNED, input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src INTEGER UNSIGNED, sport INTEGER UNSIGNED, dst INTEGER UNSIGNED, dport INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, srate INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (id), INDEX idx_%s (timestamp, agent, input_if, output_if, src, dst, bytes) ) ENGINE=myisam", title, title, title);
-		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
-		mysql_query(&db, query);
+		sprintf(query, CREATE_CONV_TCP_SCHEMA, title, title, title);
+		if(mysql_query(&db, query) != 0)
+			logmsg(LOGLEVEL_DEBUG, "ERROR CREATING TABLE: %s", mysql_error(&db));
 	}
 	table_conv_tcp = timestamp/storage_mysql_config.interval;
 	strncpy(table_conv_tcp_name, title, 32);
@@ -160,16 +158,16 @@ void storage_mysql_create_conv_udp(uint32_t timestamp){
 	tmp = gmtime(&t);
 
 	strftime(title, 32, "conv_udp_%d%m%y", tmp);
-	char query[512];
+	char query[QUERY_SIZE];
 	MYSQL_RES* res;
 	res = mysql_list_tables(&db, title);
 	if ( mysql_num_rows(res) > 0 ){
 		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
 	} else {
 		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
-		sprintf(query, "CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED, agent INTEGER UNSIGNED, input_if INTEGER UNSIGNED, output_if INTEGER UNSIGNED, src INTEGER UNSIGNED, sport INTEGER UNSIGNED, dst INTEGER UNSIGNED, dport INTEGER UNSIGNED, bytes INTEGER UNSIGNED, frames INTEGER UNSIGNED, srate INTEGER UNSIGNED, CONSTRAINT %s_pk PRIMARY KEY (id), INDEX idx_%s (timestamp, agent, input_if, output_if, src, dst, bytes) ) ENGINE=myisam", title, title, title);
-		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
-		mysql_query(&db, query);
+		sprintf(query, CREATE_CONV_UDP_SCHEMA, title, title, title);
+		if(mysql_query(&db, query) != 0)
+			logmsg(LOGLEVEL_DEBUG, "ERROR CREATING TABLE: %s", mysql_error(&db));
 	}
 	table_conv_udp = timestamp/storage_mysql_config.interval;
 	strncpy(table_conv_udp_name, title, 32);
@@ -193,16 +191,16 @@ void storage_mysql_create_counters(uint32_t timestamp){
 	tmp = gmtime(&t);
 
 	strftime(title, 32, "counters_%d%m%y", tmp);
-	char* query = (char*) malloc(sizeof(char)*1024);
+	char* query = (char*) malloc(sizeof(char)*QUERY_SIZE);
 	MYSQL_RES* res;
 	res = mysql_list_tables(&db, title);
 	if ( mysql_num_rows(res) > 0 ){
 		logmsg(LOGLEVEL_DEBUG, "table %s exists, doing nothing", title);
 	} else {
 		logmsg(LOGLEVEL_DEBUG, "table %s does not exist, creating table", title);
-		sprintf(query, "CREATE TABLE %s (id INTEGER NOT NULL AUTO_INCREMENT, timestamp INTEGER UNSIGNED,agent INTEGER UNSIGNED,if_index INTEGER UNSIGNED, if_type INTEGER UNSIGNED,if_speed BIGINT UNSIGNED,if_direction INTEGER UNSIGNED,if_if_status INTEGER UNSIGNED,if_in_octets BIGINT UNSIGNED,if_in_ucast_pkts INTEGER UNSIGNED,if_in_mcast_pkts INTEGER UNSIGNED,if_in_bcast_pkts INTEGER UNSIGNED,if_in_discards INTEGER UNSIGNED,if_in_errors INTEGER UNSIGNED,if_in_unknown_proto INTEGER UNSIGNED,if_out_octets BIGINT UNSIGNED,if_out_ucast_pkts INTEGER UNSIGNED,if_out_mcast_pkts INTEGER UNSIGNED,if_out_bcast_pkts INTEGER UNSIGNED,if_out_discards INTEGER UNSIGNED,if_out_errors INTEGER UNSIGNED,if_promisc INTEGER UNSIGNED,CONSTRAINT %s_pk PRIMARY KEY (id), INDEX idx_%s (timestamp, agent, if_index) ) ENGINE=myisam", title, title, title);
-		logmsg(LOGLEVEL_DEBUG, "query: %s", query);
-		mysql_query(&db, query);
+		sprintf(query, CREATE_COUNTERS_SCHEMA, title, title, title);
+		if(mysql_query(&db, query) != 0)
+			logmsg(LOGLEVEL_DEBUG, "ERROR CREATING TABLE: %s", mysql_error(&db));
 	}
 	table_counters = timestamp/storage_mysql_config.interval;
 	strncpy(table_counters_name, title, 32);
@@ -273,20 +271,11 @@ void storage_mysql_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_
 		}
 	}
 
-	char stmt[256];
-	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_ethernet' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n' (timestamp,agent,input_if,output_if,src,dst,bytes,frames,srate)", storage_mysql_config.tmpdir, table_conv_ethernet_name);
+	char stmt[QUERY_SIZE];
+	sprintf(stmt, LOAD_INFILE_ETHERNET_SCHEMA, storage_mysql_config.tmpdir, table_conv_ethernet_name);
 
-	char stmt_alter_enable[64];
-	sprintf(stmt_alter_enable, "ALTER TABLE %s ENABLE KEYS", table_conv_ethernet_name);
-	char stmt_alter_disable[64];
-	sprintf(stmt_alter_disable, "ALTER TABLE %s DISABLE KEYS", table_conv_ethernet_name);
-
-	// commented by Dan Savu on 2 jul 2009 //  mysql_query(&db, "FLUSH TABLES");	
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, stmt_alter_disable);
 	if(mysql_query(&db, stmt) != 0)
 		logmsg(LOGLEVEL_DEBUG, "ERROR LOADING INFILE: %s", mysql_error(&db));
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, stmt_alter_enable);
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, "FLUSH TABLES");	
 
 	free(buf);
 	close(fd);
@@ -346,20 +335,11 @@ void storage_mysql_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agen
 		}
 	}
 
-	char stmt[256];
-	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_ip' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n' (timestamp,agent,input_if,output_if,src,dst,bytes,frames,srate)", storage_mysql_config.tmpdir, table_conv_ip_name);
+	char stmt[QUERY_SIZE];
+	sprintf(stmt, LOAD_INFILE_IP_SCHEMA, storage_mysql_config.tmpdir, table_conv_ip_name);
 
-	char stmt_alter_enable[64];
-	sprintf(stmt_alter_enable, "ALTER TABLE %s ENABLE KEYS", table_conv_ip_name);
-	char stmt_alter_disable[64];
-	sprintf(stmt_alter_disable, "ALTER TABLE %s DISABLE KEYS", table_conv_ip_name);
-
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, "FLUSH TABLES");	
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, stmt_alter_disable);
 	if(mysql_query(&db, stmt) != 0)
 		logmsg(LOGLEVEL_DEBUG, "ERROR LOADING INFILE: %s", mysql_error(&db));
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, stmt_alter_enable);
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, "FLUSH TABLES");	
 	       
 	free(buf);
 	close(fd);
@@ -428,20 +408,11 @@ void storage_mysql_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t age
 		}
 	}
 
-	char stmt[256];
-	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_tcp' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n' (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,frames,srate)", storage_mysql_config.tmpdir, table_conv_tcp_name);
+	char stmt[QUERY_SIZE];
+	sprintf(stmt, LOAD_INFILE_TCP_SCHEMA, storage_mysql_config.tmpdir, table_conv_tcp_name);
 
-	char stmt_alter_enable[64];
-	sprintf(stmt_alter_enable, "ALTER TABLE %s ENABLE KEYS", table_conv_tcp_name);
-	char stmt_alter_disable[64];
-	sprintf(stmt_alter_disable, "ALTER TABLE %s DISABLE KEYS", table_conv_tcp_name);
-
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, "FLUSH TABLES");	
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, stmt_alter_disable);
 	if(mysql_query(&db, stmt) != 0)
 		logmsg(LOGLEVEL_DEBUG, "ERROR LOADING INFILE: %s", mysql_error(&db));
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, stmt_alter_enable);
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, "FLUSH TABLES");	
 	       
 	free(buf);
 	close(fd);
@@ -496,21 +467,12 @@ void storage_mysql_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t age
 		}
 	}
 
-	char stmt[256];
-	sprintf(stmt, "LOAD DATA INFILE '%s/mysql_tmp_udp' INTO TABLE %s FIELDS TERMINATED BY '|' LINES TERMINATED BY '\\n' (timestamp,agent,input_if,output_if,src,sport,dst,dport,bytes,frames,srate)", storage_mysql_config.tmpdir, table_conv_udp_name);
+	char stmt[QUERY_SIZE];
+	sprintf(stmt, LOAD_INFILE_UDP_SCHEMA, storage_mysql_config.tmpdir, table_conv_udp_name);
 
-	char stmt_alter_enable[64];
-	sprintf(stmt_alter_enable, "ALTER TABLE %s ENABLE KEYS", table_conv_udp_name);
-	char stmt_alter_disable[64];
-	sprintf(stmt_alter_disable, "ALTER TABLE %s DISABLE KEYS", table_conv_udp_name);
-
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, "FLUSH TABLES");	
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, stmt_alter_disable);
 	if(mysql_query(&db, stmt) != 0)
 		logmsg(LOGLEVEL_DEBUG, "ERROR LOADING INFILE: %s", mysql_error(&db));
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, stmt_alter_enable);
-	// commented by Dan Savu on 2 jul 2009 // mysql_query(&db, "FLUSH TABLES");	
-	       
+
 	free(buf);
 	close(fd);
 	shm_unlink("mysql_tmp_udp");
