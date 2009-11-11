@@ -22,6 +22,7 @@
 #include "storage.h"
 #include "storage_mysql.h"
 #include "storage_csv.h"
+#include "storage_dummy.h"
 
 extern stprocessd_config_t stprocessd_config;
 extern stcollectd_config_t stcollectd_config;
@@ -71,6 +72,7 @@ int main(int argc, char** argv){
 	// Load the active storage modules
 	storage_mysql_load();
 	storage_csv_load();
+	storage_dummy_load();
 
 	// Initialize each loaded storage module
 	storage_modules_init();
