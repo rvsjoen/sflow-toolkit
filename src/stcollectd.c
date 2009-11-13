@@ -62,15 +62,15 @@ pthread_t collect_thread;
 mqd_t queue;
 
 /*-----------------------------------------------------------------------------
- *  Command line options
- *-----------------------------------------------------------------------------*/
-bool debug_nowrite;			// If true, no files are written
-
-/*-----------------------------------------------------------------------------
  * This is declared in the logger but we need to change it according to the
  * command line options
  *-----------------------------------------------------------------------------*/
 extern uint32_t log_level;
+
+/*-----------------------------------------------------------------------------
+ *  If true, no files are written, packets are collected, buffered and dumped
+ *-----------------------------------------------------------------------------*/
+bool debug_nowrite = false;
 
 /*-----------------------------------------------------------------------------
  *  This is used in the sflow parser but we need to change it according

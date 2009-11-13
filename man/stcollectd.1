@@ -25,6 +25,11 @@ Print out information about each sample as it is parsed, used to debug the parsi
 Print out the samples in HEX for debugging purposes.
 This is not advised under high sampling rates as it will generate a huge amount of output
 .TP
+.B \-n
+Do not write packet files
+This is for debugging purposes and testing the throughput of the collector as a standalone
+entity. No data will be stored.
+.TP
 .B \-h
 Show the help
 .SH "SEE ALSO"
