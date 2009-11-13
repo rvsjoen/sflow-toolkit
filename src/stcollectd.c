@@ -53,13 +53,18 @@ uint32_t sock_fd 		= 0;
 uint32_t time_start 	= 0;
 uint32_t time_end 		= 0;
 
-extern bool daemonize;
-bool exit_writer_thread			= false;
-bool exit_collector_thread		= false;
+bool daemonize				= true;
+bool exit_writer_thread		= false;
+bool exit_collector_thread	= false;
 
 pthread_t write_thread;
 pthread_t collect_thread;
 mqd_t queue;
+
+/*-----------------------------------------------------------------------------
+ *  Command line options
+ *-----------------------------------------------------------------------------*/
+bool debug_nowrite;			// If true, no files are written
 
 /*-----------------------------------------------------------------------------
  * This is declared in the logger but we need to change it according to the
@@ -68,16 +73,16 @@ mqd_t queue;
 extern uint32_t log_level;
 
 /*-----------------------------------------------------------------------------
- *  This is declared in the sflow parser but we need to change it according
+ *  This is used in the sflow parser but we need to change it according
  *  to the command line options
  *-----------------------------------------------------------------------------*/
-extern bool print_parse;
+bool debug_print = false;
 
 /*-----------------------------------------------------------------------------
  *  Defined whether or not we should print a hex dump of each packet
  *  This is a command line option
  *-----------------------------------------------------------------------------*/
-bool print_hex;
+bool debug_hex = false;
 
 /* 
  * ===  FUNCTION  ======================================================================
@@ -99,16 +104,17 @@ void usage(){
  */
 void parseCommandLine(int argc, char** argv){
 	int opt;
-	while((opt = getopt(argc, argv, "vhp:i:n:xXo:f:zdb:P:s:c:"))  != -1)
+	while((opt = getopt(argc, argv, "nxXdvh"))  != -1)
 	{
 		switch(opt)
 		{
-			case 'x': print_parse 		= true; 			break;
-			case 'X': print_hex 		= true; 			break;
-			case 'd': daemonize 		= false;			break;
-			case 'v': log_level++; 							break;
-			case 'h': usage(); exit_collector(0); 			break;
-			default : usage(); exit_collector(1);			break;
+			case 'n': debug_nowrite		= true;		break;
+			case 'x': debug_print		= true;		break;
+			case 'X': debug_hex			= true;		break;
+			case 'd': daemonize 		= false;	break;
+			case 'v': log_level++; 					break;
+			case 'h': usage(); exit_collector(0); 	break;
+			default : usage(); exit_collector(1);	break;
 		}
 	}
 }
@@ -211,7 +217,8 @@ void* writeBufferToDisk(){
 			SFFlowSample* fls = buffer_cw_flow->data;
 
 			for(;i<buffer_cw_flow->count;i++){
-				addSampleToFile(fls, stcollectd_config.datadir, SFTYPE_FLOW);
+				if(!debug_nowrite)
+					addSampleToFile(fls, stcollectd_config.datadir, SFTYPE_FLOW);
 				fls++;
 			}
 			buffer_cw_flow->count = 0;
@@ -220,7 +227,8 @@ void* writeBufferToDisk(){
 			uint32_t i=0;
 			SFCntrSample* cs = buffer_cw_cntr->data;
 			for(;i<buffer_cw_cntr->count;i++){
-				addSampleToFile(cs, stcollectd_config.datadir, SFTYPE_CNTR);
+				if(!debug_nowrite)
+					addSampleToFile(cs, stcollectd_config.datadir, SFTYPE_CNTR);
 				cs++;
 			}
 			buffer_cw_cntr->count = 0;
@@ -273,7 +281,7 @@ void* collect(){
 		if(t == 0) t = time_current;
 
 		parseDatagram(buf, bytes_received, (struct sockaddr_in*)&addr);
-		if(print_hex) printInHex(buf, bytes_received);
+		if(debug_hex) printInHex(buf, bytes_received);
 
 		time_t d_t = time_current - t;
 
@@ -406,7 +414,7 @@ int main(int argc, char** argv){
 	else
 		disable_echo(false);
 
-	initLogger("stcollectd");
+	initLogger(argv[0]);
 	agentlist_init();
 	parse_config_file(NULL, argv[0]);
 	printConfig();

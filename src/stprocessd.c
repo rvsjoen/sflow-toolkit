@@ -28,7 +28,7 @@ extern stprocessd_config_t stprocessd_config;
 extern stcollectd_config_t stcollectd_config;
 
 extern uint32_t log_level;
-extern bool daemonize;
+bool daemonize = true;
 mqd_t queue;
 
 void parse_commandline(int argc, char** argv){

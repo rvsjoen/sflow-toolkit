@@ -2,7 +2,7 @@
 #include "util.h"
 
 tcflag_t tflags = 0;
-bool daemonize	= true;
+extern bool daemonize;
 
 void disable_echo(bool b){
     int res = open((char*)ctermid(NULL), O_WRONLY);

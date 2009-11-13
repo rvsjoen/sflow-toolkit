@@ -12,7 +12,7 @@ extern uint32_t* scnum;
 extern uint32_t* sfnum;
 extern uint32_t buffer_current_collect;
 
-bool print_parse = false;
+extern bool debug_print;
 
 uint32_t peekData32(SFDatagram *sample) {
 	return ntohl(*(sample->data));
@@ -113,7 +113,7 @@ void parseSampledHeader(SFDatagram* datagram, SFFlowSample* sample)
 	hdr.stripped 		= getData32(datagram);
 	hdr.header_length 	= getData32(datagram);
 
-	if(print_parse) printSampledHeader(&hdr);
+	if(debug_print) printSampledHeader(&hdr);
 
 	sample->raw_header_protocol 	= hdr.header_protocol;
 	sample->raw_header_frame_length = hdr.frame_length;
@@ -145,7 +145,7 @@ void parseCounterRecordHeader(SFDatagram* datagram, SFCntrSample* sample)
 	hdr.tag 	= getData32(datagram);
 	hdr.length 	= getData32(datagram);
 
-	if(print_parse) printCounterRecordHeader(&hdr);
+	if(debug_print) printCounterRecordHeader(&hdr);
 
 	if(hdr.tag == SFLCOUNTERS_GENERIC){
 		parseCountersGeneric(datagram, sample);
@@ -173,7 +173,7 @@ void parseFlowRecordHeader(SFDatagram* datagram, SFFlowSample* sample)
 	hdr.tag = getData32(datagram);
 	hdr.length = getData32(datagram);
 
-	if(print_parse) printFlowRecordHeader(&hdr);
+	if(debug_print) printFlowRecordHeader(&hdr);
 
 	if(hdr.tag == SFLFLOW_HEADER){
 		parseSampledHeader(datagram, sample);
@@ -210,7 +210,7 @@ void parseCounterSample(SFDatagram* datagram, SFCntrSample* sample, bool expande
 	}
 	s.num_elements = getData32(datagram);
 	
-	if(print_parse) printCounterSample(&s);
+	if(debug_print) printCounterSample(&s);
 
 	sample->sample_sequence_number = s.sequence_number;
 	sample->sample_source_id_type  = s.ds_class;
@@ -275,7 +275,7 @@ void parseFlowSample(SFDatagram* datagram, SFFlowSample* sample, bool expanded)
 
 	s.num_elements		= getData32(datagram);
 
-	if(print_parse) printFlowSample(&s);
+	if(debug_print) printFlowSample(&s);
 
 	sample->sample_sequence_number	= s.sequence_number;
 	sample->sample_source_id_type 	= s.ds_class;
@@ -303,7 +303,7 @@ void parseSample(SFDatagram* datagram, SFSample* s_tmpl){
 	SFLSample_hdr hdr;
 	hdr.tag		= getData32(datagram);
 	hdr.length	= getData32(datagram);
-	if(print_parse) printSampleHeader(&hdr);
+	if(debug_print) printSampleHeader(&hdr);
 	
 	if(hdr.tag == SFLFLOW_SAMPLE || hdr.tag == SFLFLOW_SAMPLE_EXPANDED){
 
@@ -401,7 +401,7 @@ void parseDatagram(uint8_t* data, uint32_t n, struct sockaddr_in* addr){
 	s_template.sub_agent_id		= hdr.sub_agent_id;
 
 	if(agent != NULL){
-		if(print_parse) printDatagramHeader(&hdr);
+		if(debug_print) printDatagramHeader(&hdr);
 		agent->datagrams++;
 		agent->last_seen = datagram.timestamp;
 		agent->uptime = hdr.uptime;

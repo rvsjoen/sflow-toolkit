@@ -2,6 +2,7 @@
 #include "agentlist.h"
 
 extern mqd_t queue;
+extern bool debug_nowrite;
 
 bool fileExists(const char* filename)
 {
@@ -77,7 +78,6 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 		agent_t* a = agentlist_search(s->agent_address);
 
 		if((uint32_t)s->timestamp/60 != a->fd_min_flow){
-			//logmsg(LOGLEVEL_DEBUG, "Updating flow file descriptor for %s", key);
 			a->fd_min_flow = s->timestamp/60;
 
 			// Generate the path to the next file
