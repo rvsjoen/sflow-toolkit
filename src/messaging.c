@@ -24,10 +24,11 @@ mqd_t create_msg_queue(char* queue){
 }
 
 mqd_t open_msg_queue(char* queue){
-	mqd_t q = mq_open(queue, O_RDONLY);
+	mqd_t q = mq_open(queue, O_RDWR);
 	if(q == -1){
 		logmsg(LOGLEVEL_ERROR, "msgqueue: %s", strerror(errno));
-		exit(1);
+		q = create_msg_queue(queue);
+	//	exit(1);
 	}
 	return q;
 }

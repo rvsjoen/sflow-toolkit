@@ -8,6 +8,8 @@ conv_list_t* hash_udp[HASH_RANGE];
 counter_list_t* cntr_list;
 counter_list_node_t* cntr_list_end;
 
+extern bool debug_nostore;
+
 void process_file_cntr(const char* filename, uint32_t agent, uint32_t timestamp){
 
 	UNUSED_ARGUMENT(agent);
@@ -24,7 +26,8 @@ void process_file_cntr(const char* filename, uint32_t agent, uint32_t timestamp)
 			process_sample_cntr(&s);
 		}
 		close(fd);
-		shm_unlink(filename);
+		if(!debug_nostore)
+			shm_unlink(filename);
 	} else {
 		logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
 	}
@@ -60,7 +63,8 @@ void process_file_flow(const char* filename, uint32_t agent, uint32_t timestamp)
 			process_sample_flow(&s);
 		}
 		close(fd);
-		shm_unlink(filename);
+		if(!debug_nostore)
+			shm_unlink(filename);
 	} else {
 		logmsg(LOGLEVEL_ERROR, "%s", strerror(errno));
 	}

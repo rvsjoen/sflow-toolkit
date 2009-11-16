@@ -28,16 +28,20 @@ extern stprocessd_config_t stprocessd_config;
 extern stcollectd_config_t stcollectd_config;
 
 extern uint32_t log_level;
-bool daemonize = true;
+
+bool daemonize 		= true;
+bool debug_nostore 	= false;
+
 mqd_t queue;
 
 void parse_commandline(int argc, char** argv){
 	int opt;
-	while((opt = getopt(argc, argv, "vd")) != -1){
+	while((opt = getopt(argc, argv, "vdn")) != -1){
 		switch(opt)
 		{
 			case 'd': daemonize = false; 	break;
 			case 'v': log_level++;			break;
+			case 'n': debug_nostore = true;	break;
 		}
 	}
 }
@@ -70,12 +74,18 @@ int main(int argc, char** argv){
 	storage_system_init();
 	
 	// Load the active storage modules
-	storage_mysql_load();
-	storage_csv_load();
-	storage_dummy_load();
+	if(!debug_nostore){
+		storage_mysql_load();
+		storage_csv_load();
+		storage_dummy_load();
 
-	// Initialize each loaded storage module
-	storage_modules_init();
+		// Initialize each loaded storage module
+		storage_modules_init();
+	} else {
+		logmsg(LOGLEVEL_INFO, "Running in nostore mode, skipping module loading");
+	}
+
+	logmsg(LOGLEVEL_INFO, "Initializing message queue");
 	queue = open_msg_queue(stcollectd_config.msgqueue);
 
 	msg_t m;
