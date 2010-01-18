@@ -396,11 +396,11 @@ void parseDatagram(uint8_t* data, uint32_t n, struct sockaddr_in* addr){
 
 	agent_t* agent = agentlist_search(s_template.agent_address);
 
-	s_template.timestamp 		= datagram.timestamp;
-	s_template.agent_address 	= agent->address;
-	s_template.sub_agent_id		= hdr.sub_agent_id;
-
 	if(agent != NULL){
+		s_template.timestamp 		= datagram.timestamp;
+		s_template.agent_address 	= agent->address;
+		s_template.sub_agent_id		= hdr.sub_agent_id;
+
 		if(debug_print) printDatagramHeader(&hdr);
 		agent->datagrams++;
 		agent->last_seen = datagram.timestamp;
@@ -417,9 +417,10 @@ void parseDatagram(uint8_t* data, uint32_t n, struct sockaddr_in* addr){
 		}
 	} else {
 		// We don't know this agent, tell someone that a bastard is sending us samples
-		// we are no accepting
+		// we are not accepting
 		char buf[16];
-		num_to_ip(s_template.agent_address, buf);
+
+		num_to_ip(ntohl(addr->sin_addr.s_addr), buf);
 		logmsg(LOGLEVEL_WARNING, "Datagram from unknown agent (%s)", buf);
 	}
 }
