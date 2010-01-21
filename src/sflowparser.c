@@ -1,5 +1,7 @@
 #include "sflowparser.h"
+#include "samplestore.h"
 #include "bufferqueue.h"
+#include "configparser.h"
 
 extern buffer_t* buffer_cc_flow;
 extern buffer_t* buffer_cc_cntr;
@@ -11,6 +13,8 @@ extern SFCntrSample** scbuf;
 extern uint32_t* scnum;
 extern uint32_t* sfnum;
 extern uint32_t buffer_current_collect;
+
+extern stcollectd_config_t stcollectd_config;
 
 extern bool debug_print;
 
@@ -307,34 +311,37 @@ void parseSample(SFDatagram* datagram, SFSample* s_tmpl){
 	
 	if(hdr.tag == SFLFLOW_SAMPLE || hdr.tag == SFLFLOW_SAMPLE_EXPANDED){
 
-		SFFlowSample* current_buffer = (SFFlowSample*) buffer_cc_flow->data;
-		SFFlowSample* s = &current_buffer[buffer_cc_flow->count];
-		buffer_cc_flow->count++;
+		SFFlowSample s;
+		memset(&s, 0, sizeof(SFFlowSample));
 
 		total_samples_flow++;
-		s->timestamp		= s_tmpl->timestamp;
-		s->agent_address	= s_tmpl->agent_address;
-		s->sub_agent_id		= s_tmpl->sub_agent_id;
+		s.timestamp		= s_tmpl->timestamp;
+		s.agent_address	= s_tmpl->agent_address;
+		s.sub_agent_id		= s_tmpl->sub_agent_id;
+
 		if(hdr.tag == SFLFLOW_SAMPLE_EXPANDED)
-			parseFlowSample(datagram, s, true);
+			parseFlowSample(datagram, &s, true);
 		else
-			parseFlowSample(datagram, s, false); 
+			parseFlowSample(datagram, &s, false); 
+
+		addSampleToFile(&s, stcollectd_config.datadir, SFTYPE_FLOW);
 		
 	} else if (hdr.tag == SFLCOUNTERS_SAMPLE || hdr.tag == SFLCOUNTERS_SAMPLE_EXPANDED) {
 
-		SFCntrSample* current_buffer = (SFCntrSample*) buffer_cc_cntr->data;
-		SFCntrSample* s = &current_buffer[buffer_cc_cntr->count];
-		buffer_cc_cntr->count++;
+		SFCntrSample s;
+		memset(&s, 0, sizeof(SFCntrSample));
 
 		total_samples_cntr++; 
-		s->timestamp		= s_tmpl->timestamp;
-		s->agent_address	= s_tmpl->agent_address;
-		s->sub_agent_id		= s_tmpl->sub_agent_id;
+		s.timestamp		= s_tmpl->timestamp;
+		s.agent_address	= s_tmpl->agent_address;
+		s.sub_agent_id		= s_tmpl->sub_agent_id;
 
 		if(hdr.tag == SFLCOUNTERS_SAMPLE_EXPANDED)
-			parseCounterSample(datagram, s, true);
+			parseCounterSample(datagram, &s, true);
 		else
-			parseCounterSample(datagram, s, false);
+			parseCounterSample(datagram, &s, false);
+
+		addSampleToFile(&s, stcollectd_config.datadir, SFTYPE_CNTR);
 
 	} else {
 		// We dont know what it is, skip ahead to the next sample
