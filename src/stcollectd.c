@@ -153,7 +153,7 @@ void collect(){
 	time_start = time(NULL);
 
 	stats_init_stcollectd();
-	stats_update_stcollectd_realtime(time_start, 0, total_datagrams, total_samples_flow, total_samples_cntr, total_bytes_written);
+	//stats_update_stcollectd_realtime(time_start, 0, total_datagrams, total_samples_flow, total_samples_cntr, total_bytes_written);
 
 	struct sockaddr addr;
 	socklen_t addr_len;

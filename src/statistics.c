@@ -16,7 +16,6 @@ uint32_t hz;
 
 char stats_stcollectd_file[256];
 char stats_stprocessd_file[256];
-char stats_stcollectd_realtime_file[256];
 
 void get_HZ(){
 	long ticks;
@@ -57,9 +56,7 @@ void stats_init_stprocessd(){
 void stats_init_stcollectd(){
 	get_HZ();
 	memset(stats_stcollectd_file, 0, 256);
-	memset(stats_stcollectd_realtime_file, 0, 256);
 	sprintf(stats_stcollectd_file, "%s/statistics_stcollectd.rrd", stcollectd_config.datadir);
-	sprintf(stats_stcollectd_realtime_file, "%s/statistics_stcollectd_realtime", stcollectd_config.datadir);
 	int fd;
 	if ((fd = open(stats_stcollectd_file, O_RDONLY)) == -1){
 		char *createparams[] = {
@@ -213,17 +210,5 @@ void stats_update_stcollectd(uint32_t seconds, uint32_t num_agents, uint64_t tot
 		optind = opterr = 0;
 		rrd_clear_error();
 		rrd_update(3, updateparams);
-	}
-}
-
-void stats_update_stcollectd_realtime(uint32_t time_start, uint32_t num_agents, uint64_t total_datagrams, uint64_t total_samples_flow, uint64_t total_samples_cntr, uint64_t total_bytes_written){
-	FILE* fp = NULL;
-	fp = fopen(stats_stcollectd_realtime_file, "w+");
-	if(fp !=NULL){
-		char buf[1024];
-		sprintf(buf,"%llu,%llu,%llu,%u,%llu,%u", total_datagrams, total_samples_flow, total_samples_cntr, time_start, total_bytes_written, num_agents);
-		fputs(buf, fp);
-		fflush(fp);
-		fclose(fp);
 	}
 }
