@@ -34,6 +34,14 @@ bool debug_nostore 	= false;
 
 mqd_t queue;
 
+void print_config(){
+	logmsg(LOGLEVEL_DEBUG, "Configuration: stprocessd:");
+	logmsg(LOGLEVEL_DEBUG, "\tLoglevel: %u", stprocessd_config.loglevel);
+	logmsg(LOGLEVEL_DEBUG, "\tHash size: %u", stprocessd_config.hashsize);
+	logmsg(LOGLEVEL_DEBUG, "\tData dir: %s", stprocessd_config.datadir);
+	logmsg(LOGLEVEL_DEBUG, "\tStats interval: %u seconds", stprocessd_config.stats_interval);
+}
+
 void parse_commandline(int argc, char** argv){
 	int opt;
 	while((opt = getopt(argc, argv, "vdn")) != -1){
@@ -62,6 +70,7 @@ int main(int argc, char** argv){
 
 	parse_commandline(argc, argv);
 	parse_config_file(NULL, argv[0]);
+	print_config();
 
 	stats_init_stprocessd();
 
@@ -88,18 +97,23 @@ int main(int argc, char** argv){
 	logmsg(LOGLEVEL_INFO, "Initializing message queue");
 	queue = open_msg_queue(stcollectd_config.msgqueue);
 
-	msg_t m;
-	while(true){
-		time_t now = time(NULL);
-		if((now-start)%stprocessd_config.stats_interval == 0)
-			stats_update_stprocessd(now-start, queue);
-		memset(&m, 0, sizeof(msg_t));
-		recv_msg(queue, &m);
-		process_file(&m);
+	if(queue != -1){
+		msg_t m;
+		while(true){
+			time_t now = time(NULL);
+			if((now-start)%stprocessd_config.stats_interval == 0)
+				stats_update_stprocessd(now-start, queue);
+			memset(&m, 0, sizeof(msg_t));
+			recv_msg(queue, &m);
+			process_file(&m);
+		}
+		close_msg_queue(queue);
 	}
 
-	close_msg_queue(queue);
-	storage_modules_destroy();
+	if(!debug_nostore){
+		storage_modules_destroy();
+	}
+
 	storage_system_destroy();
 	destroyLogger();
 	return EXIT_SUCCESS;

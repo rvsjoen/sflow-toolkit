@@ -226,7 +226,7 @@ void handle_signal(int sig){
  * =====================================================================================
  */
 void printConfig(){
-	logmsg(LOGLEVEL_DEBUG, "Configuration:");
+	logmsg(LOGLEVEL_DEBUG, "Configuration: stcollectd");
 	logmsg(LOGLEVEL_DEBUG, "\tInterface: %s", stcollectd_config.interface);
 	logmsg(LOGLEVEL_DEBUG, "\tPort: %u", stcollectd_config.port);
 	logmsg(LOGLEVEL_DEBUG, "\tLoglevel: %u", stcollectd_config.loglevel);
