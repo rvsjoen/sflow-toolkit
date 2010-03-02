@@ -24,16 +24,6 @@
  */
 void get_HZ();
 
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  update_realtime_stats
- *  Description:  Write some realtime stats to /<storagedir>/rstats
- * =====================================================================================
- */
-void stats_update_stcollectd_realtime(uint32_t time_start, uint32_t num_agents,
-		uint64_t total_datagrams, uint64_t total_samples_flow, uint64_t
-		total_samples_cntr, uint64_t total_bytes_written);
-
 /*
  * ===  FUNCTION  ======================================================================
  *         Name:  stats_init_stprocessd
@@ -64,8 +54,7 @@ void stats_update_stprocessd(uint32_t seconds, mqd_t queue);
  *  Description:  Update the statistics for stcollectd
  * =====================================================================================
  */
-void stats_update_stcollectd(uint32_t seconds, uint32_t num_agents, uint64_t
-		total_datagrams, uint64_t total_samples_flow, uint64_t
-		total_samples_cntr, uint64_t total_bytes_written);
+void stats_update_stcollectd(uint32_t seconds, uint64_t	total_datagrams, 
+		uint64_t total_samples_flow, uint64_t total_samples_cntr);
 
 #endif

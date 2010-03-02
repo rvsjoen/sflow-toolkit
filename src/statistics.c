@@ -27,7 +27,7 @@ void get_HZ(){
 void stats_init_stprocessd(){
 	get_HZ();
 	memset(stats_stprocessd_file, 0, 256);
-	sprintf(stats_stprocessd_file, "%s/statistics_stprocessd.rrd", stprocessd_config.datadir);
+	sprintf(stats_stprocessd_file, "%sstatistics_stprocessd.rrd", stprocessd_config.datadir);
 	int fd;
 	if ((fd = open(stats_stprocessd_file, O_RDONLY)) == -1){
 		char *createparams[] = {
@@ -56,7 +56,7 @@ void stats_init_stprocessd(){
 void stats_init_stcollectd(){
 	get_HZ();
 	memset(stats_stcollectd_file, 0, 256);
-	sprintf(stats_stcollectd_file, "%s/statistics_stcollectd.rrd", stcollectd_config.datadir);
+	sprintf(stats_stcollectd_file, "%sstatistics_stcollectd.rrd", stcollectd_config.datadir);
 	int fd;
 	if ((fd = open(stats_stcollectd_file, O_RDONLY)) == -1){
 		char *createparams[] = {
@@ -68,10 +68,8 @@ void stats_init_stcollectd(){
 		        "DS:samples:COUNTER:600:0:U",
 				"DS:samples_flow:COUNTER:600:0:U",
 				"DS:samples_cntr:COUNTER:600:0:U",
-				"DS:agents:GAUGE:600:0:U",
 		        "DS:cpu:GAUGE:600:0:100",
 		        "DS:mem:GAUGE:600:0:U",
-		        "DS:write:COUNTER:600:0:U",
 		        "RRA:AVERAGE:0.5:1:720",
 		        "RRA:AVERAGE:0.5:6:720",
 		        "RRA:AVERAGE:0.5:120:720",
@@ -81,7 +79,7 @@ void stats_init_stcollectd(){
 		};
 		optind = opterr = 0; // Because rrdtool uses getopt()
 		rrd_clear_error();
-		rrd_create(17, createparams);
+		rrd_create(15, createparams);
 	} else {
 		close(fd);
 	}
@@ -147,7 +145,7 @@ void stats_update_stprocessd(uint32_t seconds, mqd_t queue){
 	}
 }
 
-void stats_update_stcollectd(uint32_t seconds, uint32_t num_agents, uint64_t total_datagrams, uint64_t total_samples_flow, uint64_t total_samples_cntr, uint64_t total_bytes_written){
+void stats_update_stcollectd(uint32_t seconds, uint64_t total_datagrams, uint64_t total_samples_flow, uint64_t total_samples_cntr){
 	unsigned int vmem 		= 0;
 	unsigned int utime		= 0;
 	unsigned int stime		= 0;
@@ -187,16 +185,14 @@ void stats_update_stcollectd(uint32_t seconds, uint32_t num_agents, uint64_t tot
 
 	if(seconds != 0){
 		char tmp[1024];
-		sprintf(tmp, "%u:%llu:%llu:%llu:%llu:%u:%u:%u:%llu", 
+		sprintf(tmp, "%u:%llu:%llu:%llu:%llu:%u:%u", 
 				(uint32_t)time(NULL), 
 				total_datagrams,
 				total_samples_flow+total_samples_cntr,
 				total_samples_flow,
 				total_samples_cntr,
-				num_agents,
 				((stime+utime)*100)/(hz*seconds), 
-				vmem, 
-				total_bytes_written
+				vmem
 			   );
 
 		logmsg(LOGLEVEL_DEBUG, "Updating statistics: %s", tmp);
