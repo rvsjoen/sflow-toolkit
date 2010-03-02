@@ -3,24 +3,19 @@
 #include "util.h"
 #include "logger.h"
 
+#define CONFIG_KEY_AGENTS						"agents"
 #define CONFIG_KEY_STCOLLECTD 					"stcollectd"
 #define CONFIG_KEY_STPROCESSD 					"stprocessd"
 #define CONFIG_KEY_STPROCESSD_STORAGE_SPECTRUM 	"storage_spectrum"
 #define CONFIG_KEY_STPROCESSD_STORAGE_MYSQL 	"storage_mysql"
-#define CONFIG_KEY_AGENTS						"agents"
 
 #define CONFIG_KEY_STCOLLECTD_LOGLEVEL			"loglevel"
-#define CONFIG_KEY_STCOLLECTD_PORT				"port"
-#define CONFIG_KEY_STCOLLECTD_HASHBITS			"hash bits"
-#define CONFIG_KEY_STCOLLECTD_PRINT_INTERVAL	"print interval"
-#define CONFIG_KEY_STCOLLECTD_FLUSH_INTERVAL	"flush interval"
-#define CONFIG_KEY_STCOLLECTD_BUFFER_SIZE		"buffer size"
-#define CONFIG_KEY_STCOLLECTD_BUFFER_NUM		"buffer num"
 #define CONFIG_KEY_STCOLLECTD_INTERFACE			"interface"
+#define CONFIG_KEY_STCOLLECTD_PORT				"port"
 #define CONFIG_KEY_STCOLLECTD_DATADIR			"datadir"
-#define CONFIG_KEY_STCOLLECTD_TMPDIR			"tmpdir"
-#define CONFIG_KEY_STCOLLECTD_MSGQUEUE			"msgqueue"
 #define CONFIG_KEY_STCOLLECTD_STATS_INTERVAL	"stats interval"
+#define CONFIG_KEY_STCOLLECTD_HASHBITS			"hash bits"
+#define CONFIG_KEY_STCOLLECTD_MSGQUEUE			"msgqueue"
 
 #define CONFIG_KEY_STPROCESSD_LOGLEVEL			"loglevel"
 #define CONFIG_KEY_STPROCESSD_HASHSIZE			"hash size"
@@ -34,7 +29,7 @@
 #define CONFIG_KEY_STORAGE_MYSQL_PASSWORD		"password"
 #define CONFIG_KEY_STORAGE_MYSQL_DATABASE		"database"
 #define CONFIG_KEY_STORAGE_MYSQL_HOSTNAME		"hostname"
-#define CONFIG_KEY_STORAGE_MYSQL_TMPDIR			"tmpdir"
+#define CONFIG_KEY_STORAGE_MYSQL_DATADIR		"datadir"
 
 #define CONFIG_KEY_STORAGE_SPECTRUM_ENABLED		"enabled"
 #define CONFIG_KEY_STORAGE_SPECTRUM_INTERVAL	"interval"
@@ -47,22 +42,17 @@ stcollectd_config_t	stcollectd_config = {
 	.port			= 6343,
 	.loglevel 		= 0,
 	.hashbits 		= 24,
-	.print_interval = 10000,
-	.flush_interval	= 10,
 	.stats_interval = 30,
-	.buffer_size	= 10000,
-	.buffer_num		= 2,
 	.interface 		= "127.0.0.1",
+	.msgqueue		= "/sflow",
 	.datadir		= "data/",
-	.tmpdir			= "tmp/",
-	.msgqueue		= "/sflow"
 };
 
 stprocessd_config_t stprocessd_config = {
 	.loglevel 		= 0,
 	.hashsize 		= 10000,
-	.stats_interval = 30,
 	.datadir		= "data/",
+	.stats_interval = 30,
 };
 
 stprocessd_mysql_config_t storage_mysql_config = {
@@ -73,7 +63,7 @@ stprocessd_mysql_config_t storage_mysql_config = {
 	.password		= "sflow",
 	.database		= "sflow",
 	.hostname		= "localhost",
-	.tmpdir			= "tmp/"
+	.datadir		= "data/"
 };
 
 stprocessd_spectrum_config_t storage_spectrum_config = {
@@ -152,22 +142,12 @@ void parse_event(const yaml_event_t ev, char* pname){
 							stcollectd_config.port = atoi(val);
 						else if (strcmp(key, CONFIG_KEY_STCOLLECTD_HASHBITS) == 0)
 							stcollectd_config.hashbits = atoi(val);
-						else if (strcmp(key, CONFIG_KEY_STCOLLECTD_PRINT_INTERVAL) == 0)
-							stcollectd_config.print_interval = atoi(val);
-						else if (strcmp(key, CONFIG_KEY_STCOLLECTD_FLUSH_INTERVAL) == 0)
-							stcollectd_config.flush_interval = atoi(val);
-						else if (strcmp(key, CONFIG_KEY_STCOLLECTD_BUFFER_SIZE) == 0)
-							stcollectd_config.buffer_size = atoi(val);
-						else if (strcmp(key, CONFIG_KEY_STCOLLECTD_BUFFER_NUM) == 0)
-							stcollectd_config.buffer_num = atoi(val);
 						else if (strcmp(key, CONFIG_KEY_STCOLLECTD_STATS_INTERVAL) == 0)
 							stcollectd_config.stats_interval = atoi(val);
 						else if (strcmp(key, CONFIG_KEY_STCOLLECTD_INTERFACE) == 0)
 							strncpy(stcollectd_config.interface, val, 16);
 						else if (strcmp(key, CONFIG_KEY_STCOLLECTD_DATADIR) == 0)
 							strncpy(stcollectd_config.datadir, val, 256);
-						else if (strcmp(key, CONFIG_KEY_STCOLLECTD_TMPDIR) == 0)
-							strncpy(stcollectd_config.tmpdir, val, 256);
 						else if (strcmp(key, CONFIG_KEY_STCOLLECTD_MSGQUEUE) == 0)
 							strncpy(stcollectd_config.msgqueue, val, 256);
 
@@ -199,8 +179,8 @@ void parse_event(const yaml_event_t ev, char* pname){
 								strncpy(storage_mysql_config.database, val, 256);
 							else if (strcmp(key, CONFIG_KEY_STORAGE_MYSQL_HOSTNAME) == 0)
 								strncpy(storage_mysql_config.hostname, val, 256);
-							else if (strcmp(key, CONFIG_KEY_STORAGE_MYSQL_TMPDIR) == 0)
-								strncpy(storage_mysql_config.tmpdir, val, 256);
+							else if (strcmp(key, CONFIG_KEY_STORAGE_MYSQL_DATADIR) == 0)
+								strncpy(storage_mysql_config.datadir, val, 256);
 
 						} else {
 

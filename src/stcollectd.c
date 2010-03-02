@@ -175,10 +175,6 @@ void collect(){
 		parseDatagram(buf, bytes_received, (struct sockaddr_in*)&addr);
 		if(debug_hex) printInHex(buf, bytes_received);
 
-		// Print a message every print_interval packets received
-		if(total_datagrams%stcollectd_config.print_interval==0)
-			logmsg(LOGLEVEL_DEBUG, "Processed %u packets", total_datagrams);
-
 		time_end = time_current; // We stopped collecting here, used to calculate the total average sampling rate
 	}
 	logmsg(LOGLEVEL_DEBUG, "Collecting thread exiting");
@@ -235,13 +231,8 @@ void printConfig(){
 	logmsg(LOGLEVEL_DEBUG, "\tPort: %u", stcollectd_config.port);
 	logmsg(LOGLEVEL_DEBUG, "\tLoglevel: %u", stcollectd_config.loglevel);
 	logmsg(LOGLEVEL_DEBUG, "\tHashing bits: %u", stcollectd_config.hashbits);
-	logmsg(LOGLEVEL_DEBUG, "\tPrint interval: %u datagrams", stcollectd_config.print_interval);
-	logmsg(LOGLEVEL_DEBUG, "\tFlush interval: %u seconds", stcollectd_config.flush_interval);
 	logmsg(LOGLEVEL_DEBUG, "\tStats interval: %u seconds", stcollectd_config.stats_interval);
-	logmsg(LOGLEVEL_DEBUG, "\tBuffer size: %u samples", stcollectd_config.buffer_size);
-	logmsg(LOGLEVEL_DEBUG, "\tBuffer num: %u", stcollectd_config.buffer_num);
 	logmsg(LOGLEVEL_DEBUG, "\tData dir: %s", stcollectd_config.datadir);
-	logmsg(LOGLEVEL_DEBUG, "\tTemp dir: %s", stcollectd_config.tmpdir);
 	logmsg(LOGLEVEL_DEBUG, "\tMessage queue: %s", stcollectd_config.msgqueue);
 }
 

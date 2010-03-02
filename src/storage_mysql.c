@@ -272,7 +272,7 @@ void storage_mysql_store_conv_ethernet(conv_list_t** list, uint32_t num, uint32_
 	}
 
 	char stmt[QUERY_SIZE];
-	sprintf(stmt, LOAD_INFILE_ETHERNET_SCHEMA, storage_mysql_config.tmpdir, table_conv_ethernet_name);
+	sprintf(stmt, LOAD_INFILE_ETHERNET_SCHEMA, storage_mysql_config.datadir, table_conv_ethernet_name);
 
 	if(mysql_query(&db, stmt) != 0)
 		logmsg(LOGLEVEL_DEBUG, "ERROR LOADING INFILE: %s", mysql_error(&db));
@@ -336,7 +336,7 @@ void storage_mysql_store_conv_ip(conv_list_t** list, uint32_t num, uint32_t agen
 	}
 
 	char stmt[QUERY_SIZE];
-	sprintf(stmt, LOAD_INFILE_IP_SCHEMA, storage_mysql_config.tmpdir, table_conv_ip_name);
+	sprintf(stmt, LOAD_INFILE_IP_SCHEMA, storage_mysql_config.datadir, table_conv_ip_name);
 
 	if(mysql_query(&db, stmt) != 0)
 		logmsg(LOGLEVEL_DEBUG, "ERROR LOADING INFILE: %s", mysql_error(&db));
@@ -409,7 +409,7 @@ void storage_mysql_store_conv_tcp(conv_list_t** list, uint32_t num, uint32_t age
 	}
 
 	char stmt[QUERY_SIZE];
-	sprintf(stmt, LOAD_INFILE_TCP_SCHEMA, storage_mysql_config.tmpdir, table_conv_tcp_name);
+	sprintf(stmt, LOAD_INFILE_TCP_SCHEMA, storage_mysql_config.datadir, table_conv_tcp_name);
 
 	if(mysql_query(&db, stmt) != 0)
 		logmsg(LOGLEVEL_DEBUG, "ERROR LOADING INFILE: %s", mysql_error(&db));
@@ -468,7 +468,7 @@ void storage_mysql_store_conv_udp(conv_list_t** list, uint32_t num, uint32_t age
 	}
 
 	char stmt[QUERY_SIZE];
-	sprintf(stmt, LOAD_INFILE_UDP_SCHEMA, storage_mysql_config.tmpdir, table_conv_udp_name);
+	sprintf(stmt, LOAD_INFILE_UDP_SCHEMA, storage_mysql_config.datadir, table_conv_udp_name);
 
 	if(mysql_query(&db, stmt) != 0)
 		logmsg(LOGLEVEL_DEBUG, "ERROR LOADING INFILE: %s", mysql_error(&db));
