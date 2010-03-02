@@ -10,7 +10,6 @@ stcollectd_SOURCES = stcollectd.c 					\
 					 statistics.c statistics.h		\
 					 agentlist.c agentlist.h		\
 					 configparser.c configparser.h	\
-					 bufferqueue.c bufferqueue.h	\
 					 messaging.c messaging.h
 stcollectd_LDFLAGS = -lpthread -lrrd -lyaml -lrt
 

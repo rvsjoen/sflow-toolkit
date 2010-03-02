@@ -48,8 +48,7 @@ PROGRAMS = $(bin_PROGRAMS)
 am_stcollectd_OBJECTS = stcollectd.$(OBJEXT) logger.$(OBJEXT) \
 	util.$(OBJEXT) samplestore.$(OBJEXT) sflowparser.$(OBJEXT) \
 	statistics.$(OBJEXT) agentlist.$(OBJEXT) \
-	configparser.$(OBJEXT) bufferqueue.$(OBJEXT) \
-	messaging.$(OBJEXT)
+	configparser.$(OBJEXT) messaging.$(OBJEXT)
 stcollectd_OBJECTS = $(am_stcollectd_OBJECTS)
 stcollectd_LDADD = $(LDADD)
 stcollectd_LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(stcollectd_LDFLAGS) \
@@ -175,7 +174,6 @@ stcollectd_SOURCES = stcollectd.c 					\
 					 statistics.c statistics.h		\
 					 agentlist.c agentlist.h		\
 					 configparser.c configparser.h	\
-					 bufferqueue.c bufferqueue.h	\
 					 messaging.c messaging.h
 
 stcollectd_LDFLAGS = -lpthread -lrrd -lyaml -lrt
@@ -279,7 +277,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/agentlist.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bufferqueue.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/configparser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dataparser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/logger.Po@am__quote@

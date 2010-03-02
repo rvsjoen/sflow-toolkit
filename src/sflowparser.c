@@ -1,19 +1,14 @@
 #include "sflowparser.h"
 #include "samplestore.h"
-#include "bufferqueue.h"
 #include "configparser.h"
 
-extern buffer_t* buffer_cc_flow;
-extern buffer_t* buffer_cc_cntr;
 extern int32_t log_level;
+
+// These are used for statistics
 extern uint64_t total_samples_flow;
 extern uint64_t total_samples_cntr;
-extern SFFlowSample** sfbuf;
-extern SFCntrSample** scbuf;
-extern uint32_t* scnum;
-extern uint32_t* sfnum;
-extern uint32_t buffer_current_collect;
 
+// The structure which contains our configuration options
 extern stcollectd_config_t stcollectd_config;
 
 extern bool debug_print;
@@ -387,8 +382,8 @@ void parseDatagram(uint8_t* data, uint32_t n, struct sockaddr_in* addr){
 
 	// Get the rest of the fields in the datagram header
 	hdr.sub_agent_id 		= getData32(&datagram);
-	hdr.sequence_number 		= getData32(&datagram);
-	hdr.uptime 			= getData32(&datagram);
+	hdr.sequence_number 	= getData32(&datagram);
+	hdr.uptime 				= getData32(&datagram);
 	hdr.num_records 		= getData32(&datagram);
 
 	// We extract the fields we want from our datagram and put it in our template sample

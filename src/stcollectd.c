@@ -20,7 +20,6 @@
 #include <sys/stat.h>
 
 #include "agentlist.h"
-#include "bufferqueue.h"
 #include "util.h"
 #include "logger.h"
 #include "sflowparser.h"
