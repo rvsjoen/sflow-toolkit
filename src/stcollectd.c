@@ -45,6 +45,8 @@ uint32_t time_end 		= 0;
 bool daemonize				= true;
 bool exit_collector_thread	= false;
 
+char* inputfile = NULL;
+
 pthread_t write_thread;
 pthread_t collect_thread;
 mqd_t queue;
@@ -92,7 +94,7 @@ void usage(){
  */
 void parseCommandLine(int argc, char** argv){
 	int opt;
-	while((opt = getopt(argc, argv, "nxXdvh"))  != -1)
+	while((opt = getopt(argc, argv, "nxXdvhr:"))  != -1)
 	{
 		switch(opt)
 		{
@@ -102,6 +104,7 @@ void parseCommandLine(int argc, char** argv){
 			case 'd': daemonize 		= false;	break;
 			case 'v': log_level++; 					break;
 			case 'h': usage(); exit_collector(0); 	break;
+			case 'r': inputfile			= optarg; 	break;
 			default : usage(); exit_collector(1);	break;
 		}
 	}
@@ -147,18 +150,29 @@ uint32_t createAndBindSocket(){
  * =====================================================================================
  */
 void collect(){
-	sock_fd = createAndBindSocket();
+
+	if(inputfile != NULL){
+		sock_fd = pcap_open_file(inputfile);
+	} else {
+		sock_fd = createAndBindSocket();
+	}
 
 	time_t t 	= 0; // This is when we start the collecting thread
 	time_start = time(NULL);
 
 	stats_init_stcollectd();
-	//stats_update_stcollectd_realtime(time_start, 0, total_datagrams, total_samples_flow, total_samples_cntr, total_bytes_written);
 
 	struct sockaddr addr;
 	socklen_t addr_len;
 
 	logmsg(LOGLEVEL_DEBUG, "Waiting for packets...");
+
+	// Used to calculate the statistics
+	uint64_t stats_datagram		= 0;
+	uint64_t stats_samples_flow	= 0;
+	uint64_t stats_samples_cntr	= 0;
+	uint32_t last_stats = time_start;
+
 	while(!exit_collector_thread)
 	{
 		time_t time_current = time(NULL); // The time we entered the loop
@@ -167,10 +181,31 @@ void collect(){
 		unsigned char buf[RECEIVE_BUFFER_SIZE];
 
 		addr_len = sizeof(struct sockaddr);
-		uint32_t bytes_received = recvfrom(sock_fd, &buf, RECEIVE_BUFFER_SIZE, 0, (struct sockaddr*)&addr, &addr_len);
+		uint32_t bytes_received;
+		if(inputfile != NULL){
+			bytes_received = pcap_read_packet(&buf, sock_fd);
+			if(bytes_received == 0)
+				exit(0);
+		} else {
+			bytes_received = recvfrom(sock_fd, &buf, RECEIVE_BUFFER_SIZE, 0, (struct sockaddr*)&addr, &addr_len);
+		}
 		total_datagrams++;
 
 		if(t == 0) t = time_current;
+
+		if((time_current - last_stats) >= stcollectd_config.stats_interval){
+
+			logmsg(LOGLEVEL_INFO, "Stats: %llu packet(s), %llu flow samples, %llu counter samples, average sampling rate %.1f samples/sec", 
+					total_datagrams - stats_datagram, 
+					total_samples_flow - stats_samples_flow, 
+					total_samples_cntr - stats_samples_cntr, 
+					((total_samples_flow - stats_samples_flow) + (total_samples_cntr - stats_samples_cntr))/(double)(time_current - last_stats));
+
+			last_stats = time_current;
+			stats_datagram 		= total_datagrams;
+			stats_samples_flow 	= total_samples_flow;
+			stats_samples_cntr 	= total_samples_cntr;
+		}
 
 		parseDatagram(buf, bytes_received, (struct sockaddr_in*)&addr);
 		if(debug_hex) printInHex(buf, bytes_received);
@@ -195,7 +230,7 @@ void hook_exit(int signal){
 
 	time_t d_t = time_end - time_start;
 	logmsg(LOGLEVEL_INFO, "Ran for %u seconds", d_t);
-	logmsg(LOGLEVEL_INFO, "Total: %u packet(s), %u flow samples, %u counter samples, average sampling rate %.1f samples/sec", 
+	logmsg(LOGLEVEL_INFO, "Total: %llu packet(s), %llu flow samples, %llu counter samples, average sampling rate %.1f samples/sec", 
 			total_datagrams, total_samples_flow, total_samples_cntr, (total_samples_flow+total_samples_cntr)/(double)(d_t));
 	logmsg(LOGLEVEL_DEBUG, "Exiting with signal %u", signal);
 	
@@ -252,6 +287,7 @@ int main(int argc, char** argv){
 		disable_echo(false);
 
 	initLogger(argv[0]);
+
 	agentlist_init();
 	parse_config_file(NULL, argv[0]);
 	printConfig();

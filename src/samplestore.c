@@ -150,3 +150,52 @@ void addSampleToFile(const void* sample, char* root, SFSample_t type)
 		write(a->fd_cntr, sample, sizeof(SFCntrSample));
 	}
 }
+
+uint32_t ts_sec;
+uint32_t ts_usec;
+
+uint32_t pcap_open_file(const char* filename){
+	int fd;
+	logmsg(LOGLEVEL_DEBUG, "Opening pcap file (%s)", filename);
+	if((fd = open(filename, O_RDONLY)) == -1){
+		logmsg(LOGLEVEL_ERROR, "Error opening pcap file: %s", strerror(errno));
+	} else {
+		pcap_hdr_t hdr;
+		memset(&hdr, 0, sizeof(pcap_hdr_t));
+
+		logmsg(LOGLEVEL_DEBUG, "Reading pcap header");
+		int len = 0;
+		len = read(fd, &hdr, sizeof(pcap_hdr_t));
+		if(len < sizeof(pcap_hdr_t)){
+			logmsg(LOGLEVEL_DEBUG, "Incomplete pcap header");
+		}
+	}
+	ts_sec 	= 0;
+	ts_usec = 0;
+	return fd;
+}
+
+uint32_t pcap_read_packet(uint8_t* buf, uint32_t fd){
+	pcaprec_hdr_t rec;
+	read(fd, &rec, sizeof(pcaprec_hdr_t));
+
+	if(ts_sec == 0 && ts_usec == 0){
+		ts_sec 	= rec.ts_sec;
+		ts_usec = rec.ts_usec;
+	} else {
+		uint32_t sleep = (rec.ts_usec - ts_usec) + ((rec.ts_sec - ts_sec)*1e6);
+		usleep(sleep);
+		ts_sec 	= rec.ts_sec;
+		ts_usec = rec.ts_usec;
+	}
+
+
+	lseek(fd, 42, SEEK_CUR);
+	int x = read(fd, buf, rec.incl_len-42);
+
+	return x;
+}
+
+void pcap_close_file(uint32_t fd){
+	close(fd);
+}
