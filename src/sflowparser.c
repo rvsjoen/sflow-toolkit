@@ -397,13 +397,13 @@ void parseDatagram(uint8_t* data, uint32_t n, struct sockaddr_in* addr){
 		s_template.agent_address = ntohl(addr->sin_addr.s_addr);
 
 	agent_t* agent = agentlist_search(s_template.agent_address);
+	if(debug_print) printDatagramHeader(&hdr);
 
 	if(agent != NULL){
 		s_template.timestamp 		= datagram.timestamp;
 		s_template.agent_address 	= agent->address;
 		s_template.sub_agent_id		= hdr.sub_agent_id;
 
-		if(debug_print) printDatagramHeader(&hdr);
 		agent->datagrams++;
 		agent->last_seen = datagram.timestamp;
 		agent->uptime = hdr.uptime;
